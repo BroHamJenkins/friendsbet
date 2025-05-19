@@ -1,0 +1,78 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+input, select, button {
+  margin-top: 0.5rem;
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+h2, h3 {
+  margin-top: 1.5rem;
+}
+
+button {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005bb5;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 0.75rem;
+}
+
+.ml {
+  margin-left: 1rem;
+}
+
+.winner {
+  color: green;
+}
+
+.vote-btn {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  background-color: #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.vote-btn.voted {
+  background-color: yellow;
+}
+
+.winner {
+  color: green;
+}
+
+.ml-half {
+  margin-left: 0.5rem;
+}

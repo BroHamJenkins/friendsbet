@@ -164,19 +164,25 @@ function App() {
   const pollRooms = roomList.filter(r => r.type === "poll");
 
   return (
-    <div style={{ maxWidth: "600px", margin: "auto", padding: "1rem", fontFamily: "Arial, sans-serif" }}>
-      {!hasEnteredName ? (
-        <div>
-          <h2>Enter Your Name</h2>
-          <input
-            placeholder="Your name"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-          />
-          <button onClick={() => playerName.trim() && setHasEnteredName(true)}>Continue</button>
-        </div>
-      ) : !selectedRoom ? (
-        <div>
+  <div className="container">
+    {!hasEnteredName ? (
+      <div className="name-screen">
+        <h1 className="app-title">Welcome to Danny's App</h1>
+        <h2>Enter Your Name</h2>
+        <input
+          placeholder="Your name"
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+        />
+        <button onClick={() => playerName.trim() && setHasEnteredName(true)}>Continue</button>
+        <p className="footer-credit">
+          Brought to you by B. Streisand and the National Association for Retarded Children
+        </p>
+      </div>
+    ) : !selectedRoom ? (
+      <div>
+        {/* Room selection UI continues here */}
+
           <input
             placeholder="New room name"
             value={roomName}
@@ -193,7 +199,7 @@ function App() {
               <li key={room.id}>
                 <button onClick={() => joinRoom(room)}>{room.name}</button>
                 {playerName === "Raul" && (
-                  <button onClick={() => deleteRoom(room.id)} style={{ marginLeft: "1rem" }}>Delete</button>
+                  <button onClick={() => deleteRoom(room.id)} className="ml">Delete</button>
                 )}
               </li>
             ))}
@@ -204,7 +210,7 @@ function App() {
               <li key={room.id}>
                 <button onClick={() => joinRoom(room)}>{room.name}</button>
                 {playerName === "Raul" && (
-                  <button onClick={() => deleteRoom(room.id)} style={{ marginLeft: "1rem" }}>Delete</button>
+                  <button onClick={() => deleteRoom(room.id)} className="ml">Delete</button>
                 )}
               </li>
             ))}
@@ -233,17 +239,19 @@ function App() {
                   const isWinner = sc.winner === key;
                   const userVoted = sc.votes[playerName] === key;
                   return (
-                    <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                      {val}
-                      {sc.launched && !sc.winner && (
-                        <button
-                          onClick={() => voteOutcome(sc.id, key)}
-                          style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
-                        >
-                          Vote
-                        </button>
-                      )}
-                      {isWinner && <span style={{ marginLeft: "0.5rem" }}>(Winner)</span>}
+                    <div key={key} className={isWinner ? "winner" : ""}>
+  {val}
+  {sc.launched && !sc.winner && (
+    <button
+      onClick={() => voteOutcome(sc.id, key)}
+      className={`vote-btn ${userVoted ? "voted" : ""}`}
+    >
+      Vote
+    </button>
+  )}
+
+                      {isWinner && <span className="ml-half">(Winner)</span>}
+
                     </div>
                   );
                 })}
@@ -280,7 +288,8 @@ function App() {
                         .map(([voter]) => voter);
                       const isWinner = sc.winner === key;
                       return (
-                        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+                        <div key={key} className={isWinner ? "winner" : ""}>
+
                           {sc.outcomes[key]}: {voters.join(", ") || "No votes"}
                         </div>
                       );

@@ -14,6 +14,25 @@ import {
   where
 } from "firebase/firestore";
 
+
+const approvedUsers = [
+  "David", "Raul", "Christian", "Cole", "Bob", "Will", "Danny", "Ryan", "Luke", "Kaya", "Jake",
+  "Sleepy", "Doc", "Bashful", "Dopey", "Grumpy", "Sneezy", "Happy"
+];
+
+const normalize = (name) => name.trim().toLowerCase();
+
+const findApprovedName = (inputName) => {
+  const normalizedInput = normalize(inputName);
+  return approvedUsers.find((name) => normalize(name) === normalizedInput);
+};
+
+const displayNameMap = {
+  Bob: "Black Bob",
+  Christian: "Dr. Raborgski"
+};
+
+
 function App() {
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("prop");
@@ -21,6 +40,9 @@ function App() {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState(100);
+  const adjustTokens = (amount) => setTokenBalance(prev => prev + amount);
+  const [gameSelected, setGameSelected] = useState("");
   const [scenarios, setScenarios] = useState([]);
   const [newScenario, setNewScenario] = useState("");
   const [outcomeInputs, setOutcomeInputs] = useState({});
@@ -112,8 +134,6 @@ function App() {
     const data = snap.data();
     if (!data.launched || data.winner) return;
     const votes = data.votes || {};
-    votes[playerName] = outcomeKey;
-    await updateDoc(scenarioRef, { votes });
   };
 
   const declareWinner = async (scenarioId, outcomeKey) => {
@@ -122,29 +142,35 @@ function App() {
     const data = snap.data();
     if (data.creator !== playerName || !data.launched) return;
     await updateDoc(scenarioRef, { winner: outcomeKey });
-  };
 
   const closePoll = async (scenarioId) => {
-  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-  const snap = await getDoc(scenarioRef);
-  const data = snap.data();
-  if (data.creator !== playerName || !data.launched || data.winner) return;
+    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+    const snap = await getDoc(scenarioRef);
+    const data = snap.data();
+    if (data.creator !== playerName || !data.launched || data.winner) return;
 
-  const tally = {};
-  Object.values(data.votes || {}).forEach((vote) => {
-    if (vote in data.outcomes) {
-      tally[vote] = (tally[vote] || 0) + 1;
+    const tally = {};
+    Object.values(data.votes || {}).forEach((vote) => {
+      if (vote in data.outcomes) {
+        tally[vote] = (tally[vote] || 0) + 1;
+      }
+    });
+
+    const sorted = Object.entries(tally).sort(([, aVotes], [, bVotes]) => bVotes - aVotes);
+    if (!sorted.length) return;
+
+    const highestVoteCount = sorted[0][1];
+    const topOutcomes = sorted.filter(([, count]) => count === highestVoteCount).map(([key]) => key);
+
+    await updateDoc(scenarioRef, { winner: topOutcomes });
+  };
+    const alreadyVoted = votes.hasOwnProperty(playerName);
+    votes[playerName] = outcomeKey;
+    await updateDoc(scenarioRef, { votes });
+    if (!alreadyVoted) {
+      adjustTokens(-10);
     }
-  });
-
-  const sorted = Object.entries(tally).sort(([, aVotes], [, bVotes]) => bVotes - aVotes);
-  if (!sorted.length) return;
-
-  const highestVoteCount = sorted[0][1];
-  const topOutcomes = sorted.filter(([, count]) => count === highestVoteCount).map(([key]) => key);
-
-  await updateDoc(scenarioRef, { winner: topOutcomes });
-};
+  };
 
   const launchScenario = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
@@ -164,25 +190,38 @@ function App() {
   const pollRooms = roomList.filter(r => r.type === "poll");
 
   return (
-  <div className="container">
-    {!hasEnteredName ? (
-      <div className="name-screen">
-        <h1 className="app-title">Welcome to Danny's App</h1>
-        <h2>Enter Your Name</h2>
-        <input
-          placeholder="Your name"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-        />
-        <button onClick={() => playerName.trim() && setHasEnteredName(true)}>Continue</button>
-        <p className="footer-credit">
-          Brought to you by B. Streisand and the National Association for Retarded Children
-        </p>
-      </div>
-    ) : !selectedRoom ? (
-      <div>
-        {/* Room selection UI continues here */}
-
+    <div style={{ maxWidth: "600px", margin: "auto", padding: "1rem", fontFamily: "Arial, sans-serif" }}>
+      {!hasEnteredName ? (
+        <div>
+          <h2>Enter Your Name</h2>
+          <input
+            placeholder="Your name"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+          />
+          <button onClick={() => {
+            const matchedName = findApprovedName(playerName);
+            if (matchedName) {
+              const display = displayNameMap[matchedName] || matchedName;
+              setPlayerName(display);
+              setHasEnteredName(true);
+            } else {
+              alert("Name not recognized. Please enter an approved name.");
+            }
+          }}>Continue</button>
+        </div>
+      ) : !gameSelected ? (
+        <div>
+          <h2>Select a Game</h2>
+          <select onChange={(e) => setGameSelected(e.target.value)} defaultValue="">
+            <option value="" disabled>Select a game</option>
+            <option value="Bachelor Party">Bachelor Party</option>
+            <option value="Beach Olympics">Beach Olympics</option>
+            <option value="Road Trip Mayhem">Road Trip Mayhem</option>
+          </select>
+        </div>
+      ) : !selectedRoom ? (
+        <div>
           <input
             placeholder="New room name"
             value={roomName}
@@ -199,7 +238,7 @@ function App() {
               <li key={room.id}>
                 <button onClick={() => joinRoom(room)}>{room.name}</button>
                 {playerName === "Raul" && (
-                  <button onClick={() => deleteRoom(room.id)} className="ml">Delete</button>
+                  <button onClick={() => deleteRoom(room.id)} style={{ marginLeft: "1rem" }}>Delete</button>
                 )}
               </li>
             ))}
@@ -210,7 +249,7 @@ function App() {
               <li key={room.id}>
                 <button onClick={() => joinRoom(room)}>{room.name}</button>
                 {playerName === "Raul" && (
-                  <button onClick={() => deleteRoom(room.id)} className="ml">Delete</button>
+                  <button onClick={() => deleteRoom(room.id)} style={{ marginLeft: "1rem" }}>Delete</button>
                 )}
               </li>
             ))}
@@ -221,6 +260,7 @@ function App() {
           <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
           <h2>Room: {selectedRoom.name}</h2>
           <p>Logged in as: {playerName}</p>
+          <p>Token Balance: {tokenBalance}</p>
           <input
             placeholder="New scenario"
             value={newScenario}
@@ -239,19 +279,17 @@ function App() {
                   const isWinner = sc.winner === key;
                   const userVoted = sc.votes[playerName] === key;
                   return (
-                    <div key={key} className={isWinner ? "winner" : ""}>
-  {val}
-  {sc.launched && !sc.winner && (
-    <button
-      onClick={() => voteOutcome(sc.id, key)}
-      className={`vote-btn ${userVoted ? "voted" : ""}`}
-    >
-      Vote
-    </button>
-  )}
-
-                      {isWinner && <span className="ml-half">(Winner)</span>}
-
+                    <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+                      {val}
+                      {sc.launched && !sc.winner && (
+                        <button
+                          onClick={() => voteOutcome(sc.id, key)}
+                          style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
+                        >
+                          Vote
+                        </button>
+                      )}
+                      {isWinner && <span style={{ marginLeft: "0.5rem" }}>(Winner)</span>}
                     </div>
                   );
                 })}
@@ -288,8 +326,7 @@ function App() {
                         .map(([voter]) => voter);
                       const isWinner = sc.winner === key;
                       return (
-                        <div key={key} className={isWinner ? "winner" : ""}>
-
+                        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
                           {sc.outcomes[key]}: {voters.join(", ") || "No votes"}
                         </div>
                       );

@@ -134,6 +134,12 @@ function App() {
     const data = snap.data();
     if (!data.launched || data.winner) return;
     const votes = data.votes || {};
+    const alreadyVoted = votes.hasOwnProperty(playerName);
+    votes[playerName] = outcomeKey;
+    await updateDoc(scenarioRef, { votes });
+    if (!alreadyVoted) {
+      adjustTokens(-10);
+    }
   };
 
   const declareWinner = async (scenarioId, outcomeKey) => {
@@ -142,7 +148,7 @@ function App() {
     const data = snap.data();
     if (data.creator !== playerName || !data.launched) return;
     await updateDoc(scenarioRef, { winner: outcomeKey });
-
+    
   const closePoll = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
@@ -164,12 +170,7 @@ function App() {
 
     await updateDoc(scenarioRef, { winner: topOutcomes });
   };
-    const alreadyVoted = votes.hasOwnProperty(playerName);
-    votes[playerName] = outcomeKey;
-    await updateDoc(scenarioRef, { votes });
-    if (!alreadyVoted) {
-      adjustTokens(-10);
-    }
+    
   };
 
   const launchScenario = async (scenarioId) => {

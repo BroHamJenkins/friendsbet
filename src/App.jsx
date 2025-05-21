@@ -312,8 +312,9 @@ function App() {
         <div>
           <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
           <h2>Room: {selectedRoom.name}</h2>
-          <p>Logged in as: {playerName}</p>
-          <p>Token Balance: {tokenBalance}</p>
+          <p className="status-text">Logged in as: {playerName}</p>
+          <p className="status-text">Token Balance: {tokenBalance}</p>
+
           <input
             placeholder="New scenario"
             value={newScenario}
@@ -321,7 +322,7 @@ function App() {
           />
           <button onClick={addScenario}>Add Scenario</button>
           {scenarios.map((sc) => (
-            <div key={sc.id} style={{ border: "1px solid #ccc", padding: "0.5rem", marginTop: "1rem" }}>
+            <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
               <div>
                 {(sc.order || Object.keys(sc.outcomes)).map((key) => {
@@ -333,14 +334,14 @@ function App() {
                   const userVoted = sc.votes[playerName] === key;
                   return (
                     <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                      {val}
+                      
                       {sc.launched && !sc.winner && (
                         <button
-                          onClick={() => voteOutcome(sc.id, key)}
-                          style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
-                        >
-                          Vote
-                        </button>
+                    onClick={() => voteOutcome(sc.id, key)}
+                    >
+                    {val}
+                    </button>
+
                       )}
                       {isWinner && <span style={{ marginLeft: "0.5rem" }}>(Winner)</span>}
                     </div>

@@ -41,7 +41,13 @@ function App() {
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(100);
-  const adjustTokens = (amount) => setTokenBalance(prev => prev + amount);
+  const adjustTokens = async (amount) => {
+  const newBalance = tokenBalance + amount;
+  setTokenBalance(newBalance);
+  const playerRef = doc(db, "players", playerName);
+  await updateDoc(playerRef, { tokens: newBalance });
+};
+
   const [gameSelected, setGameSelected] = useState("");
   const [scenarios, setScenarios] = useState([]);
   const [newScenario, setNewScenario] = useState("");
@@ -80,7 +86,7 @@ function App() {
     });
     return () => unsubscribe();
   }, [selectedRoom]);
-
+  
   const createRoom = async () => {
     if (!roomName.trim()) return;
     const newRoomRef = doc(collection(db, "rooms"));
@@ -91,6 +97,21 @@ function App() {
     });
     setRoomName("");
   };
+
+  useEffect(() => {
+  if (!playerName) return;
+
+  const playerRef = doc(db, "players", playerName);
+
+  getDoc(playerRef).then((docSnap) => {
+    if (docSnap.exists()) {
+      setTokenBalance(docSnap.data().tokens || 100);
+    } else {
+      setDoc(playerRef, { tokens: 100 });
+      setTokenBalance(100);
+    }
+  });
+}, [playerName]);
 
   const joinRoom = (room) => {
     setSelectedRoom(room);
@@ -148,7 +169,8 @@ function App() {
     const data = snap.data();
     if (data.creator !== playerName || !data.launched) return;
     await updateDoc(scenarioRef, { winner: outcomeKey });
-    
+    await distributeWinnings(scenarioId);
+  };  
   const closePoll = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
@@ -169,9 +191,35 @@ function App() {
     const topOutcomes = sorted.filter(([, count]) => count === highestVoteCount).map(([key]) => key);
 
     await updateDoc(scenarioRef, { winner: topOutcomes });
+    await distributeWinnings(scenarioId);
   };
-    
-  };
+   
+  const distributeWinnings = async (scenarioId) => {          //Winner Payout
+  //debugging line
+  console.log("💥 distributeWinnings called for", scenarioId); 
+    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  const snap = await getDoc(scenarioRef);
+  const data = snap.data();
+
+  if (!data.winner || !data.votes) return;
+
+  const votes = data.votes;
+  const winnerKey = data.winner;
+  const winningVoters = Object.entries(votes)
+    .filter(([, choice]) =>
+  Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
+)
+    .map(([player]) => player);
+
+  const totalPot = Object.keys(votes).length * 10;
+  const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
+
+  // Only apply to the current user
+  if (winningVoters.includes(playerName)) {
+    adjustTokens(payout);
+    console.log(`Awarded ${payout} tokens to ${playerName}`);
+  }
+};
 
   const launchScenario = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);

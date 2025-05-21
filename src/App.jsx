@@ -321,7 +321,7 @@ function App() {
           />
           <button onClick={addScenario}>Add Scenario</button>
           {scenarios.map((sc) => (
-            <div key={sc.id} style={{ border: "1px solid #ccc", padding: "0.5rem", marginTop: "1rem" }}>
+            <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
               <div>
                 {(sc.order || Object.keys(sc.outcomes)).map((key) => {

@@ -234,7 +234,17 @@ function App() {
   const pollRooms = roomList.filter(r => r.type === "poll");
 
   return (
-    <div style={{ maxWidth: "600px", margin: "auto", padding: "1rem", fontFamily: "Arial, sans-serif" }}>
+  <div
+    style={{
+      backgroundImage: "url('/background.jpg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      minHeight: "100vh",
+      padding: "2rem",
+      fontFamily: "Arial, sans-serif",
+    }}
+  >
       {!hasEnteredName ? (
         <div>
           <h2>Enter Your Name</h2>

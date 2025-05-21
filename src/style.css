@@ -25,12 +25,15 @@ input, select, button {
 
 h2, h3 {
   margin-top: 1.5rem;
+  color: #1ad5f7; 
 }
 
+
 button {
-  background-color: #0066cc;
+  background-color: #15cccc;
   color: white;
   border: none;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -75,4 +78,16 @@ li {
 
 .ml-half {
   margin-left: 0.5rem;
+}
+
+.scenario-box {
+  background-color: rgba(255, 255, 255, 0.8);  /* White with 80% opacity */
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.status-text {
+  color: #ffffff;  
+  font-weight: bold;
 }

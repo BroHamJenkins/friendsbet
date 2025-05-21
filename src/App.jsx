@@ -27,11 +27,6 @@ const findApprovedName = (inputName) => {
   return approvedUsers.find((name) => normalize(name) === normalizedInput);
 };
 
-const displayNameMap = {
-  Bob: "Black Bob",
-  Christian: "Dr. Raborgski"
-};
-
 
 function App() {
   const [roomName, setRoomName] = useState("");
@@ -251,8 +246,7 @@ function App() {
           <button onClick={() => {
             const matchedName = findApprovedName(playerName);
             if (matchedName) {
-              const display = displayNameMap[matchedName] || matchedName;
-              setPlayerName(display);
+              setPlayerName(matchedName);
               setHasEnteredName(true);
             } else {
               alert("Name not recognized. Please enter an approved name.");

@@ -91,3 +91,13 @@ li {
   color: #ffffff;  
   font-weight: bold;
 }
+
+.status-line {
+  color: #f30ac0;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.token-balance {
+  color: #f7f308; /* green */
+}

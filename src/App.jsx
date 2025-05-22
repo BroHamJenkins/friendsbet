@@ -37,11 +37,11 @@ function App() {
   const [hasEnteredName, setHasEnteredName] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(100);
   const adjustTokens = async (amount) => {
-  const newBalance = tokenBalance + amount;
-  setTokenBalance(newBalance);
-  const playerRef = doc(db, "players", playerName);
-  await updateDoc(playerRef, { tokens: newBalance });
-};
+    const newBalance = tokenBalance + amount;
+    setTokenBalance(newBalance);
+    const playerRef = doc(db, "players", playerName);
+    await updateDoc(playerRef, { tokens: newBalance });
+  };
 
   const [gameSelected, setGameSelected] = useState("");
   const [scenarios, setScenarios] = useState([]);
@@ -81,7 +81,7 @@ function App() {
     });
     return () => unsubscribe();
   }, [selectedRoom]);
-  
+
   const createRoom = async () => {
     if (!roomName.trim()) return;
     const newRoomRef = doc(collection(db, "rooms"));
@@ -94,19 +94,19 @@ function App() {
   };
 
   useEffect(() => {
-  if (!playerName) return;
+    if (!playerName) return;
 
-  const playerRef = doc(db, "players", playerName);
+    const playerRef = doc(db, "players", playerName);
 
-  getDoc(playerRef).then((docSnap) => {
-    if (docSnap.exists()) {
-      setTokenBalance(docSnap.data().tokens || 100);
-    } else {
-      setDoc(playerRef, { tokens: 100 });
-      setTokenBalance(100);
-    }
-  });
-}, [playerName]);
+    getDoc(playerRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        setTokenBalance(docSnap.data().tokens || 100);
+      } else {
+        setDoc(playerRef, { tokens: 100 });
+        setTokenBalance(100);
+      }
+    });
+  }, [playerName]);
 
   const joinRoom = (room) => {
     setSelectedRoom(room);
@@ -165,7 +165,7 @@ function App() {
     if (data.creator !== playerName || !data.launched) return;
     await updateDoc(scenarioRef, { winner: outcomeKey });
     await distributeWinnings(scenarioId);
-  };  
+  };
   const closePoll = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
@@ -188,33 +188,33 @@ function App() {
     await updateDoc(scenarioRef, { winner: topOutcomes });
     await distributeWinnings(scenarioId);
   };
-   
+
   const distributeWinnings = async (scenarioId) => {          //Winner Payout
-  //debugging line
-  console.log("💥 distributeWinnings called for", scenarioId); 
+    //debugging line
+    console.log("💥 distributeWinnings called for", scenarioId);
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-  const snap = await getDoc(scenarioRef);
-  const data = snap.data();
+    const snap = await getDoc(scenarioRef);
+    const data = snap.data();
 
-  if (!data.winner || !data.votes) return;
+    if (!data.winner || !data.votes) return;
 
-  const votes = data.votes;
-  const winnerKey = data.winner;
-  const winningVoters = Object.entries(votes)
-    .filter(([, choice]) =>
-  Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
-)
-    .map(([player]) => player);
+    const votes = data.votes;
+    const winnerKey = data.winner;
+    const winningVoters = Object.entries(votes)
+      .filter(([, choice]) =>
+        Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
+      )
+      .map(([player]) => player);
 
-  const totalPot = Object.keys(votes).length * 10;
-  const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
+    const totalPot = Object.keys(votes).length * 10;
+    const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
 
-  // Only apply to the current user
-  if (winningVoters.includes(playerName)) {
-    adjustTokens(payout);
-    console.log(`Awarded ${payout} tokens to ${playerName}`);
-  }
-};
+    // Only apply to the current user
+    if (winningVoters.includes(playerName)) {
+      adjustTokens(payout);
+      console.log(`Awarded ${payout} tokens to ${playerName}`);
+    }
+  };
 
   const launchScenario = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
@@ -234,17 +234,17 @@ function App() {
   const pollRooms = roomList.filter(r => r.type === "poll");
 
   return (
-  <div
-    style={{
-      backgroundImage: "url('/background.jpg')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      minHeight: "100vh",
-      padding: "2rem",
-      fontFamily: "Arial, sans-serif",
-    }}
-  >
+    <div
+      style={{
+        backgroundImage: "url('/background.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+        padding: "2rem",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
       {!hasEnteredName ? (
         <div>
           <h2>Enter Your Name</h2>
@@ -333,19 +333,23 @@ function App() {
                   const userVoted = sc.votes[playerName] === key;
                   return (
                     <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                      {val}
+                      {!sc.launched && <span>{val}</span>}
                       {sc.launched && !sc.winner && (
                         <button
                           onClick={() => voteOutcome(sc.id, key)}
                           style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
                         >
-                          Vote
+                          {val}
                         </button>
                       )}
-                      {isWinner && <span style={{ marginLeft: "0.5rem" }}>(Winner)</span>}
+                    
                     </div>
                   );
+
+
+
                 })}
+
                 {sc.creator === playerName && !sc.launched && (
                   <div>
                     <input
@@ -371,21 +375,24 @@ function App() {
                   <button onClick={() => closePoll(sc.id)}>Close Poll</button>
                 )}
                 {sc.winner && (
-                  <div>
-                    <p>Votes:</p>
-                    {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-                      const voters = Object.entries(sc.votes || {})
-                        .filter(([, vote]) => vote === key)
-                        .map(([voter]) => voter);
-                      const isWinner = sc.winner === key;
-                      return (
-                        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                          {sc.outcomes[key]}: {voters.join(", ") || "No votes"}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+  <div>
+    {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+      const val = sc.outcomes[key];
+      const voters = Object.entries(sc.votes || {})
+        .filter(([, vote]) => vote === key)
+        .map(([voter]) => voter);
+      const isWinner = Array.isArray(sc.winner)
+        ? sc.winner.includes(key)
+        : sc.winner === key;
+      return (
+        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+          {val}: {voters.length > 0 ? voters.join(", ") : "No votes"} {isWinner ? "(Winner)" : ""}
+        </div>
+      );
+    })}
+  </div>
+)}
+
               </div>
             </div>
           ))}

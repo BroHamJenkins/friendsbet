@@ -13,6 +13,8 @@ import {
   query,
   where
 } from "firebase/firestore";
+import Bank from "./Bank";
+
 
 
 const approvedUsers = [
@@ -47,6 +49,15 @@ function App() {
   const [scenarios, setScenarios] = useState([]);
   const [newScenario, setNewScenario] = useState("");
   const [outcomeInputs, setOutcomeInputs] = useState({});
+  const [showDeclareButtons, setShowDeclareButtons] = useState({});   //Ends voting and shows declare winner buttons
+  const toggleDeclareButtons = (scenarioId) => {
+    setShowDeclareButtons(prev => ({
+      ...prev,
+      [scenarioId]: !prev[scenarioId]
+    }));
+  };
+
+
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "rooms"), (snapshot) => {
@@ -271,8 +282,14 @@ function App() {
             <option value="Bachelor Party">Bachelor Party</option>
             <option value="Beach Olympics">Beach Olympics</option>
             <option value="Road Trip Mayhem">Road Trip Mayhem</option>
+            <option value="Bank">Bank</option>
           </select>
         </div>
+
+) : gameSelected === "Bank" ? (
+  <Bank playerName={playerName} />
+
+
       ) : !selectedRoom ? (
         <div>
           <input
@@ -342,7 +359,7 @@ function App() {
                           {val}
                         </button>
                       )}
-                    
+
                     </div>
                   );
 
@@ -365,33 +382,42 @@ function App() {
                 )}
                 {selectedRoom.type === "prop" && sc.creator === playerName && sc.launched && !sc.winner && (
                   <div>
-                    <p>Declare Winner:</p>
-                    {(sc.order || Object.keys(sc.outcomes)).map((key) => (
-                      <button key={key} onClick={() => declareWinner(sc.id, key)}>{sc.outcomes[key]}</button>
-                    ))}
+                    {!showDeclareButtons[sc.id] ? (
+                      <button onClick={() => toggleDeclareButtons(sc.id)}>End All Bets</button>
+                    ) : (
+                      <>
+                        <p>Declare Winner:</p>
+                        {(sc.order || Object.keys(sc.outcomes)).map((key) => (
+                          <button key={key} onClick={() => declareWinner(sc.id, key)}>
+                            {sc.outcomes[key]}
+                          </button>
+                        ))}
+                      </>
+                    )}
                   </div>
                 )}
+
                 {selectedRoom.type === "poll" && sc.creator === playerName && sc.launched && !sc.winner && (
                   <button onClick={() => closePoll(sc.id)}>Close Poll</button>
                 )}
                 {sc.winner && (
-  <div>
-    {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-      const val = sc.outcomes[key];
-      const voters = Object.entries(sc.votes || {})
-        .filter(([, vote]) => vote === key)
-        .map(([voter]) => voter);
-      const isWinner = Array.isArray(sc.winner)
-        ? sc.winner.includes(key)
-        : sc.winner === key;
-      return (
-        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-          {val}: {voters.length > 0 ? voters.join(", ") : "No votes"} {isWinner ? "(Winner)" : ""}
-        </div>
-      );
-    })}
-  </div>
-)}
+                  <div>
+                    {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+                      const val = sc.outcomes[key];
+                      const voters = Object.entries(sc.votes || {})
+                        .filter(([, vote]) => vote === key)
+                        .map(([voter]) => voter);
+                      const isWinner = Array.isArray(sc.winner)
+                        ? sc.winner.includes(key)
+                        : sc.winner === key;
+                      return (
+                        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+                          {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"} {isWinner ? "(Winner)" : ""}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
               </div>
             </div>

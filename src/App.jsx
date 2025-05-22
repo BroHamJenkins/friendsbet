@@ -279,7 +279,7 @@ function App() {
           <h2>Select a Game</h2>
           <select onChange={(e) => setGameSelected(e.target.value)} defaultValue="">
             <option value="" disabled>Select a game</option>
-            <option value="Bachelor Party">Bachelor Party</option>
+            <option value="Casino">Casino</option>
             <option value="Beach Olympics">Beach Olympics</option>
             <option value="Road Trip Mayhem">Road Trip Mayhem</option>
             <option value="Bank">Bank</option>
@@ -287,11 +287,17 @@ function App() {
         </div>
 
 ) : gameSelected === "Bank" ? (
-  <Bank playerName={playerName} />
+  <div>
+    <button onClick={() => setGameSelected("")}>Leave Bank</button>
+    <Bank playerName={playerName} />
+  </div>
+
 
 
       ) : !selectedRoom ? (
-        <div>
+  <div>
+    <button onClick={() => setGameSelected("")}>Leave Game</button>
+
           <input
             placeholder="New room name"
             value={roomName}

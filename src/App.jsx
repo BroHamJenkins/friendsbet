@@ -34,6 +34,7 @@ function App() {
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("prop");
   const [roomList, setRoomList] = useState([]);
+  const [betAmount, setBetAmount] = useState(10);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
@@ -135,6 +136,7 @@ function App() {
       winner: null,
       launched: false,
       order: [],
+      betAmount: betAmount || 10
     });
     setNewScenario("");
   };
@@ -165,8 +167,10 @@ function App() {
     votes[playerName] = outcomeKey;
     await updateDoc(scenarioRef, { votes });
     if (!alreadyVoted) {
-      adjustTokens(-10);
+      const betAmount = data.betAmount || 10;
+      adjustTokens(-betAmount);
     }
+
   };
 
   const declareWinner = async (scenarioId, outcomeKey) => {
@@ -217,15 +221,25 @@ function App() {
       )
       .map(([player]) => player);
 
-    const totalPot = Object.keys(votes).length * 10;
+    const betAmount = data.betAmount || 10;
+    const totalPot = Object.keys(votes).length * betAmount;
     const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
 
-    // Only apply to the current user
-    if (winningVoters.includes(playerName)) {
-      adjustTokens(payout);
-      console.log(`Awarded ${payout} tokens to ${playerName}`);
+
+   
+    if (winningVoters.length > 0) {
+  if (winningVoters.includes(playerName)) {
+    adjustTokens(payout);
+    console.log(`Awarded ${payout} tokens to ${playerName}`);
+  }
+} else {
+  // Refund all players
+    if (Object.keys(votes).includes(playerName)) {
+      adjustTokens(betAmount);
+      console.log(`Refunded ${betAmount} tokens to ${playerName} (no winner)`);
     }
-  };
+  }
+};
 
   const launchScenario = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
@@ -286,28 +300,28 @@ function App() {
           </select>
         </div>
 
-) : gameSelected === "Bank" ? (
-  <div>
-    <button onClick={() => setGameSelected("")}>Leave Bank</button>
-    <Bank playerName={playerName} />
-  </div>
-  ) : gameSelected === "Beach Olympics" ? (
-  <div>
-    <h2>Beach Olympics</h2>
-    <button onClick={() => setGameSelected("")}>Leave Olympics</button>
-  </div>
-) : gameSelected === "Road Trip Mayhem" ? (
-  <div>
-    <h2>Road Trip Mayhem</h2>
-    <button onClick={() => setGameSelected("")}>Leave Roadtrip Mayhem</button>
-  </div>
+      ) : gameSelected === "Bank" ? (
+        <div>
+          <button onClick={() => setGameSelected("")}>Leave Bank</button>
+          <Bank playerName={playerName} />
+        </div>
+      ) : gameSelected === "Beach Olympics" ? (
+        <div>
+          <h2>Beach Olympics</h2>
+          <button onClick={() => setGameSelected("")}>Leave Olympics</button>
+        </div>
+      ) : gameSelected === "Road Trip Mayhem" ? (
+        <div>
+          <h2>Road Trip Mayhem</h2>
+          <button onClick={() => setGameSelected("")}>Leave Roadtrip Mayhem</button>
+        </div>
 
 
 
 
       ) : !selectedRoom ? (
-  <div>
-    <button onClick={() => setGameSelected("")}>Leave Game</button>
+        <div>
+          <button onClick={() => setGameSelected("")}>Leave Game</button>
 
           <input
             placeholder="New room name"
@@ -344,15 +358,25 @@ function App() {
         </div>
       ) : (
         <div>
-          <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
+          <button onClick={() => setSelectedRoom(null)}>Leave Casino</button>
           <h2>Room: {selectedRoom.name}</h2>
-          <p>Logged in as: {playerName}</p>
-          <p>Token Balance: {tokenBalance}</p>
+          <p className="status-line">Welcome back, {playerName}!</p>
+<p className="status-line token-balance">Casino Balance: {tokenBalance}</p>
+
           <input
             placeholder="New scenario"
             value={newScenario}
             onChange={(e) => setNewScenario(e.target.value)}
           />
+
+          <input
+            type="number"
+            placeholder="Bet amount"
+            value={betAmount}
+            onChange={(e) => setBetAmount(Number(e.target.value))}
+          />
+
+
           <button onClick={addScenario}>Add Scenario</button>
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
@@ -429,7 +453,13 @@ function App() {
                         : sc.winner === key;
                       return (
                         <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                          {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"} {isWinner ? "(Winner)" : ""}
+                          {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
+{isWinner && voters.length === 0
+  ? "(Push - All Bets Returned)"
+  : isWinner
+    ? "(Winner)"
+    : ""}
+
                         </div>
                       );
                     })}

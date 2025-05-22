@@ -291,6 +291,17 @@ function App() {
     <button onClick={() => setGameSelected("")}>Leave Bank</button>
     <Bank playerName={playerName} />
   </div>
+  ) : gameSelected === "Beach Olympics" ? (
+  <div>
+    <h2>Beach Olympics</h2>
+    <button onClick={() => setGameSelected("")}>Leave Olympics</button>
+  </div>
+) : gameSelected === "Road Trip Mayhem" ? (
+  <div>
+    <h2>Road Trip Mayhem</h2>
+    <button onClick={() => setGameSelected("")}>Leave Roadtrip Mayhem</button>
+  </div>
+
 
 
 

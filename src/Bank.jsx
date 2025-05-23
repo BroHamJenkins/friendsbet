@@ -1,3 +1,5 @@
+// Updated Bank.jsx with Transaction Ledger View
+
 import React, { useState, useEffect } from "react";
 import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
@@ -110,7 +112,12 @@ function Bank({ playerName }) {
       default:
         label = "Unknown Transaction";
     }
-    return `${label} ${tx.amount > 0 ? "+" : ""}${tx.amount}`;
+    return {
+      label,
+      amount: tx.amount,
+      timestamp: tx.timestamp?.toDate().toLocaleString() || "",
+      note: tx.note || ""
+    };
   };
 
   return (
@@ -139,13 +146,36 @@ function Bank({ playerName }) {
       </button>
       {message && <p>{message}</p>}
       {showLedger && (
-        <div>
-          <h3>Transaction History</h3>
-          <ul>
-            {transactions.map((tx) => (
-              <li key={tx.id}>{renderTransaction(tx)}</li>
-            ))}
-          </ul>
+        <div style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", padding: "1rem", borderRadius: "8px", color: "#fff", marginTop: "1rem" }}>
+          <h3 style={{ borderBottom: "1px solid #ccc", paddingBottom: "0.5rem" }}>Transaction History</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #999" }}>Type</th>
+                <th style={{ textAlign: "right", padding: "0.5rem", borderBottom: "1px solid #999" }}>Amount</th>
+                <th style={{ textAlign: "right", padding: "0.5rem", borderBottom: "1px solid #999" }}>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((tx) => {
+                const { label, amount, timestamp, note } = renderTransaction(tx);
+                return (
+                  <tr key={tx.id}>
+                    <td style={{ padding: "0.5rem" }}>
+                      {label}
+                      {note && (
+                        <div style={{ fontSize: "0.85rem", color: "#ccc" }}>Note: {note}</div>
+                      )}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.5rem", color: amount < 0 ? "#f88" : "#8f8" }}>
+                      {amount > 0 ? "+" : ""}{amount}
+                    </td>
+                    <td style={{ textAlign: "right", padding: "0.5rem", fontSize: "0.85rem", color: "#aaa" }}>{timestamp}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
@@ -153,4 +183,5 @@ function Bank({ playerName }) {
 }
 
 export default Bank;
+
 

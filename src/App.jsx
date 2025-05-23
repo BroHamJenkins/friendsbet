@@ -167,9 +167,18 @@ function App() {
     votes[playerName] = outcomeKey;
     await updateDoc(scenarioRef, { votes });
     if (!alreadyVoted) {
-      const betAmount = data.betAmount || 10;
-      adjustTokens(-betAmount);
-    }
+  const betAmount = data.betAmount || 10;
+  adjustTokens(-betAmount);
+
+  await addDoc(collection(db, "players", playerName, "transactions"), {
+    type: "wager",
+    amount: -betAmount,
+    scenarioId,
+    scenarioText: data.description,
+    timestamp: serverTimestamp()
+  });
+}
+
 
   };
 
@@ -230,12 +239,28 @@ function App() {
     if (winningVoters.length > 0) {
   if (winningVoters.includes(playerName)) {
     adjustTokens(payout);
+      await addDoc(collection(db, "players", playerName, "transactions"), {
+    type: "payout",
+    amount: payout,
+    scenarioId,
+    scenarioText: data.description,
+    timestamp: serverTimestamp()
+  });
+
     console.log(`Awarded ${payout} tokens to ${playerName}`);
   }
 } else {
   // Refund all players
     if (Object.keys(votes).includes(playerName)) {
       adjustTokens(betAmount);
+        await addDoc(collection(db, "players", playerName, "transactions"), {
+    type: "refund",
+    amount: betAmount,
+    scenarioId,
+    scenarioText: data.description,
+    timestamp: serverTimestamp()
+  });
+
       console.log(`Refunded ${betAmount} tokens to ${playerName} (no winner)`);
     }
   }

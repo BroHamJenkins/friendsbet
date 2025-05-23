@@ -442,7 +442,7 @@ useEffect(() => {
   fontFamily: "'Limelight', cursive",
   letterSpacing: "0.1em",
   textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
-  height: "3.5rem", // ⬅ fixed height
+  height: "5 rem", // ⬅ fixed height
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

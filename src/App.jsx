@@ -59,9 +59,9 @@ function App() {
   };
 
 const casinoMessages = [
-  "Welcome to Danny's Casino...",
-  "...and Adult Learning Center",
-  "Built on honesty, integrity...",
+  "WELCOME TO DANNY'S CASINO",
+  "...and adult lerning center",
+  "Built on HONESTY, INTEGRITY...",
   "...and unmitigated spite",
 ];
 
@@ -366,15 +366,16 @@ useEffect(() => {
         <h2
   style={{
     textAlign: "center",
-    fontSize: "1.5rem",
+    fontSize: "2.2rem",
     marginBottom: "1rem",
     color: "#FFD700",
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // stays static
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     padding: "0.5rem 1rem",
-    borderRadius: "8px",
-    fontFamily: "Impact, sans-serif",
-    letterSpacing: "1px",
-    minHeight: "2.5rem", // keeps it from shrinking while animating
+    borderRadius: "10px",
+    fontFamily: "'Limelight', cursive",
+    letterSpacing: "0.1em",
+    textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
+    minHeight: "2.5rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
@@ -389,6 +390,7 @@ useEffect(() => {
     {casinoMessages[headerIndex]}
   </span>
 </h2>
+
 
 
 

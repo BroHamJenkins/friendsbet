@@ -58,6 +58,22 @@ function App() {
     }));
   };
 
+const casinoMessages = [
+  "Welcome to Danny's Casino...",
+  "...and Adult Learning Center",
+  "Built on honesty, integrity...",
+  "...and unmitigated spite",
+];
+
+const [headerIndex, setHeaderIndex] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setHeaderIndex((prev) => (prev + 1) % casinoMessages.length);
+  }, 4000); // rotate every 4 seconds
+
+  return () => clearInterval(interval); // cleanup
+}, []);
 
 
   useEffect(() => {
@@ -347,6 +363,35 @@ function App() {
 
       ) : !selectedRoom ? (
         <div>
+        <h2
+  style={{
+    textAlign: "center",
+    fontSize: "1.5rem",
+    marginBottom: "1rem",
+    color: "#FFD700",
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // stays static
+    padding: "0.5rem 1rem",
+    borderRadius: "8px",
+    fontFamily: "Impact, sans-serif",
+    letterSpacing: "1px",
+    minHeight: "2.5rem", // keeps it from shrinking while animating
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  }}
+>
+  <span
+    key={headerIndex}
+    style={{
+      animation: "slideIn 0.5s ease-in-out"
+    }}
+  >
+    {casinoMessages[headerIndex]}
+  </span>
+</h2>
+
+
+
           <button onClick={() => setGameSelected("")}>Leave Casino</button>
 
           <input
@@ -384,8 +429,22 @@ function App() {
         </div>
       ) : (
         <div>
+          <h2 style={{
+  textAlign: "center",
+  fontSize: "1.5rem",
+  marginBottom: "1rem",
+  color: "#FFD700",
+  backgroundColor: "rgba(0, 0, 0, 0.6)",
+  padding: "0.5rem 1rem",
+  borderRadius: "8px",
+  fontFamily: "Impact, sans-serif",
+  letterSpacing: "1px"
+}}>
+  {casinoMessages[headerIndex]}
+</h2>
           <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
           <h2>Room: {selectedRoom.name}</h2>
+          
           <p className="status-line">Welcome back, {playerName}!</p>
 <p className="status-line token-balance">Casino Balance: {tokenBalance}</p>
 

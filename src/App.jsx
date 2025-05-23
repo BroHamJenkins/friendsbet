@@ -112,10 +112,11 @@ function App() {
 
     getDoc(playerRef).then((docSnap) => {
       if (docSnap.exists()) {
-        setTokenBalance(docSnap.data().tokens || 100);
+        setTokenBalance(docSnap.data().tokens ?? 0);
+
       } else {
-        setDoc(playerRef, { tokens: 100 });
-        setTokenBalance(100);
+        setDoc(playerRef, { tokens: 0 });
+        setTokenBalance(0);
       }
     });
   }, [playerName]);
@@ -346,7 +347,7 @@ function App() {
 
       ) : !selectedRoom ? (
         <div>
-          <button onClick={() => setGameSelected("")}>Leave Game</button>
+          <button onClick={() => setGameSelected("")}>Leave Casino</button>
 
           <input
             placeholder="New room name"
@@ -383,7 +384,7 @@ function App() {
         </div>
       ) : (
         <div>
-          <button onClick={() => setSelectedRoom(null)}>Leave Casino</button>
+          <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
           <h2>Room: {selectedRoom.name}</h2>
           <p className="status-line">Welcome back, {playerName}!</p>
 <p className="status-line token-balance">Casino Balance: {tokenBalance}</p>

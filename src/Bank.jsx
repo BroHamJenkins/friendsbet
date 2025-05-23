@@ -1,7 +1,7 @@
-// Updated Bank.jsx with Transaction Ledger View
+// Updated Bank.jsx with Transaction Ledger View and Admin Panel
 
 import React, { useState, useEffect } from "react";
-import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 const approvedUsers = [
@@ -16,6 +16,7 @@ function Bank({ playerName }) {
   const [message, setMessage] = useState("");
   const [transactions, setTransactions] = useState([]);
   const [showLedger, setShowLedger] = useState(false);
+  const [resetMessage, setResetMessage] = useState("");
 
   useEffect(() => {
     const q = query(
@@ -85,6 +86,19 @@ function Bank({ playerName }) {
     setAmount(0);
     setNote("");
     setRecipient("");
+  };
+
+  const handleSystemReset = async () => {
+    setResetMessage("Running reset...");
+    const playerSnap = await getDocs(collection(db, "players"));
+    for (const playerDoc of playerSnap.docs) {
+      await updateDoc(doc(db, "players", playerDoc.id), { tokens: 0 });
+      const txSnap = await getDocs(collection(db, "players", playerDoc.id, "transactions"));
+      for (const tx of txSnap.docs) {
+        await deleteDoc(doc(db, "players", playerDoc.id, "transactions", tx.id));
+      }
+    }
+    setResetMessage("All balances set to 0 and transactions deleted.");
   };
 
   const shortenScenario = (text = "") => {
@@ -176,6 +190,15 @@ function Bank({ playerName }) {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+      {playerName === "Raul" && (
+        <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#220", color: "#fff", borderRadius: "8px" }}>
+          <h3>Admin Tools</h3>
+          <button onClick={handleSystemReset} style={{ padding: "0.5rem 1rem", backgroundColor: "#800", color: "white", border: "none", borderRadius: "4px" }}>
+            Reset All Balances and Clear Transactions
+          </button>
+          {resetMessage && <p style={{ marginTop: "1rem" }}>{resetMessage}</p>}
         </div>
       )}
     </div>

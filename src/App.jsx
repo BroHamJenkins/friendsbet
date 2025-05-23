@@ -433,17 +433,31 @@ useEffect(() => {
         <div>
           <h2 style={{
   textAlign: "center",
-  fontSize: "1.5rem",
+  fontSize: "2.2rem",
   marginBottom: "1rem",
   color: "#FFD700",
   backgroundColor: "rgba(0, 0, 0, 0.6)",
   padding: "0.5rem 1rem",
-  borderRadius: "8px",
-  fontFamily: "Impact, sans-serif",
-  letterSpacing: "1px"
+  borderRadius: "10px",
+  fontFamily: "'Limelight', cursive",
+  letterSpacing: "0.1em",
+  textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
+  height: "3.5rem", // ⬅ fixed height
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden"
 }}>
-  {casinoMessages[headerIndex]}
+  <span
+    key={headerIndex}
+    style={{
+      animation: "slideIn 0.5s ease-in-out"
+    }}
+  >
+    {casinoMessages[headerIndex]}
+  </span>
 </h2>
+
           <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
           <h2>Room: {selectedRoom.name}</h2>
           

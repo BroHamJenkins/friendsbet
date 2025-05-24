@@ -154,7 +154,7 @@ useEffect(() => {
       winner: null,
       launched: false,
       order: [],
-      betAmount: betAmount || 10
+      betAmount: betAmount ?? 1
     });
     setNewScenario("");
   };
@@ -485,6 +485,10 @@ useEffect(() => {
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
+              <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
+  Min. Bet: ${sc.betAmount || 1}
+</div>
+
               <div>
                 {(sc.order || Object.keys(sc.outcomes)).map((key) => {
                   const val = sc.outcomes[key];

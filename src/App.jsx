@@ -34,7 +34,7 @@ function App() {
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("prop");
   const [roomList, setRoomList] = useState([]);
-  const [betAmount, setBetAmount] = useState(10);
+  const [betAmount, setBetAmount] = useState(1);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
@@ -106,6 +106,12 @@ useEffect(() => {
           };
         })
       );
+      fetchedScenarios.sort((a, b) => {
+  const timeA = a.createdAt?.seconds || 0;
+  const timeB = b.createdAt?.seconds || 0;
+  return timeB - timeA; // newest first
+});
+
       setScenarios(fetchedScenarios);
     });
     return () => unsubscribe();
@@ -185,7 +191,7 @@ useEffect(() => {
     votes[playerName] = outcomeKey;
     await updateDoc(scenarioRef, { votes });
     if (!alreadyVoted) {
-  const betAmount = data.betAmount || 10;
+  const betAmount = data.betAmount ?? 1;
   adjustTokens(-betAmount);
 
   await addDoc(collection(db, "players", playerName, "transactions"), {
@@ -248,7 +254,7 @@ useEffect(() => {
       )
       .map(([player]) => player);
 
-    const betAmount = data.betAmount || 10;
+    const betAmount = data.betAmount ?? 1;
     const totalPot = Object.keys(votes).length * betAmount;
     const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
 
@@ -486,7 +492,7 @@ useEffect(() => {
             <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
               <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
-  Min. Bet: ${sc.betAmount || 1}
+  Min. Bet: ${sc.betAmount ?? 1}
 </div>
 
               <div>

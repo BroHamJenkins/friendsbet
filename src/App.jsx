@@ -59,11 +59,11 @@ function App() {
   };
 
 const casinoMessages = [
-  "WELCOME TO",
-  "DANNY'S CASINO",
-  "...and adult lerning center",
-  "Built on HONESTY, INTEGRITY...",
-  "...and unmitigated spite",
+  { text: "WELCOME TO", size:  "2.2rem" },
+  { text: "DANNY'S CASINO", size: "2.2rem" },
+  { text: "...and adult lerning center", size: "1.6rem" },
+  { text: "Built on HONESTY, INTEGRITY...",  size: "1.6rem" },
+  { text: "...and unmitigated spite",  size: "1.6rem" },
 ];
 
 const [headerIndex, setHeaderIndex] = useState(0);
@@ -364,33 +364,31 @@ useEffect(() => {
 
       ) : !selectedRoom ? (
         <div>
-        <h2
-  style={{
-    textAlign: "center",
-    fontSize: "2.2rem",
-    marginBottom: "1rem",
-    color: "#FFD700",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    padding: "0.5rem 1rem",
-    borderRadius: "10px",
-    fontFamily: "'Limelight', cursive",
-    letterSpacing: "0.1em",
-    textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
-    minHeight: "2.5rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-  }}
->
+        <h2 style={{
+  minHeight: "5.5rem",               // reserve consistent space
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  padding: "1rem",
+  backgroundColor: "rgba(0, 0, 0, 0.6)",
+  borderRadius: "10px",
+  fontFamily: "'Limelight', cursive",
+  color: "#FFD700",
+  textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
+  marginBottom: "1rem"
+}}>
   <span
     key={headerIndex}
     style={{
-      animation: "slideIn 0.5s ease-in-out"
+      animation: "slideIn 0.5s ease-in-out",
+      fontSize: casinoMessages[headerIndex]?.size || "2.2rem"
     }}
   >
-    {casinoMessages[headerIndex]}
+    {casinoMessages[headerIndex]?.text || "Danny's Casino"}
   </span>
 </h2>
+
 
 
 
@@ -433,31 +431,32 @@ useEffect(() => {
       ) : (
         <div>
           <h2 style={{
+  height: "6rem",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   textAlign: "center",
-  fontSize: "2.2rem",
-  marginBottom: "1rem",
-  color: "#FFD700",
   backgroundColor: "rgba(0, 0, 0, 0.6)",
   padding: "0.5rem 1rem",
   borderRadius: "10px",
   fontFamily: "'Limelight', cursive",
   letterSpacing: "0.1em",
   textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
-  height: "5 rem", // ⬅ fixed height
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  overflow: "hidden"
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis"
 }}>
   <span
     key={headerIndex}
     style={{
+      fontSize: casinoMessages[headerIndex].size,
       animation: "slideIn 0.5s ease-in-out"
     }}
   >
-    {casinoMessages[headerIndex]}
+    {casinoMessages[headerIndex].text}
   </span>
 </h2>
+
 
           <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
           <h2>Room: {selectedRoom.name}</h2>

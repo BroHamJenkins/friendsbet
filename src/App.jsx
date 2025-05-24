@@ -395,16 +395,21 @@ useEffect(() => {
 
           <button onClick={() => setGameSelected("")}>Leave Casino</button>
 
-          <input
-            placeholder="New room name"
-            value={roomName}
-            onChange={(e) => setRoomName(e.target.value)}
-          />
-          <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
-            <option value="prop">Proposition</option>
-            <option value="poll">Poll</option>
-          </select>
-          <button onClick={createRoom}>Create Room</button>
+          {playerName === "Raul" && (
+  <>
+    <input
+      placeholder="New room name"
+      value={roomName}
+      onChange={(e) => setRoomName(e.target.value)}
+    />
+    <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
+      <option value="prop">Proposition</option>
+      <option value="poll">Poll</option>
+    </select>
+    <button onClick={createRoom}>Create Room</button>
+  </>
+)}
+
           <h3>Join a proposition room:</h3>
           <ul>
             {propRooms.map((room) => (

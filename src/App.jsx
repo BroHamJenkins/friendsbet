@@ -51,12 +51,19 @@ function App() {
   const [newScenario, setNewScenario] = useState("");
   const [outcomeInputs, setOutcomeInputs] = useState({});
   const [showDeclareButtons, setShowDeclareButtons] = useState({});   //Ends voting and shows declare winner buttons
-  const toggleDeclareButtons = (scenarioId) => {
-    setShowDeclareButtons(prev => ({
-      ...prev,
-      [scenarioId]: !prev[scenarioId]
-    }));
-  };
+ const toggleDeclareButtons = async (scenarioId) => {
+  const current = showDeclareButtons[scenarioId];
+  setShowDeclareButtons(prev => ({
+    ...prev,
+    [scenarioId]: !current
+  }));
+
+  if (!current) {
+    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+    await updateDoc(scenarioRef, { betsClosed: true });
+  }
+};
+
 
 const casinoMessages = [
   { text: "WELCOME TO", size:  "2.2rem" },
@@ -185,7 +192,7 @@ useEffect(() => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
     const data = snap.data();
-    if (!data.launched || data.winner) return;
+    if (!data.launched || data.winner || data.betsClosed) return;
     const votes = data.votes || {};
     const alreadyVoted = votes.hasOwnProperty(playerName);
     votes[playerName] = outcomeKey;
@@ -491,6 +498,17 @@ useEffect(() => {
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
+              {sc.betsClosed && !sc.winner && (
+  <p style={{ fontStyle: "italic", fontWeight: "bold", color: "#581405" }}>
+    🕒 All bets are closed and final. Awaiting winner declaration...
+  </p>
+)}
+{sc.betsClosed && !sc.winner && sc.votes[playerName] && (
+  <p style={{ fontStyle: "italic", fontWeight: "bold", color: "#004085" }}>
+    ✅ You chose: "{sc.outcomes[sc.votes[playerName]]}"
+  </p>
+)}
+
               <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
   Min. Bet: ${sc.betAmount ?? 1}
 </div>
@@ -506,14 +524,15 @@ useEffect(() => {
                   return (
                     <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
                       {!sc.launched && <span>{val}</span>}
-                      {sc.launched && !sc.winner && (
-                        <button
-                          onClick={() => voteOutcome(sc.id, key)}
-                          style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
-                        >
-                          {val}
-                        </button>
-                      )}
+                      {sc.launched && !sc.winner && !sc.betsClosed && (
+  <button
+    onClick={() => voteOutcome(sc.id, key)}
+    style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
+  >
+    {val}
+  </button>
+)}
+
 
                     </div>
                   );

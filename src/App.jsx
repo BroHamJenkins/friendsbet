@@ -365,7 +365,7 @@ useEffect(() => {
       ) : !selectedRoom ? (
         <div>
         <h2 style={{
-  minHeight: "5.5rem",               // reserve consistent space
+  minHeight: "7.5rem",               // reserve consistent space
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

@@ -59,7 +59,8 @@ function App() {
   };
 
 const casinoMessages = [
-  "WELCOME TO DANNY'S CASINO",
+  "WELCOME TO",
+  "DANNY'S CASINO",
   "...and adult lerning center",
   "Built on HONESTY, INTEGRITY...",
   "...and unmitigated spite",

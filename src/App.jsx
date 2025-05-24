@@ -62,8 +62,8 @@ const casinoMessages = [
   { text: "WELCOME TO", size:  "2.2rem" },
   { text: "DANNY'S CASINO", size: "2.2rem" },
   { text: "...and adult lerning center", size: "1.6rem" },
-  { text: "Built on HONESTY, INTEGRITY...",  size: "1.6rem" },
-  { text: "...and unmitigated spite",  size: "1.6rem" },
+  { text: "Built on HONESTY, INTEGRITY...",  size: "1.2rem" },
+  { text: "...and thinly veiled spite",  size: "1.6rem" },
 ];
 
 const [headerIndex, setHeaderIndex] = useState(0);

@@ -331,6 +331,20 @@ useEffect(() => {
 }}
 
 >
+{gameSelected === "Casino" && (
+  <img
+    src="/Logo Icon-01.png"
+    alt="Uncle Casino"
+    style={{
+      position: "fixed",
+      top: "20px",
+      right: "20px",
+      width: "120px",
+      opacity: 0.9,
+      zIndex: 10
+    }}
+  />
+)}
 
       {!hasEnteredName ? (
         <div>

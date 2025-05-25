@@ -68,9 +68,9 @@ function App() {
 const casinoMessages = [
   { text: "WELCOME TO", size:  "2.2rem" },
   { text: "DANNY'S CASINO", size: "2.2rem" },
-  { text: "...and adult lerning center", size: "1.6rem" },
-  { text: "Built on HONESTY, INTEGRITY...",  size: "1.2rem" },
-  { text: "...and thinly veiled spite",  size: "1.6rem" },
+  { text: "...And adult lerning center", size: "2.2rem" },
+  { text: "Built on HONESTY, INTEGRITY...",  size: "2.2rem" },
+  { text: "...and thinly veiled spite",  size: "2.2rem" },
 ];
 
 const [headerIndex, setHeaderIndex] = useState(0);
@@ -332,19 +332,58 @@ useEffect(() => {
 
 >
 {gameSelected === "Casino" && (
-  <img
-    src="/Logo Icon-01.png"
-    alt="Uncle Casino"
-    style={{
-      position: "fixed",
-      top: "20px",
-      right: "20px",
-      width: "120px",
-      opacity: 0.9,
-      zIndex: 10
-    }}
-  />
+  <>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginBottom: "1rem"
+      }}
+    >
+      <img
+        src="/Logo Icon-01.png"
+        alt="Uncle Casino"
+        style={{
+          width: "180px",
+          maxWidth: "90%",
+          opacity: 0.95
+        }}
+      />
+    </div>
+
+    <div
+      style={{
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        marginBottom: "1rem",
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        borderRadius: "10px",
+        padding: "1rem",
+      }}
+    >
+      <div
+        style={{
+          display: "inline-block",
+          animation: "marqueeScroll 20s linear infinite",
+          fontFamily: "'Limelight', cursive",
+          fontSize: "2.2rem",
+          color: "#FFD700",
+          textShadow:
+            "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
+        }}
+      >
+        WELCOME TO DANNY'S CASINO and Adult Lerning Center
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          Built on HONESTY, INTEGRITY, and pure, unmitigated spite
+      </div>
+    </div>
+  </>
 )}
+
+
+
 
       {!hasEnteredName ? (
         <div>
@@ -397,30 +436,7 @@ useEffect(() => {
 
       ) : !selectedRoom ? (
         <div>
-        <h2 style={{
-  minHeight: "7.5rem",               // reserve consistent space
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  textAlign: "center",
-  padding: "1rem",
-  backgroundColor: "rgba(0, 0, 0, 0.6)",
-  borderRadius: "10px",
-  fontFamily: "'Limelight', cursive",
-  color: "#FFD700",
-  textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
-  marginBottom: "1rem"
-}}>
-  <span
-    key={headerIndex}
-    style={{
-      animation: "slideIn 0.5s ease-in-out",
-      fontSize: casinoMessages[headerIndex]?.size || "2.2rem"
-    }}
-  >
-    {casinoMessages[headerIndex]?.text || "Danny's Casino"}
-  </span>
-</h2>
+        
 
 
 

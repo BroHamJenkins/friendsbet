@@ -93,7 +93,7 @@ li {
 }
 
 .status-line {
-  color: #f30ac0;
+  color: #f1ecf0;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
@@ -150,4 +150,14 @@ li {
     transform: scale(1.03);
     filter: drop-shadow(0 0 40px #FFA500);
   }
+}
+
+.token-balance {
+  font-family: 'Monoton', cursive;
+  font-size: 2.5rem;
+  color: #FFD700;
+  text-shadow:
+    0 0 5px #FFD700,
+    0 0 10px #FFB800,
+    0 0 20px #FFA500;
 }

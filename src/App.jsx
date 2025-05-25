@@ -316,16 +316,22 @@ useEffect(() => {
 
   return (
     <div
-      style={{
-        backgroundImage: "url('/background.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        minHeight: "100vh",
-        padding: "2rem",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
+  style={{
+  backgroundImage:
+    gameSelected === "Casino"
+      ? "url('/casinoBackground.jpg')"
+      : "url('/background.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  backgroundAttachment: "fixed",   // <- Add this
+  minHeight: "100vh",
+  padding: "2rem",
+  fontFamily: "Arial, sans-serif",
+}}
+
+>
+
       {!hasEnteredName ? (
         <div>
           <h2>Enter Your Name</h2>
@@ -498,17 +504,6 @@ useEffect(() => {
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
-              {sc.betsClosed && !sc.winner && (
-  <p style={{ fontStyle: "italic", fontWeight: "bold", color: "#581405" }}>
-    🕒 All bets are closed and final. Awaiting winner declaration...
-  </p>
-)}
-{sc.betsClosed && !sc.winner && sc.votes[playerName] && (
-  <p style={{ fontStyle: "italic", fontWeight: "bold", color: "#004085" }}>
-    ✅ You chose: "{sc.outcomes[sc.votes[playerName]]}"
-  </p>
-)}
-
               <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
   Min. Bet: ${sc.betAmount ?? 1}
 </div>

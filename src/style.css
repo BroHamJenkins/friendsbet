@@ -115,3 +115,39 @@ li {
     transform: translateX(-100%);
   }
 }
+
+@keyframes flickerGlow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px #FFD700);
+    opacity: 1;
+  }
+  10% {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 10px #FFB800);
+    opacity: 0.9;
+  }
+  20% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 20px #FFB800);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 15px #FFA500);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 30px #FFD700);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.01);
+    opacity: 0.95;
+  }
+  90% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 40px #FFA500);
+  }
+}

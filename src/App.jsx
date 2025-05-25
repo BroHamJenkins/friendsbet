@@ -341,17 +341,18 @@ useEffect(() => {
       }}
     >
       <img
-        src="/Logo Icon-01.png"
-        alt="Uncle Casino"
-        style={{
-          width: "180px",
-          maxWidth: "90%",
-          opacity: 0.95
-        }}
-      />
+  src="/Logo Icon-01.png"
+  alt="Uncle Casino"
+  style={{
+    width: "180px",
+    maxWidth: "90%",
+    animation: "flickerGlow 5s ease-in-out infinite"
+  }}
+/>
+
     </div>
 
-    <div
+    {/* <div
       style={{
         overflow: "hidden",
         whiteSpace: "nowrap",
@@ -378,7 +379,7 @@ useEffect(() => {
                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           Built on HONESTY, INTEGRITY, and pure, unmitigated spite
       </div>
-    </div>
+    </div> */}
   </>
 )}
 

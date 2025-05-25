@@ -51,37 +51,37 @@ function App() {
   const [newScenario, setNewScenario] = useState("");
   const [outcomeInputs, setOutcomeInputs] = useState({});
   const [showDeclareButtons, setShowDeclareButtons] = useState({});   //Ends voting and shows declare winner buttons
- const toggleDeclareButtons = async (scenarioId) => {
-  const current = showDeclareButtons[scenarioId];
-  setShowDeclareButtons(prev => ({
-    ...prev,
-    [scenarioId]: !current
-  }));
+  const toggleDeclareButtons = async (scenarioId) => {
+    const current = showDeclareButtons[scenarioId];
+    setShowDeclareButtons(prev => ({
+      ...prev,
+      [scenarioId]: !current
+    }));
 
-  if (!current) {
-    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-    await updateDoc(scenarioRef, { betsClosed: true });
-  }
-};
+    if (!current) {
+      const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+      await updateDoc(scenarioRef, { betsClosed: true });
+    }
+  };
 
 
-const casinoMessages = [
-  { text: "WELCOME TO", size:  "2.2rem" },
-  { text: "DANNY'S CASINO", size: "2.2rem" },
-  { text: "...And adult lerning center", size: "2.2rem" },
-  { text: "Built on HONESTY, INTEGRITY...",  size: "2.2rem" },
-  { text: "...and thinly veiled spite",  size: "2.2rem" },
-];
+  const casinoMessages = [
+    { text: "WELCOME TO", size: "2.2rem" },
+    { text: "DANNY'S CASINO", size: "2.2rem" },
+    { text: "...And adult lerning center", size: "2.2rem" },
+    { text: "Built on HONESTY, INTEGRITY...", size: "2.2rem" },
+    { text: "...and thinly veiled spite", size: "2.2rem" },
+  ];
 
-const [headerIndex, setHeaderIndex] = useState(0);
+  const [headerIndex, setHeaderIndex] = useState(0);
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    setHeaderIndex((prev) => (prev + 1) % casinoMessages.length);
-  }, 4000); // rotate every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeaderIndex((prev) => (prev + 1) % casinoMessages.length);
+    }, 4000); // rotate every 4 seconds
 
-  return () => clearInterval(interval); // cleanup
-}, []);
+    return () => clearInterval(interval); // cleanup
+  }, []);
 
 
   useEffect(() => {
@@ -114,10 +114,10 @@ useEffect(() => {
         })
       );
       fetchedScenarios.sort((a, b) => {
-  const timeA = a.createdAt?.seconds || 0;
-  const timeB = b.createdAt?.seconds || 0;
-  return timeB - timeA; // newest first
-});
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA; // newest first
+      });
 
       setScenarios(fetchedScenarios);
     });
@@ -198,17 +198,17 @@ useEffect(() => {
     votes[playerName] = outcomeKey;
     await updateDoc(scenarioRef, { votes });
     if (!alreadyVoted) {
-  const betAmount = data.betAmount ?? 1;
-  adjustTokens(-betAmount);
+      const betAmount = data.betAmount ?? 1;
+      adjustTokens(-betAmount);
 
-  await addDoc(collection(db, "players", playerName, "transactions"), {
-    type: "wager",
-    amount: -betAmount,
-    scenarioId,
-    scenarioText: data.description,
-    timestamp: serverTimestamp()
-  });
-}
+      await addDoc(collection(db, "players", playerName, "transactions"), {
+        type: "wager",
+        amount: -betAmount,
+        scenarioId,
+        scenarioText: data.description,
+        timestamp: serverTimestamp()
+      });
+    }
 
 
   };
@@ -266,36 +266,36 @@ useEffect(() => {
     const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
 
 
-   
+
     if (winningVoters.length > 0) {
-  if (winningVoters.includes(playerName)) {
-    adjustTokens(payout);
-      await addDoc(collection(db, "players", playerName, "transactions"), {
-    type: "payout",
-    amount: payout,
-    scenarioId,
-    scenarioText: data.description,
-    timestamp: serverTimestamp()
-  });
-
-    console.log(`Awarded ${payout} tokens to ${playerName}`);
-  }
-} else {
-  // Refund all players
-    if (Object.keys(votes).includes(playerName)) {
-      adjustTokens(betAmount);
+      if (winningVoters.includes(playerName)) {
+        adjustTokens(payout);
         await addDoc(collection(db, "players", playerName, "transactions"), {
-    type: "refund",
-    amount: betAmount,
-    scenarioId,
-    scenarioText: data.description,
-    timestamp: serverTimestamp()
-  });
+          type: "payout",
+          amount: payout,
+          scenarioId,
+          scenarioText: data.description,
+          timestamp: serverTimestamp()
+        });
 
-      console.log(`Refunded ${betAmount} tokens to ${playerName} (no winner)`);
+        console.log(`Awarded ${payout} tokens to ${playerName}`);
+      }
+    } else {
+      // Refund all players
+      if (Object.keys(votes).includes(playerName)) {
+        adjustTokens(betAmount);
+        await addDoc(collection(db, "players", playerName, "transactions"), {
+          type: "refund",
+          amount: betAmount,
+          scenarioId,
+          scenarioText: data.description,
+          timestamp: serverTimestamp()
+        });
+
+        console.log(`Refunded ${betAmount} tokens to ${playerName} (no winner)`);
+      }
     }
-  }
-};
+  };
 
   const launchScenario = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
@@ -316,43 +316,43 @@ useEffect(() => {
 
   return (
     <div
-  style={{
-  backgroundImage:
-    gameSelected === "Casino"
-      ? "url('/casinoBackground.jpg')"
-      : "url('/background.jpg')",
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-  backgroundAttachment: "fixed",   // <- Add this
-  minHeight: "100vh",
-  padding: "2rem",
-  fontFamily: "Arial, sans-serif",
-}}
-
->
-{gameSelected === "Casino" && (
-  <>
-    <div
       style={{
-        display: "flex",
-        justifyContent: "center",
-        marginBottom: "1rem"
+        backgroundImage:
+          gameSelected === "Casino"
+            ? "url('/casinoBackground.jpg')"
+            : "url('/background.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",   // <- Add this
+        minHeight: "100vh",
+        padding: "2rem",
+        fontFamily: "Arial, sans-serif",
       }}
+
     >
-      <img
-  src="/Logo Icon-01.png"
-  alt="Uncle Casino"
-  style={{
-    width: "180px",
-    maxWidth: "90%",
-    animation: "flickerGlow 5s ease-in-out infinite"
-  }}
-/>
+      {gameSelected === "Casino" && (
+        <>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "1rem"
+            }}
+          >
+            <img
+              src="/Logo Icon-01.png"
+              alt="Uncle Casino"
+              style={{
+                width: "180px",
+                maxWidth: "90%",
+                animation: "flickerGlow 5s ease-in-out infinite"
+              }}
+            />
 
-    </div>
+          </div>
 
-    {/* <div
+          {/* <div
       style={{
         overflow: "hidden",
         whiteSpace: "nowrap",
@@ -380,14 +380,18 @@ useEffect(() => {
           Built on HONESTY, INTEGRITY, and pure, unmitigated spite
       </div>
     </div> */}
-  </>
-)}
+        </>
+      )}
 
 
 
 
       {!hasEnteredName ? (
         <div>
+
+          
+
+
           <h2>Enter Your Name</h2>
           <input
             placeholder="Your name"
@@ -437,7 +441,7 @@ useEffect(() => {
 
       ) : !selectedRoom ? (
         <div>
-        
+
 
 
 
@@ -446,19 +450,19 @@ useEffect(() => {
           <button onClick={() => setGameSelected("")}>Leave Casino</button>
 
           {playerName === "Raul" && (
-  <>
-    <input
-      placeholder="New room name"
-      value={roomName}
-      onChange={(e) => setRoomName(e.target.value)}
-    />
-    <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
-      <option value="prop">Proposition</option>
-      <option value="poll">Poll</option>
-    </select>
-    <button onClick={createRoom}>Create Room</button>
-  </>
-)}
+            <>
+              <input
+                placeholder="New room name"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+              />
+              <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
+                <option value="prop">Proposition</option>
+                <option value="poll">Poll</option>
+              </select>
+              <button onClick={createRoom}>Create Room</button>
+            </>
+          )}
 
           <h3>Join a proposition room:</h3>
           <ul>
@@ -485,14 +489,22 @@ useEffect(() => {
         </div>
       ) : (
         <div>
-          
 
 
-          <button onClick={() => setSelectedRoom(null)}>Leave Room</button>
-          <h2>Room: {selectedRoom.name}</h2>
-          
+
+          <button onClick={() => setSelectedRoom(null)}>
+  Leave {selectedRoom?.name}
+</button>
+
+          <h2>{selectedRoom.name}</h2>
+
           <p className="status-line">Welcome back, {playerName}!</p>
-<p className="status-line token-balance">Casino Balance: {tokenBalance}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+  <p className="status-line" style={{ margin: 0 }}>Your current balance is</p>
+  <p className="token-balance" style={{ margin: 0 }}>$ {tokenBalance}</p>
+</div>
+
+
 
           <input
             placeholder="New scenario"
@@ -513,8 +525,8 @@ useEffect(() => {
             <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>
               <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
-  Min. Bet: ${sc.betAmount ?? 1}
-</div>
+                Min. Bet: ${sc.betAmount ?? 1}
+              </div>
 
               <div>
                 {(sc.order || Object.keys(sc.outcomes)).map((key) => {
@@ -528,13 +540,13 @@ useEffect(() => {
                     <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
                       {!sc.launched && <span>{val}</span>}
                       {sc.launched && !sc.winner && !sc.betsClosed && (
-  <button
-    onClick={() => voteOutcome(sc.id, key)}
-    style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
-  >
-    {val}
-  </button>
-)}
+                        <button
+                          onClick={() => voteOutcome(sc.id, key)}
+                          style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
+                        >
+                          {val}
+                        </button>
+                      )}
 
 
                     </div>
@@ -590,11 +602,11 @@ useEffect(() => {
                       return (
                         <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
                           {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
-{isWinner && voters.length === 0
-  ? "(Push - All Bets Returned)"
-  : isWinner
-    ? "(Winner)"
-    : ""}
+                          {isWinner && voters.length === 0
+                            ? "(Push - All Bets Returned)"
+                            : isWinner
+                              ? "(Winner)"
+                              : ""}
 
                         </div>
                       );

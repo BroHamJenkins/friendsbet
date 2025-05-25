@@ -484,30 +484,7 @@ useEffect(() => {
         </div>
       ) : (
         <div>
-          <h2 style={{
-  minHeight: "7.5rem",               // reserve consistent space
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  textAlign: "center",
-  padding: "1rem",
-  backgroundColor: "rgba(0, 0, 0, 0.6)",
-  borderRadius: "10px",
-  fontFamily: "'Limelight', cursive",
-  color: "#FFD700",
-  textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FFB800, 0 0 40px #FFA500",
-  marginBottom: "1rem"
-}}>
-  <span
-    key={headerIndex}
-    style={{
-      animation: "slideIn 0.5s ease-in-out",
-      fontSize: casinoMessages[headerIndex]?.size || "2.2rem"
-    }}
-  >
-    {casinoMessages[headerIndex]?.text || "Danny's Casino"}
-  </span>
-</h2>
+          
 
 
           <button onClick={() => setSelectedRoom(null)}>Leave Room</button>

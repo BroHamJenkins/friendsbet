@@ -95,9 +95,15 @@ function App() {
     setRoomList(rooms);
 
     if (selectedRoom) {
-      const updatedRoom = rooms.find((r) => r.id === selectedRoom.id);
-      if (updatedRoom) setSelectedRoom(updatedRoom);
-    }
+  const updatedRoom = rooms.find((r) => r.id === selectedRoom.id);
+  if (
+    updatedRoom &&
+    JSON.stringify(updatedRoom) !== JSON.stringify(selectedRoom)
+  ) {
+    setSelectedRoom(updatedRoom);
+  }
+}
+
   });
 
   return () => unsubscribe();
@@ -662,10 +668,12 @@ function App() {
                       {!sc.launched && <span>{val}</span>}
                       {sc.launched && !sc.winner && !sc.betsClosed && (
                         <button
+  type="button"
   onClick={() => voteOutcome(sc.id, key)}
   className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
   style={{ marginLeft: "0.5rem", position: "relative" }}
 >
+
   {val}
   {userVoted && (
     <span

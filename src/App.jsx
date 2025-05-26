@@ -31,6 +31,7 @@ const findApprovedName = (inputName) => {
 
 
 function App() {
+  const [showScenarioForm, setShowScenarioForm] = useState(false);
   const [editableRoomName, setEditableRoomName] = useState("");
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("prop");
@@ -553,9 +554,7 @@ function App() {
 
 
 
-          <button onClick={() => setSelectedRoom(null)}>
-  Leave {selectedRoom?.name}
-</button>
+          
 
           {playerName === "Raul" ? (
   <div style={{ textAlign: "center", marginBottom: "1rem" }}>
@@ -592,27 +591,38 @@ function App() {
 ) : (
   <h2 className="room-name-display">{selectedRoom.name}</h2>
 )}
-
+<button onClick={() => setSelectedRoom(null)}>   
+  Leave {selectedRoom?.name}
+</button>
           <p className="status-line">Welcome back, {playerName}!</p>
           
 
 
 
-          <input
-            placeholder="New scenario"
-            value={newScenario}
-            onChange={(e) => setNewScenario(e.target.value)}
-          />
+          {!showScenarioForm ? (
+  <button onClick={() => setShowScenarioForm(true)}>
+    + New Prop Bet
+  </button>
+) : (
+  <div style={{ marginBottom: "1rem" }}>
+    <input
+      placeholder="New Prop Bet"
+      value={newScenario}
+      onChange={(e) => setNewScenario(e.target.value)}
+    />
+    <input
+      type="number"
+      placeholder="Bet amount"
+      value={betAmount}
+      onChange={(e) => setBetAmount(Number(e.target.value))}
+    />
+    <button onClick={addScenario}>Open the Betting</button>
+    <button onClick={() => setShowScenarioForm(false)} style={{ marginLeft: "0.5rem" }}>
+      Cancel
+    </button>
+  </div>
+)}
 
-          <input
-            type="number"
-            placeholder="Bet amount"
-            value={betAmount}
-            onChange={(e) => setBetAmount(Number(e.target.value))}
-          />
-
-
-          <button onClick={addScenario}>Add Scenario</button>
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
               <strong>{sc.description}</strong>

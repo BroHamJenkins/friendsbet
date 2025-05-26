@@ -487,10 +487,23 @@ function App() {
           <Bank playerName={playerName} />
         </div>
       ) : gameSelected === "Beach Olympics" ? (
-        <div>
-          <h2>Beach Olympics</h2>
-          <button onClick={() => setGameSelected("")}>Leave Olympics</button>
-        </div>
+  <div style={{ textAlign: "center" }}>
+    <img
+      src="/blue-god.png"
+      alt="Beach Olympics Mascot"
+      style={{
+        maxWidth: "200px",
+        width: "100%",
+        height: "auto",
+        marginBottom: "1rem"
+      }}
+    />
+    <h2 style={{ fontFamily: "'Orbitron', sans-serif", color: "#FFA500" }}>
+      Beach Olympics
+    </h2>
+    <button onClick={() => setGameSelected("")}>Leave Olympics</button>
+  </div>
+
       ) : gameSelected === "Road Trip Mayhem" ? (
         <div>
           <h2>Road Trip Mayhem</h2>

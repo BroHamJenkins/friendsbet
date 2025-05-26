@@ -333,24 +333,74 @@ function App() {
     >
       {gameSelected === "Casino" && (
         <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "1rem"
-            }}
-          >
-            <img
-              src="/Logo Icon-01.png"
-              alt="Uncle Casino"
-              style={{
-                width: "180px",
-                maxWidth: "90%",
-                animation: "flickerGlow 5s ease-in-out infinite"
-              }}
-            />
+          {/* Logo centered */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: "1rem",
+    position: "relative"
+  }}
+>
+  <img
+    src="/Logo Icon-01.png"
+    alt="Uncle Casino"
+    style={{
+      width: "180px",
+      maxWidth: "90%",
+      animation: "flickerGlow 5s ease-in-out infinite"
+    }}
+  />
+</div>
 
-          </div>
+{/* Bubble fixed in upper-right corner */}
+<div
+  style={{
+    position: "fixed",
+    top: "1rem",
+    right: "1rem",
+    width: "100px",
+    height: "100px",
+    zIndex: 1000
+  }}
+>
+  <img
+  src="/chat_bubble_large.png"
+  alt="Balance Bubble"
+  style={{
+    width: "100%",
+    height: "100%",
+    animation: "bubbleGlow 2s ease-in-out infinite"
+  }}
+/>
+
+<div
+  style={{
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    fontFamily: "'Orbitron', sans-serif",
+    fontSize: "1.6rem",
+    fontWeight: "bold",
+    color: "#FF3C3C", // vivid red
+    letterSpacing: "1px",
+    textShadow: `
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000,
+      0 0 6px #FFB800,
+      0 0 12px #FF8C00
+    `
+  }}
+>
+  ${tokenBalance}
+</div>
+
+
+</div>
+
 
           {/* <div
       style={{

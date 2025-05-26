@@ -29,7 +29,6 @@ h2, h3 {
   color: #f7f9fa; 
 }
 
-
 button {
   background: linear-gradient(to bottom, #f4c44e, #c88d1d);
   color: #fff;
@@ -63,7 +62,6 @@ button:active {
     inset 0 0 8px #fff9dd,
     0 2px 4px rgba(0,0,0,0.3);
 }
-
 
 button:hover {
   background-color: #005bb5;
@@ -99,16 +97,12 @@ li {
   background-color: yellow;
 }
 
-.winner {
-  color: green;
-}
-
 .ml-half {
   margin-left: 0.5rem;
 }
 
 .scenario-box {
-  background-color: rgba(255, 255, 255, 0.8);  /* White with 80% opacity */
+  background-color: rgba(255, 255, 255, 0.8);
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -126,7 +120,7 @@ li {
 }
 
 .token-balance {
-  color: #f7f308; /* green */
+  color: #f7f308;
 }
 
 @keyframes slideIn {
@@ -209,7 +203,6 @@ li {
     0 0 10px #FFB800,
     0 0 20px #FF8C00,
     0 0 40px #FF3C3C;
-
 }
 
 .casino-button-gold {
@@ -253,3 +246,4 @@ li {
   font-size: 0.9rem;
   margin: 0 0.5rem;
 }
+

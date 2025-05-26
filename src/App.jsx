@@ -662,11 +662,30 @@ function App() {
                       {!sc.launched && <span>{val}</span>}
                       {sc.launched && !sc.winner && !sc.betsClosed && (
                         <button
-                          onClick={() => voteOutcome(sc.id, key)}
-                          style={{ marginLeft: "0.5rem", backgroundColor: userVoted ? "yellow" : "" }}
-                        >
-                          {val}
-                        </button>
+  onClick={() => voteOutcome(sc.id, key)}
+  className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
+  style={{ marginLeft: "0.5rem", position: "relative" }}
+>
+  {val}
+  {userVoted && (
+    <span
+      style={{
+        position: "absolute",
+        top: "-8px",
+        right: "-8px",
+        backgroundColor: "#00ff88",
+        color: "#000",
+        borderRadius: "50%",
+        fontSize: "0.7rem",
+        padding: "2px 5px",
+        fontWeight: "bold"
+      }}
+    >
+      ✓
+    </span>
+  )}
+</button>
+
                       )}
 
 

@@ -508,7 +508,13 @@ function App() {
 
 
 
-          <button onClick={() => setGameSelected("")}>Leave Casino</button>
+          <button 
+            className="casino-button-gold"
+            onClick={() => setGameSelected("")}
+            >
+              Leave Casino
+              
+              </button>
 
           {playerName === "Raul" && (
             <>

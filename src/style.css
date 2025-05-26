@@ -31,13 +31,39 @@ h2, h3 {
 
 
 button {
-  background-color: #15cccc;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  background: linear-gradient(to bottom, #f4c44e, #c88d1d);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #fff3;
+  border-radius: 14px;
+  position: relative;
   cursor: pointer;
+  text-shadow: 0 1px 2px #000;
+  box-shadow:
+    inset 0 0 0 2px #ffeb9c,
+    0 0 0 4px #d9a62a,
+    0 6px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease-in-out;
 }
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #fff6c1,
+    0 0 0 4px #eeb744,
+    0 8px 12px rgba(0,0,0,0.5);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 8px #fff9dd,
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
 
 button:hover {
   background-color: #005bb5;
@@ -184,4 +210,46 @@ li {
     0 0 20px #FF8C00,
     0 0 40px #FF3C3C;
 
+}
+
+.casino-button-gold {
+  background: linear-gradient(to bottom, #f4c44e, #c88d1d);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid #d9a62a;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 2px #fff2,
+    0 4px 8px rgba(0, 0, 0, 0.4);
+  text-shadow:
+    0 0 3px #fff2,
+    0 1px 2px #000;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.casino-button-gold:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 0 2px #fff3,
+    0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.casino-button-gold:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 6px #fff5,
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.casino-button-gold::before,
+.casino-button-gold::after {
+  content: "◆";
+  color: #fff;
+  font-size: 0.9rem;
+  margin: 0 0.5rem;
 }

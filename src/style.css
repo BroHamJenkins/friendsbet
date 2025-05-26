@@ -161,3 +161,12 @@ li {
     0 0 10px #FFB800,
     0 0 20px #FFA500;
 }
+
+@keyframes bubbleGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 12px #FFA500);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px #FFB800) drop-shadow(0 0 24px #FF8C00);
+  }
+}

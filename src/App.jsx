@@ -31,6 +31,7 @@ const findApprovedName = (inputName) => {
 
 
 function App() {
+  const [editableRoomName, setEditableRoomName] = useState("");
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("prop");
   const [roomList, setRoomList] = useState([]);
@@ -85,15 +86,22 @@ function App() {
 
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "rooms"), (snapshot) => {
-      const rooms = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setRoomList(rooms);
-    });
-    return () => unsubscribe();
-  }, []);
+  const unsubscribe = onSnapshot(collection(db, "rooms"), (snapshot) => {
+    const rooms = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setRoomList(rooms);
+
+    if (selectedRoom) {
+      const updatedRoom = rooms.find((r) => r.id === selectedRoom.id);
+      if (updatedRoom) setSelectedRoom(updatedRoom);
+    }
+  });
+
+  return () => unsubscribe();
+}, [selectedRoom]);
+
 
   useEffect(() => {
     if (!selectedRoom) return;
@@ -152,9 +160,11 @@ function App() {
   }, [playerName]);
 
   const joinRoom = (room) => {
-    setSelectedRoom(room);
-    localStorage.setItem("lastRoomId", room.id);
-  };
+  setSelectedRoom(room);
+  setEditableRoomName(room.name);  // ← preload editable name
+  localStorage.setItem("lastRoomId", room.id);
+};
+
 
   const addScenario = async () => {
     if (!newScenario.trim() || !selectedRoom) return;
@@ -359,8 +369,8 @@ function App() {
     position: "fixed",
     top: "1rem",
     right: "1rem",
-    width: "100px",
-    height: "100px",
+    width: "80px",
+    height: "80px",
     zIndex: 1000
   }}
 >
@@ -514,7 +524,8 @@ function App() {
             </>
           )}
 
-          <h3>Join a proposition room:</h3>
+          <h3 style={{ textAlign: "center" }}>Where to, Boss?</h3>
+
           <ul>
             {propRooms.map((room) => (
               <li key={room.id}>
@@ -546,13 +557,44 @@ function App() {
   Leave {selectedRoom?.name}
 </button>
 
-          <h2>{selectedRoom.name}</h2>
+          {playerName === "Raul" ? (
+  <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+    <input
+      type="text"
+      value={editableRoomName}
+      onChange={(e) => setEditableRoomName(e.target.value)}
+      style={{
+        fontFamily: "'Limelight', cursive",
+        fontSize: "2.4rem",
+        textAlign: "center",
+        border: "2px solid #FF3C3C",
+        borderRadius: "6px",
+        padding: "0.25rem 0.5rem",
+        color: "#FF3C3C",
+        textShadow: "0 0 5px #FFD700, 0 0 10px #FFB800, 0 0 20px #FF8C00, 0 0 40px #FF3C3C"
+      }}
+    />
+    <button
+      onClick={async () => {
+        const roomRef = doc(db, "rooms", selectedRoom.id);
+        await updateDoc(roomRef, { name: editableRoomName });
+      }}
+      style={{
+        marginLeft: "0.75rem",
+        padding: "0.4rem 1rem",
+        fontSize: "1rem",
+        cursor: "pointer"
+      }}
+    >
+      Save
+    </button>
+  </div>
+) : (
+  <h2 className="room-name-display">{selectedRoom.name}</h2>
+)}
 
           <p className="status-line">Welcome back, {playerName}!</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-  <p className="status-line" style={{ margin: 0 }}>Your current balance is</p>
-  <p className="token-balance" style={{ margin: 0 }}>$ {tokenBalance}</p>
-</div>
+          
 
 
 

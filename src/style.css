@@ -1,10 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
 body {
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   margin: 0;
   padding: 0;
 }
-
+@import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
 .container {
   max-width: 700px;
   margin: 2rem auto;
@@ -25,7 +26,7 @@ input, select, button {
 
 h2, h3 {
   margin-top: 1.5rem;
-  color: #1ad5f7; 
+  color: #f7f9fa; 
 }
 
 
@@ -169,4 +170,18 @@ li {
   50% {
     filter: drop-shadow(0 0 12px #FFB800) drop-shadow(0 0 24px #FF8C00);
   }
+}
+
+.room-name-display {
+  font-family: 'Limelight', cursive;
+  font-size: 2.8rem;
+  color: #FF3C3C;
+  text-align: center;
+  margin: 1.5rem 0;
+  text-shadow:
+    0 0 5px #FFD700,
+    0 0 10px #FFB800,
+    0 0 20px #FF8C00,
+    0 0 40px #FF3C3C;
+
 }

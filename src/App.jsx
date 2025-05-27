@@ -194,7 +194,22 @@ function App() {
 
   const addScenario = async () => {
     if (!newScenario.trim() || !selectedRoom) return;
-   await addDoc(collection(db, "rooms", selectedRoom.id, "scenarios"), {
+   const min = Number(betAmount);
+const max = Number(maxBetAmount);
+
+if (!min || !max) {
+  alert("Please enter both a minimum and maximum bet.");
+  return;
+}
+
+if (min > max) {
+  alert("Minimum bet cannot be greater than maximum bet. Please correct the values.");
+  return;
+}
+
+const mode = min === max ? "flat" : "pari";
+
+await addDoc(collection(db, "rooms", selectedRoom.id, "scenarios"), {
   description: newScenario,
   createdAt: serverTimestamp(),
   creator: playerName,
@@ -203,12 +218,12 @@ function App() {
   winner: null,
   launched: false,
   order: [],
-  betAmount: betAmount ?? 1,
-  minBet: betAmount ?? 1,
-  maxBet: maxBetAmount ?? (betAmount ? betAmount * 5 : 10),
-
-  mode: scenarioMode
+  betAmount: min,
+  minBet: min,
+  maxBet: max,
+  mode
 });
+
 
 
 
@@ -703,14 +718,7 @@ overflowY: "auto",
                 onChange={(e) => setMaxBetAmount(Number(e.target.value))}
                 style={{ width: "7rem", marginRight: "0.5rem" }}
               />
-              <select
-  value={scenarioMode}
-  onChange={(e) => setScenarioMode(e.target.value)}
-  style={{ margin: "0.5rem 0" }}
->
-  <option value="flat">Flat</option>
-  <option value="pari">Parimutuel</option>
-</select>
+              
 
               <button onClick={addScenario}>Create Choices</button>
               <button onClick={() => setShowScenarioForm(false)} style={{ marginLeft: "0.5rem" }}>

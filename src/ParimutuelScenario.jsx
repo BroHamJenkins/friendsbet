@@ -23,51 +23,55 @@ function ParimutuelScenario({ scenario, playerName, voteAmounts, setVoteAmounts,
   const val = scenario.outcomes[key];
   const userVoted = scenario.votes[playerName]?.choice === key;
 
-  if (scenario.launched && !scenario.winner && !scenario.betsClosed) {
-    return (
-      <button
-        key={key}
-        type="button"
-        onClick={() => {
-          const raw = voteAmounts[scenario.id];
-          const amount = Number(raw);
-          if (!raw || isNaN(amount)) {
-            alert("Please enter a valid bet amount.");
-            return;
-          }
-          if (amount < scenario.minBet || amount > scenario.maxBet) {
-            alert(`Bet must be between ${scenario.minBet} and ${scenario.maxBet}`);
-            return;
-          }
-          voteOutcome(scenario.id, key, amount);
-        }}
-        className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
-        style={{ marginLeft: "0.5rem", position: "relative" }}
-      >
-        {val}
-        {userVoted && (
-          <span
-            style={{
-              position: "absolute",
-              top: "-8px",
-              right: "-8px",
-              backgroundColor: "#00ff88",
-              color: "#000",
-              borderRadius: "50%",
-              fontSize: "0.7rem",
-              padding: "2px 5px",
-              fontWeight: "bold"
-            }}
-          >
-            ✓
-          </span>
-        )}
-      </button>
-    );
-  }
+  const isVotingActive =
+    scenario.launched && !scenario.winner && !scenario.betsClosed;
 
-  return null;
+  return isVotingActive ? (
+    <button
+      key={key}
+      type="button"
+      onClick={() => {
+        const raw = voteAmounts[scenario.id];
+        const amount = Number(raw);
+        if (!raw || isNaN(amount)) {
+          alert("Please enter a valid bet amount.");
+          return;
+        }
+        if (amount < scenario.minBet || amount > scenario.maxBet) {
+          alert(`Bet must be between ${scenario.minBet} and ${scenario.maxBet}`);
+          return;
+        }
+        voteOutcome(scenario.id, key, amount);
+      }}
+      className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
+      style={{ marginLeft: "0.5rem", position: "relative" }}
+    >
+      {val}
+      {userVoted && (
+        <span
+          style={{
+            position: "absolute",
+            top: "-8px",
+            right: "-8px",
+            backgroundColor: "#00ff88",
+            color: "#000",
+            borderRadius: "50%",
+            fontSize: "0.7rem",
+            padding: "2px 5px",
+            fontWeight: "bold"
+          }}
+        >
+          ✓
+        </span>
+      )}
+    </button>
+  ) : (
+    <div key={key} style={{ marginBottom: "0.25rem" }}>
+      {val}
+    </div>
+  );
 })}
+
 
 
       {scenario.creator === playerName && !scenario.launched && (

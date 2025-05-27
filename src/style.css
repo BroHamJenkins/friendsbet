@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
 body {
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   margin: 0;
   padding: 0;
 }
-@import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
+
 .container {
   max-width: 700px;
   margin: 2rem auto;
@@ -63,7 +64,8 @@ button:active {
     0 2px 4px rgba(0,0,0,0.3);
 }
 
-button:hover {
+button:not(.casino-button-gold):hover
+{
   background-color: #005bb5;
 }
 

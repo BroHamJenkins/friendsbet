@@ -12,7 +12,8 @@ import {
   deleteDoc,
   query,
   where,
-  getDocs
+  getDocs,
+  orderBy
 } from "firebase/firestore";
 import Bank from "./Bank";
 import ParimutuelScenario from "./ParimutuelScenario";
@@ -48,14 +49,14 @@ function App() {
 
 
   const [scenarioMode, setScenarioMode] = useState("flat");  
-  const [maxBetAmount, setMaxBetAmount] = useState(10);
+  const [maxBetAmount, setMaxBetAmount] = useState("");
   const [voteAmounts, setVoteAmounts] = useState({});
   const [showScenarioForm, setShowScenarioForm] = useState(false);
   const [editableRoomName, setEditableRoomName] = useState("");
   const [roomName, setRoomName] = useState("");
   const [roomType, setRoomType] = useState("prop");
   const [roomList, setRoomList] = useState([]);
-  const [betAmount, setBetAmount] = useState(1);
+  const [betAmount, setBetAmount] = useState("");
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
@@ -86,14 +87,14 @@ function App() {
   };
 
 
-  const casinoMessages = [
+   const casinoMessages = [
     { text: "WELCOME TO", size: "2.2rem" },
     { text: "DANNY'S CASINO", size: "2.2rem" },
     { text: "...And adult lerning center", size: "2.2rem" },
     { text: "Built on HONESTY, INTEGRITY...", size: "2.2rem" },
     { text: "...and thinly veiled spite", size: "2.2rem" },
   ];
-
+ 
   const [headerIndex, setHeaderIndex] = useState(0);
 
   useEffect(() => {
@@ -106,12 +107,13 @@ function App() {
 
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "rooms"), (snapshot) => {
-      const rooms = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setRoomList(rooms);
+    const roomQuery = query(collection(db, "rooms"), orderBy("createdAt", "asc"));
+const unsubscribe = onSnapshot(roomQuery, (snapshot) => {
+  const rooms = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  setRoomList(rooms);
 
       if (selectedRoom) {
         const updatedRoom = rooms.find((r) => r.id === selectedRoom.id);
@@ -749,10 +751,10 @@ overflowY: "auto",
 
   ) : (
     <>
-      <strong>{sc.description}</strong>
-      <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
-        Min. Bet: ${sc.betAmount ?? 1}
-      </div>
+        <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
+    Flat Bet: ${sc.betAmount ?? 1}
+  </div>
+
 
       <div>
         {(sc.order || Object.keys(sc.outcomes)).map((key) => {

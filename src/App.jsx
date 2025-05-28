@@ -413,7 +413,15 @@ if (Object.keys(votes).includes(playerName)) {
   
 
   return (
-    <div className={`app-wrapper ${gameSelected?.toLowerCase().replace(/\s/g, '-') || ''}`}>
+    <div className={`app-wrapper ${
+  !playerName
+    ? 'login'
+    : gameSelected
+    ? gameSelected.toLowerCase().replace(/\s/g, '-')
+    : 'home'
+}`}>
+
+
 
       {gameSelected === "Casino" && (
         <>
@@ -427,7 +435,7 @@ if (Object.keys(votes).includes(playerName)) {
             }}
           >
             <img
-              src="/Logo Icon-01.png"
+              src="/Casino-Logo.png"
               alt="Uncle Casino"
               style={{
                 width: "180px",
@@ -543,37 +551,47 @@ if (Object.keys(votes).includes(playerName)) {
           }}>Continue</button>
         </div>
       ) : !gameSelected ? (
-        <div>
-          <h2>Select a Game</h2>
-<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-  <button className="button-silver" onClick={() => setGameSelected("Casino")}>Casino</button>
+        
+        <>
+    <div className="home-logo-container">
+      <img src="/Home-Logo.png" alt="Danny's App Logo" className="home-logo" />
+    </div>
 
-  <button className="button-emerald" onClick={() => setGameSelected("Beach Olympics")}>Beach Olympics</button>
-  <button className="button-violet" onClick={() => setGameSelected("Road Trip Mayhem")}>Road Trip Mayhem</button>
-  <button className="button-dark" onClick={() => setGameSelected("Bank")}>Bank</button>
-</div>
+    <div>
+      <h2>Select a Game</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <button className="button-silver" onClick={() => setGameSelected("Casino")}>Casino</button>
+        <button className="button-emerald" onClick={() => setGameSelected("Beach Olympics")}>Beach Olympics</button>
+        <button className="button-violet" onClick={() => setGameSelected("Road Trip Mayhem")}>Road Trip Mayhem</button>
+        <button className="button-dark" onClick={() => setGameSelected("Bank")}>Bank</button>
+      </div>
+
+      <img
+        src="/icons/fancy-gold-button.png"
+        alt="Leave Olympics"
+        onClick={() => setGameSelected("")}
+        className="clickable-arrow"
+      />
+    </div>
+  </>
+
+ ) : gameSelected === "Bank" ? (
+  <>
+    <div className="bank-logo-container">
+      <img src="/Bank-Logo.png" alt="Bank Logo" className="bank-logo" />
+    </div>
+
+    <div>
+      <button onClick={() => setGameSelected("")}>Leave Bank</button>
+      <Bank playerName={playerName} />
+    </div>
+  </>
 
 
-        </div>
-
-      ) : gameSelected === "Bank" ? (
-        <div>
-          <button onClick={() => setGameSelected("")}>Leave Bank</button>
-          <Bank playerName={playerName} />
-        </div>
       ) : gameSelected === "Beach Olympics" ? (
   <div className="beach-olympics-page" style={{ textAlign: "center" }}>
 
-          <img
-            src="/Olympichurdler.png"
-            alt="Beach Olympics Mascot2"
-            style={{
-              maxWidth: "200px",
-              width: "100%",
-              height: "auto",
-              marginBottom: "1rem"
-            }}
-          />
+          
           
           <img
             src="/blue-god.png"
@@ -589,7 +607,9 @@ if (Object.keys(votes).includes(playerName)) {
   Beach Olympics
 </h2>
 
-          <img
+          
+
+<img
   src="/icons/back-arrow.png"
   alt="Leave Olympics"
   onClick={() => setGameSelected("")}
@@ -629,7 +649,15 @@ if (Object.keys(votes).includes(playerName)) {
             </>
           )}
 
-          <h3 style={{ textAlign: "center" }}>Where to, Boss?</h3>
+ <button                  //takes user back to Home page (aka Select a game page)
+            className="button-burgundy"
+            onClick={() => setGameSelected("")}
+          >
+            Leave
+
+          </button>
+
+<h3 style={{ textAlign: "center" }}>Where to, Boss?</h3>
 
           <ul>
             {propRooms.map((room) => (
@@ -642,13 +670,7 @@ if (Object.keys(votes).includes(playerName)) {
             ))}
           </ul>
           
-          <button
-            className="button-burgundy"
-            onClick={() => setGameSelected("")}
-          >
-            Leave Casino
-
-          </button>
+          
         </div>
       ) : (
         <div>
@@ -692,12 +714,14 @@ if (Object.keys(votes).includes(playerName)) {
           ) : (
             <h2 className="room-name-display">{selectedRoom.name}</h2>
           )}
-          <button onClick={() => setSelectedRoom(null)}>
-            Leave {selectedRoom?.name}
+          <button 
+          className="button-burgundy"               //takes user back to Casino Main Page
+          onClick={() => setSelectedRoom(null)}>
+            Leave
           </button>
           <p className="status-line">Welcome back, {playerName}!</p>
 
-
+          
 
 
           {!showScenarioForm ? (

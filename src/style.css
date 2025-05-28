@@ -451,7 +451,7 @@ li {
   font-family: 'Orbitron', sans-serif;
   font-weight: bold;
   font-size: 1.1rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 0.75rem;
   border: 3px solid #8f1d3f;
   border-radius: 12px;
   box-shadow:
@@ -463,6 +463,9 @@ li {
   position: relative;
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+  max-width: 160px;
+   margin: 0 auto;
+  display: block;
 }
 
 .button-burgundy:hover {
@@ -516,7 +519,7 @@ li {
 }
 
 .clickable-arrow {
-  width: 48px; /* Or whatever size fits your layout */
+  width: 150px; /* change to fit layout - back button arrow  */
   height: auto;
   cursor: pointer;
   display: inline-block;
@@ -557,10 +560,11 @@ li {
 }
 
 /* Default background */
-.app-wrapper:not(.casino):not(.beach-olympics) {
+.app-wrapper:not(.casino):not(.beach-olympics):not(.bank):not(.home):not(.login) {
   background-color: #003366;
-  background-image: none;        /*url('/background.jpg');*/
+  background-image: none;
 }
+
 
 .app-wrapper::before {
   content: "";
@@ -576,5 +580,56 @@ li {
   opacity: 0;
 }
 
+.bank-logo-container {
+  text-align: center;
+  margin-top: 20px;
+}
 
+.bank-logo {
+  max-width: 200px;  /* Adjust size as needed */
+  height: auto;
+}
 
+.home-logo-container {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.home-logo {
+  max-width: 250px;
+  width: 100%;
+  height: auto;
+}
+
+.app-wrapper.bank {
+  background-image: url("/Bank-Background.jpg");
+  background-size: cover;
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #000; /* fallback */
+}
+
+.app-wrapper.home {
+  background-image: url("/Home-Background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #000; /* fallback */
+}
+
+.app-wrapper.login {
+  background-color: #001f33;
+  background-image: none;
+}
+
+.app-wrapper.beach-olympics {
+  background-image: url("/Olympics-Background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #000; /* fallback */
+}

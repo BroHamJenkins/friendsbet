@@ -54,7 +54,7 @@ function App() {
   const [showScenarioForm, setShowScenarioForm] = useState(false);
   const [editableRoomName, setEditableRoomName] = useState("");
   const [roomName, setRoomName] = useState("");
-  const [roomType, setRoomType] = useState("prop");
+  
   const [roomList, setRoomList] = useState([]);
   const [betAmount, setBetAmount] = useState("");
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -166,7 +166,8 @@ const unsubscribe = onSnapshot(roomQuery, (snapshot) => {
     await setDoc(newRoomRef, {
       name: roomName,
       createdAt: serverTimestamp(),
-      type: roomType
+      type: "prop"
+
     });
     setRoomName("");
   };
@@ -399,7 +400,7 @@ if (Object.keys(votes).includes(playerName)) {
   };
 
   const propRooms = roomList.filter(r => r.type !== "poll");
-  const pollRooms = roomList.filter(r => r.type === "poll");
+  
 
   return (
     <div
@@ -549,13 +550,15 @@ overflowY: "auto",
       ) : !gameSelected ? (
         <div>
           <h2>Select a Game</h2>
-          <select onChange={(e) => setGameSelected(e.target.value)} defaultValue="">
-            <option value="" disabled>Select a game</option>
-            <option value="Casino">Casino</option>
-            <option value="Beach Olympics">Beach Olympics</option>
-            <option value="Road Trip Mayhem">Road Trip Mayhem</option>
-            <option value="Bank">Bank</option>
-          </select>
+<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+  <button className="button-silver" onClick={() => setGameSelected("Casino")}>Casino</button>
+
+  <button className="button-emerald" onClick={() => setGameSelected("Beach Olympics")}>Beach Olympics</button>
+  <button className="button-violet" onClick={() => setGameSelected("Road Trip Mayhem")}>Road Trip Mayhem</button>
+  <button className="button-dark" onClick={() => setGameSelected("Bank")}>Bank</button>
+</div>
+
+
         </div>
 
       ) : gameSelected === "Bank" ? (
@@ -598,13 +601,7 @@ overflowY: "auto",
 
 
 
-          <button
-            className="casino-button-gold"
-            onClick={() => setGameSelected("")}
-          >
-            Leave Casino
-
-          </button>
+          
 
           {playerName === "Raul" && (
             <>
@@ -613,10 +610,7 @@ overflowY: "auto",
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
               />
-              <select value={roomType} onChange={(e) => setRoomType(e.target.value)}>
-                <option value="prop">Proposition</option>
-                <option value="poll">Poll</option>
-              </select>
+              
               <button onClick={createRoom}>Create Room</button>
             </>
           )}
@@ -633,17 +627,14 @@ overflowY: "auto",
               </li>
             ))}
           </ul>
-          <h3>Join a poll room:</h3>
-          <ul>
-            {pollRooms.map((room) => (
-              <li key={room.id}>
-                <button onClick={() => joinRoom(room)}>{room.name}</button>
-                {playerName === "Raul" && (
-                  <button onClick={() => deleteRoom(room.id)} style={{ marginLeft: "1rem" }}>Delete</button>
-                )}
-              </li>
-            ))}
-          </ul>
+          
+          <button
+            className="button-burgundy"
+            onClick={() => setGameSelected("")}
+          >
+            Leave Casino
+
+          </button>
         </div>
       ) : (
         <div>

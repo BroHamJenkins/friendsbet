@@ -207,7 +207,7 @@ li {
     0 0 40px #FF3C3C;
 }
 
-.casino-button-gold {
+.casino-button-gold {            
   background: linear-gradient(to bottom, #f4c44e, #c88d1d);
   color: #fff;
   font-family: 'Orbitron', sans-serif;
@@ -249,3 +249,233 @@ li {
   margin: 0 0.5rem;
 }
 
+.game-select-button {
+  background: linear-gradient(to bottom, #f44e78, #b41111);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #fff3;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #000;
+  box-shadow:
+    inset 0 0 0 2px #ff9ca9,
+    0 0 0 4px #d92a5f,
+    0 6px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.button-silver {
+  background: linear-gradient(to bottom, #dcdcdc, #a9a9a9); /* light gray to dark gray */
+  color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #ccc;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #fff;
+  box-shadow:
+    inset 0 0 0 2px #eee,
+    0 0 0 4px #bbb,
+    0 6px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.button-silver:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #f0f0f0,
+    0 0 0 4px #ccc,
+    0 8px 12px rgba(0,0,0,0.5);
+}
+
+.button-silver:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 8px #fafafa,
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
+.button-emerald {
+  background: linear-gradient(to bottom, #50c878, #2e8b57); /* light emerald to sea green */
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #98fb98;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #004d2c;
+  box-shadow:
+    inset 0 0 0 2px #b0ffcc,
+    0 0 0 4px #3cb371,
+    0 6px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.button-emerald:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #ccffe5,
+    0 0 0 4px #2e8b57,
+    0 8px 12px rgba(0,0,0,0.5);
+}
+
+.button-emerald:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 8px #aaffcc,
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
+.button-violet {
+  background: linear-gradient(to bottom, #9b59b6, #5e3370); /* amethyst to plum */
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #c8a2c8;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #2e003e;
+  box-shadow:
+    inset 0 0 0 2px #e6ccff,
+    0 0 0 4px #7e4a9c,
+    0 6px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.button-violet:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #f3e6ff,
+    0 0 0 4px #5e3370,
+    0 8px 12px rgba(0,0,0,0.5);
+}
+
+.button-violet:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 8px #e0ccff,
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
+.button-ocean {
+  background: linear-gradient(to bottom, #00bfff, #0077be); /* deep sky blue to ocean blue */
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #66d9ff;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #004466;
+  box-shadow:
+    inset 0 0 0 2px #b3ecff,
+    0 0 0 4px #1ca9c9,
+    0 6px 10px rgba(0,0,0,0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.button-ocean:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #d9f6ff,
+    0 0 0 4px #0077be,
+    0 8px 12px rgba(0,0,0,0.5);
+}
+
+.button-ocean:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 8px #b3ecff,
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
+.button-dark {
+  background: linear-gradient(to bottom, #444, #222);
+  color: #eee;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid #666;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #000;
+  box-shadow:
+    inset 0 0 0 2px #777,
+    0 0 0 4px #111,
+    0 6px 10px rgba(0,0,0,0.5);
+  transition: all 0.2s ease-in-out;
+}
+
+.button-dark:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #aaa,
+    0 0 0 4px #333,
+    0 8px 12px rgba(0,0,0,0.6);
+}
+
+.button-dark:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 8px #aaa,
+    0 2px 4px rgba(0,0,0,0.4);
+}
+
+.button-burgundy {
+  background: linear-gradient(to bottom, #8f1d3f, #640f21); /* lighter burgundy to base */
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid #8f1d3f;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0 2px #fff2,
+    0 4px 8px rgba(0, 0, 0, 0.4);
+  text-shadow:
+    0 0 3px #fff2,
+    0 1px 2px #000;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.button-burgundy:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 0 2px #fff3,
+    0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.button-burgundy:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 6px #fff5,
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.button-burgundy::before,
+.button-burgundy::after {
+  content: "◆";
+  color: #fff;
+  font-size: 0.9rem;
+  margin: 0 0.5rem;
+}

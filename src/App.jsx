@@ -130,6 +130,16 @@ const unsubscribe = onSnapshot(roomQuery, (snapshot) => {
     return () => unsubscribe();
   }, [selectedRoom]);
 
+  useEffect(() => {
+  const wrapper = document.querySelector('.app-wrapper');
+  if (!wrapper) return;
+
+  wrapper.classList.add('animating');
+  const timeout = setTimeout(() => wrapper.classList.remove('animating'), 600);
+
+  return () => clearTimeout(timeout);
+}, [gameSelected]);
+
 
   useEffect(() => {
     if (!selectedRoom) return;
@@ -403,23 +413,8 @@ if (Object.keys(votes).includes(playerName)) {
   
 
   return (
-    <div
-      style={{
-        backgroundImage:
-          gameSelected === "Casino"
-            ? "url('/casinoBackground.jpg')"
-            : "url('/background.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",   
-        height: "100vh",
-overflowY: "auto",
-        padding: "2rem",
-        fontFamily: "Arial, sans-serif",
-      }}
+    <div className={`app-wrapper ${gameSelected?.toLowerCase().replace(/\s/g, '-') || ''}`}>
 
-    >
       {gameSelected === "Casino" && (
         <>
           {/* Logo centered */}
@@ -567,7 +562,19 @@ overflowY: "auto",
           <Bank playerName={playerName} />
         </div>
       ) : gameSelected === "Beach Olympics" ? (
-        <div style={{ textAlign: "center" }}>
+  <div className="beach-olympics-page" style={{ textAlign: "center" }}>
+
+          <img
+            src="/Olympichurdler.png"
+            alt="Beach Olympics Mascot2"
+            style={{
+              maxWidth: "200px",
+              width: "100%",
+              height: "auto",
+              marginBottom: "1rem"
+            }}
+          />
+          
           <img
             src="/blue-god.png"
             alt="Beach Olympics Mascot"
@@ -578,10 +585,17 @@ overflowY: "auto",
               marginBottom: "1rem"
             }}
           />
-          <h2 style={{ fontFamily: "'Orbitron', sans-serif", color: "#FFA500" }}>
-            Beach Olympics
-          </h2>
-          <button onClick={() => setGameSelected("")}>Leave Olympics</button>
+          <h2 className="beach-olympics-header">
+  Beach Olympics
+</h2>
+
+          <img
+  src="/icons/back-arrow.png"
+  alt="Leave Olympics"
+  onClick={() => setGameSelected("")}
+  className="clickable-arrow"
+/>
+
         </div>
 
       ) : gameSelected === "Road Trip Mayhem" ? (

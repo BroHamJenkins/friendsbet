@@ -558,20 +558,44 @@ if (Object.keys(votes).includes(playerName)) {
     </div>
 
     <div>
-      <h2>Select a Game</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        <button className="button-silver" onClick={() => setGameSelected("Casino")}>Casino</button>
-        <button className="button-emerald" onClick={() => setGameSelected("Beach Olympics")}>Beach Olympics</button>
-        <button className="button-violet" onClick={() => setGameSelected("Road Trip Mayhem")}>Road Trip Mayhem</button>
-        <button className="button-dark" onClick={() => setGameSelected("Bank")}>Bank</button>
+
+<div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem", marginBottom: "0.5rem" }}>
+  <div
+    style={{
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+      paddingTop: ".5rem",
+    paddingBottom: ".15rem",
+    paddingLeft: "3rem",
+    paddingRight: "3rem",
+      borderRadius: "20px",
+      textAlign: "center",
+    }}
+  >
+    <p style={{ fontSize: "0.75rem", margin: 0, color: "#ff5fff" }}>WELCOME BACK</p>
+    <p
+      style={{
+        fontSize: "2rem",
+        fontWeight: "bold",
+        margin: 0,
+        color: "#fff",
+      }}
+    >
+      {playerName.toUpperCase()}
+    </p>
+  </div>
+</div>
+
+
+
+
+      
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.0rem" }}>
+        <button className="button" onClick={() => setGameSelected("Casino")}>Casino</button>
+        <button className="button-ocean" onClick={() => setGameSelected("Beach Olympics")}>Beach Olympics</button>
+        <button className="button-emerald" onClick={() => setGameSelected("Bank")}>Bank</button>
       </div>
 
-      <img
-        src="/icons/fancy-gold-button.png"
-        alt="Leave Olympics"
-        onClick={() => setGameSelected("")}
-        className="clickable-arrow"
-      />
+      
     </div>
   </>
 
@@ -582,7 +606,14 @@ if (Object.keys(votes).includes(playerName)) {
     </div>
 
     <div>
-      <button onClick={() => setGameSelected("")}>Leave Bank</button>
+      
+      <button                  //takes user back to Home page (aka Select a game page)
+            className="button-burgundy"
+            onClick={() => setGameSelected("")}
+          >
+            Leave
+
+          </button>
       <Bank playerName={playerName} />
     </div>
   </>

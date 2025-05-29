@@ -414,11 +414,12 @@ if (Object.keys(votes).includes(playerName)) {
 
   return (
     <div className={`app-wrapper ${
-  !playerName
-    ? 'login'
-    : gameSelected
-    ? gameSelected.toLowerCase().replace(/\s/g, '-')
-    : 'home'
+  !hasEnteredName
+  ? 'login'
+  : gameSelected
+  ? gameSelected.toLowerCase().replace(/\s/g, '-')
+  : 'home'
+
 }`}>
 
 
@@ -529,27 +530,44 @@ if (Object.keys(votes).includes(playerName)) {
 
 
       {!hasEnteredName ? (
-        <div>
+        <div style={{ textAlign: "center", position: "relative", minHeight: "80vh" }}>
+  <h2>WELCOME</h2>
+  <input
+    placeholder="Your name"
+    value={playerName}
+    onChange={(e) => setPlayerName(e.target.value)}
+  />
+  <button
+    onClick={() => {
+      const matchedName = findApprovedName(playerName);
+      if (matchedName) {
+        setPlayerName(matchedName);
+        setHasEnteredName(true);
+      } else {
+        alert("Name not recognized. Please enter an approved name.");
+      }
+    }}
+  >
+    Continue
+  </button>
 
+  <p style={{
+    fontSize: "0.65rem",
+    color: "#fff",
+    position: "absolute",
+    bottom: "1rem",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "90%",
+    maxWidth: "500px",
+    lineHeight: "1.2",
+    textAlign: "center",
+    opacity: 0.75
+  }}>
+    © 2025 Danny’s App™. All rights reserved. Danny’s App is a registered trademark. Use of this app is at your own risk. We accept zero responsibility for financial losses, physical injury, emotional damage, or sudden existential dread. By continuing, you agree we warned you. Aggressively. Bob!
+  </p>
+</div>
 
-
-
-          <h2>Enter Your Name</h2>
-          <input
-            placeholder="Your name"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-          />
-          <button onClick={() => {
-            const matchedName = findApprovedName(playerName);
-            if (matchedName) {
-              setPlayerName(matchedName);
-              setHasEnteredName(true);
-            } else {
-              alert("Name not recognized. Please enter an approved name.");
-            }
-          }}>Continue</button>
-        </div>
       ) : !gameSelected ? (
         
         <>
@@ -661,12 +679,6 @@ if (Object.keys(votes).includes(playerName)) {
       ) : !selectedRoom ? (
         <div>
 
-
-
-
-
-
-          
 
           {playerName === "Raul" && (
             <>

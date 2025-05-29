@@ -643,3 +643,13 @@ li {
   font-size: 0.9rem;
   margin: 0 0.5rem;
 }
+
+.app-wrapper.login {
+  background-image: url("/Login-Background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #001f33; /* fallback if image doesn't load */
+}
+

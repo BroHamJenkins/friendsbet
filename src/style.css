@@ -653,3 +653,21 @@ li {
   background-color: #001f33; /* fallback if image doesn't load */
 }
 
+@keyframes slideOutLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+.login-screen {
+  animation: slideOutLeft 0.5s forwards;
+}
+
+.main-screen {
+  animation: slideInRight 0.5s ease-out;
+}
+

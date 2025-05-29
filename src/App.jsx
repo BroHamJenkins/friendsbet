@@ -47,7 +47,7 @@ function App() {
   setScenarios(list);
 };
 
-
+  const [triggerMainAnim, setTriggerMainAnim] = useState(false);
   const [scenarioMode, setScenarioMode] = useState("flat");  
   const [maxBetAmount, setMaxBetAmount] = useState("");
   const [voteAmounts, setVoteAmounts] = useState({});
@@ -541,9 +541,11 @@ if (Object.keys(votes).includes(playerName)) {
     onClick={() => {
       const matchedName = findApprovedName(playerName);
       if (matchedName) {
-        setPlayerName(matchedName);
-        setHasEnteredName(true);
-      } else {
+  setPlayerName(matchedName);
+  setTriggerMainAnim(true);
+  setTimeout(() => setHasEnteredName(true), 500); // allow animation to complete
+}
+ else {
         alert("Name not recognized. Please enter an approved name.");
       }
     }}
@@ -569,9 +571,10 @@ if (Object.keys(votes).includes(playerName)) {
 </div>
 
       ) : !gameSelected ? (
-        
-        <>
-    <div className="home-logo-container">
+
+<div className="main-screen">
+  <div className="home-logo-container">
+
       <img src="/Home-Logo.png" alt="Danny's App Logo" className="home-logo" />
     </div>
 
@@ -615,7 +618,7 @@ if (Object.keys(votes).includes(playerName)) {
 
       
     </div>
-  </>
+  </div>
 
  ) : gameSelected === "Bank" ? (
   <>

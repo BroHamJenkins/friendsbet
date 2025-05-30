@@ -9,7 +9,8 @@ const approvedUsers = [
   "Sleepy", "Doc", "Bashful", "Dopey", "Grumpy", "Sneezy", "Happy"
 ];
 
-function Bank({ playerName }) {
+function Bank({ playerName, tokenBalance }) {
+  const [showTransferForm, setShowTransferForm] = useState(false);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
@@ -136,25 +137,33 @@ function Bank({ playerName }) {
 
   return (
     <div>
-      <h2>Bank</h2>
-      <p>Send tokens to another player.</p>
-      <input
-        placeholder="Recipient name"
-        value={recipient}
-        onChange={(e) => setRecipient(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(parseInt(e.target.value))}
-      />
-      <input
-        placeholder="Optional note"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-      />
-      <button onClick={handleTransfer}>Send Tokens</button>
+     
+      <button onClick={() => setShowTransferForm(!showTransferForm)}>
+        {showTransferForm ? "Cancel" : "Send Money"}
+      </button>
+      
+    {showTransferForm && (  
+      <>
+        <input
+          placeholder="Recipient name"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(parseInt(e.target.value))}
+        />
+        <input
+          placeholder="Optional note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+        <button onClick={handleTransfer}>Send Tokens</button>
+
+      </>
+    )}
       <button onClick={() => setShowLedger(!showLedger)}>
         {showLedger ? "Hide Ledger" : "View My Ledger"}
       </button>

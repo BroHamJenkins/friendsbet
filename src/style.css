@@ -12,7 +12,13 @@ body {
   background-color: #f9f9f9;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
 
 .container {
   max-width: 700px;
@@ -498,8 +504,10 @@ li {
 }
 
 .app-wrapper {
-  height: 100vh;
+  min-height: 100%;
+  height: auto;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0.5rem 2rem;
   font-family: Arial, sans-serif;
   background-size: cover;
@@ -548,7 +556,7 @@ li {
 
 .bank-logo-container {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 0;
 }
 
 .bank-logo {

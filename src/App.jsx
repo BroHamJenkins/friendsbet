@@ -580,7 +580,7 @@ if (Object.keys(votes).includes(playerName)) {
 
     <div>
 
-<div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem", marginBottom: "0.5rem" }}>
+<div style={{ display: "flex", justifyContent: "center", marginTop: "0rem", marginBottom: "0.5rem" }}>
   <div
     style={{
       backgroundColor: "rgba(0, 0, 0, 0.4)",
@@ -610,13 +610,28 @@ if (Object.keys(votes).includes(playerName)) {
 
 
       
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.0rem" }}>
-        <button className="button" onClick={() => setGameSelected("Casino")}>Casino</button>
-        <button className="button-ocean" onClick={() => setGameSelected("Beach Olympics")}>Beach Olympics</button>
-        <button className="button-emerald" onClick={() => setGameSelected("Bank")}>Bank</button>
-      </div>
-
-      
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <button
+    className="button"
+    onClick={() => setGameSelected("Casino")}
+    style={{ marginBottom: "0.5rem" }}
+  >
+    Casino
+  </button>
+  <button
+    className="button-ocean"
+    onClick={() => setGameSelected("Beach Olympics")}
+    style={{ marginBottom: "0.5rem" }}
+  >
+    Beach Olympics
+  </button>
+  <button
+    className="button-emerald"
+    onClick={() => setGameSelected("Bank")}
+  >
+    Bank
+  </button>
+</div>
     </div>
   </div>
 
@@ -635,7 +650,25 @@ if (Object.keys(votes).includes(playerName)) {
             Leave
 
           </button>
-      <Bank playerName={playerName} />
+
+<div style={{
+  backgroundColor: "#111",
+  padding: "0.5rem 0.5rem",
+  borderRadius: "12px",
+  marginTop: "0.5rem",
+  marginBottom: "0.5rem",
+  textAlign: "center",
+  color: "#00ff88",  // bright mint green
+  fontSize: "2rem",
+  fontFamily: "'Orbitron', sans-serif",
+  boxShadow: "0 0 10px rgba(0, 255, 136, 0.5), inset 0 0 5px rgba(0, 255, 136, 0.3)"
+}}>
+  Balance: ${tokenBalance.toLocaleString()}
+</div>
+
+
+      <Bank playerName={playerName} tokenBalance={tokenBalance} />
+
     </div>
   </>
 

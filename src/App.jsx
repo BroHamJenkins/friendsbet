@@ -17,7 +17,33 @@ import {
 } from "firebase/firestore";
 import Bank from "./Bank";
 import ParimutuelScenario from "./ParimutuelScenario";
+import HouseScenario from "./HouseScenario";
+import HouseBetScenario from "./HouseBetScenario";
 
+const clearRoomData = async () => {
+  if (!selectedRoom?.id) {
+    alert("No room selected.");
+    return;
+  }
+
+  const confirm = window.confirm(
+    `This will permanently delete ALL SCENARIOS in room "${selectedRoom.id}". Are you sure?`
+  );
+  if (!confirm) return;
+
+  try {
+    const scenarioRef = collection(db, "rooms", selectedRoom.id, "scenarios");
+    const snap = await getDocs(scenarioRef);
+
+    const deletions = snap.docs.map((docSnap) => deleteDoc(docSnap.ref));
+    await Promise.all(deletions);
+
+    alert("Scenarios successfully deleted.");
+  } catch (err) {
+    console.error("Error deleting scenarios:", err);
+    alert("Failed to delete scenarios. See console for details.");
+  }
+};
 
 
 const approvedUsers = [
@@ -34,6 +60,15 @@ const findApprovedName = (inputName) => {
 
 
 function App() {
+  const handleLogoClick = () => {
+  if (isPlaying) return;
+
+  const audio = new Audio("/audio/PartyZone.mp3");
+  setIsPlaying(true);
+  audio.play().catch(console.error);
+  audio.onended = () => setIsPlaying(false);
+};
+  const [isPlaying, setIsPlaying] = useState(false);
   const reloadScenarios = async () => {
   const snapshot = await getDocs(
     collection(db, "rooms", selectedRoom.id, "scenarios")
@@ -102,6 +137,10 @@ function App() {
       setHeaderIndex((prev) => (prev + 1) % casinoMessages.length);
     }, 4000); // rotate every 4 seconds
 
+
+
+
+    
     return () => clearInterval(interval); // cleanup
   }, []);
 
@@ -338,62 +377,118 @@ const betAmount = isPari ? betAmountFromUI : data.betAmount ?? 1;
     await distributeWinnings(scenarioId);
   };
 
-  const distributeWinnings = async (scenarioId) => {          //Winner Payout
-    //debugging line
-    console.log("💥 distributeWinnings called for", scenarioId);
-    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-    const snap = await getDoc(scenarioRef);
-    const data = snap.data();
+// payout for house mode
+const resolveHouseScenario = async (data, scenarioId) => {
+  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  const snap = await getDoc(scenarioRef);
+  const scenario = snap.data();
 
-    if (!data.winner || !data.votes) return;
+  const house = scenario.housePlayer;
+  const houseOutcome = scenario.houseOutcome;
+  const winner = scenario.winner;
+  const votes = scenario.votes || {};
 
-    const votes = data.votes;
-    const winnerKey = data.winner;
-    const winningVoters = Object.entries(votes)
-      .filter(([, choice]) =>
-        Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
-      )
-      .map(([player]) => player);
+  let totalCollected = 0;
+  let totalPayout = 0;
 
-    const betAmount = data.betAmount ?? 1;
-    const totalPot = Object.keys(votes).length * betAmount;
-    const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
+  for (const [player, vote] of Object.entries(votes)) {
+    const amount = vote.amount;
 
+    if (winner !== houseOutcome) {
+      // House lost → pay each bettor 2x
+      const payout = amount * 2;
+      totalPayout += payout;
 
+      await updateDoc(doc(db, "players", player), {
+        tokens: increment(payout),
+      });
 
-    if (winningVoters.length > 0) {
-      if (winningVoters.includes(playerName)) {
-        adjustTokens(payout);
-        await addDoc(collection(db, "players", playerName, "transactions"), {
-          type: "payout",
-          amount: payout,
-          scenarioId,
-          scenarioText: data.description,
-          timestamp: serverTimestamp()
-        });
-
-        console.log(`Awarded ${payout} tokens to ${playerName}`);
-      }
+      await addDoc(collection(db, "players", player, "transactions"), {
+        type: "win",
+        amount: payout,
+        scenarioId,
+        scenarioText: scenario.description,
+        timestamp: serverTimestamp(),
+      });
     } else {
-      // Refund all players
-if (Object.keys(votes).includes(playerName)) {
-  const vote = votes[playerName];
-  const refund = data.mode === "pari"
-    ? vote?.amount || 0
-    : data.betAmount ?? 1;
-
-  adjustTokens(refund);
-  await addDoc(collection(db, "players", playerName, "transactions"), {
-    type: "refund",
-    amount: refund,
-    scenarioId,
-    scenarioText: data.description,
-    timestamp: serverTimestamp()
-  });
-}
-
+      // House won → collects the player's bet
+      totalCollected += amount;
     }
-  };
+  }
+
+  const netChange = totalCollected - totalPayout;
+
+  await updateDoc(doc(db, "players", house), {
+    tokens: increment(netChange),
+  });
+
+  await addDoc(collection(db, "players", house, "transactions"), {
+    type: winner === houseOutcome ? "win" : "loss",
+    amount: netChange,
+    scenarioId,
+    scenarioText: scenario.description,
+    timestamp: serverTimestamp(),
+  });
+};
+
+
+  const distributeWinnings = async (scenarioId) => {
+  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  const snap = await getDoc(scenarioRef);
+  const data = snap.data();
+
+  if (data.mode === "house") {
+    await resolveHouseScenario(data, scenarioId);
+    return;
+  }
+
+  if (!data.winner || !data.votes) return;
+
+  const votes = data.votes;
+  const winnerKey = data.winner;
+  const winningVoters = Object.entries(votes)
+    .filter(([, choice]) =>
+      Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
+    )
+    .map(([player]) => player);
+
+  const betAmount = data.betAmount ?? 1;
+  const totalPot = Object.keys(votes).length * betAmount;
+  const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
+
+  if (winningVoters.length > 0) {
+    if (winningVoters.includes(playerName)) {
+      adjustTokens(payout);
+      await addDoc(collection(db, "players", playerName, "transactions"), {
+        type: "payout",
+        amount: payout,
+        scenarioId,
+        scenarioText: data.description,
+        timestamp: serverTimestamp()
+      });
+
+      console.log(`Awarded ${payout} tokens to ${playerName}`);
+    }
+  } else {
+    // Refund all players
+    if (Object.keys(votes).includes(playerName)) {
+      const vote = votes[playerName];
+      const refund = data.mode === "pari"
+        ? vote?.amount || 0
+        : data.betAmount ?? 1;
+
+      adjustTokens(refund);
+      await addDoc(collection(db, "players", playerName, "transactions"), {
+        type: "refund",
+        amount: refund,
+        scenarioId,
+        scenarioText: data.description,
+        timestamp: serverTimestamp()
+      });
+    }
+  }
+};
+
 
   const launchScenario = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
@@ -546,7 +641,7 @@ if (Object.keys(votes).includes(playerName)) {
   setTimeout(() => setHasEnteredName(true), 500); // allow animation to complete
 }
  else {
-        alert("Name not recognized. Please enter an approved name.");
+        alert("Are you so drunk that you've forgotten how to spell your own name? Or are you up to some funny business? Either way, get your shit together.");
       }
     }}
   >
@@ -575,7 +670,14 @@ if (Object.keys(votes).includes(playerName)) {
 <div className="main-screen">
   <div className="home-logo-container">
 
-      <img src="/Home-Logo.png" alt="Danny's App Logo" className="home-logo" />
+      <img
+  src="/Home-Logo.png"
+  alt="Logo"
+  className="home-logo"
+  onClick={handleLogoClick}
+  style={{ cursor: "pointer" }}
+/>
+
     </div>
 
     <div>
@@ -800,46 +902,114 @@ if (Object.keys(votes).includes(playerName)) {
           </button>
           <p className="status-line">Welcome back, {playerName}!</p>
 
-          
+          {playerName === "Raul" && selectedRoom && (
+  <div style={{ marginTop: "1rem" }}>
+    <button
+      onClick={clearRoomData}
+      style={{
+        background: "#8b0000",
+        color: "white",
+        padding: "0.5rem 1rem",
+        border: "none",
+        borderRadius: "8px",
+        fontWeight: "bold",
+        boxShadow: "0 0 5px red",
+        cursor: "pointer"
+      }}
+    >
+      ⚠️ Delete All Scenarios in This Room
+    </button>
+  </div>
+)}
+
 
 
           {!showScenarioForm ? (
-            <button onClick={() => setShowScenarioForm(true)}>
-              + New Prop Bet
-            </button>
-          ) : (
-            <div style={{ marginBottom: "1rem" }}>
-              <input
-                placeholder="New Prop Bet"
-                value={newScenario}
-                onChange={(e) => setNewScenario(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Min Bet"
-                value={betAmount}
-                onChange={(e) => setBetAmount(Number(e.target.value))}
-                style={{ width: "7rem", marginRight: "0.5rem" }}
-              />
-              <input
-                type="number"
-                placeholder="Max Bet"
-                value={maxBetAmount}
-                onChange={(e) => setMaxBetAmount(Number(e.target.value))}
-                style={{ width: "7rem", marginRight: "0.5rem" }}
-              />
-              
+  <button onClick={() => setShowScenarioForm(true)}>
+    + New Prop Bet
+  </button>
+) : scenarioMode === "house" ? (
+  <>
+    <HouseScenario
+      playerName={playerName}
+      onScenarioCreated={() => {
+        setShowScenarioForm(false);
+        setScenarioMode("");
+      }}
+      roomId={selectedRoom.id}
+    />
+    <button onClick={() => {
+      setShowScenarioForm(false);
+      setScenarioMode("");
+    }} style={{ marginTop: "0.5rem" }}>
+      Cancel
+    </button>
+  </>
+) : (
+  <div style={{ marginBottom: "1rem" }}>
+    <input
+      placeholder="New Prop Bet"
+      value={newScenario}
+      onChange={(e) => setNewScenario(e.target.value)}
+    />
+    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+      <input
+        type="number"
+        placeholder="Min Bet"
+        value={betAmount}
+        onChange={(e) => setBetAmount(Number(e.target.value))}
+        style={{ width: "7rem" }}
+      />
+      <input
+        type="number"
+        placeholder="Max Bet"
+        value={maxBetAmount}
+        onChange={(e) => setMaxBetAmount(Number(e.target.value))}
+        style={{ width: "7rem" }}
+      />
+      <button
+        onClick={() => setScenarioMode((prev) => prev === "house" ? "" : "house")}
+        style={{
+          padding: "0.4rem 0.75rem",
+          fontSize: "0.9rem",
+          borderRadius: "8px",
+          background: scenarioMode === "house" ? "#640f21" : "#444",
+          color: "#fff",
+          fontWeight: "bold",
+          border: "2px solid #999",
+          boxShadow: scenarioMode === "house"
+            ? "0 0 6px #ff3c3c"
+            : "0 2px 4px rgba(0,0,0,0.3)",
+          transition: "0.2s ease",
+          cursor: "pointer",
+          whiteSpace: "nowrap"
+        }}
+      >
+        {scenarioMode === "house" ? "Cancel House Mode" : "House Mode"}
+      </button>
+    </div>
+    <button onClick={addScenario}>Create Choices</button>
+    <button onClick={() => {
+      setShowScenarioForm(false);
+      setScenarioMode("");
+    }} style={{ marginLeft: "0.5rem" }}>
+      Cancel
+    </button>
+  </div>
+)}
 
-              <button onClick={addScenario}>Create Choices</button>
-              <button onClick={() => setShowScenarioForm(false)} style={{ marginLeft: "0.5rem" }}>
-                Cancel
-              </button>
-            </div>
-          )}
+
 
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
-  {sc.mode === "pari" ? (
+  {sc.mode === "house" ? (
+      <HouseBetScenario
+        scenario={{ ...sc, roomId: selectedRoom.id }}
+        playerName={playerName}
+        adjustTokens={adjustTokens}
+      />
+  
+  ) : sc.mode === "pari" ? (
     <ParimutuelScenario
   scenario={sc}
   playerName={playerName}

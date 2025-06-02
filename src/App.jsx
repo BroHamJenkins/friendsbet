@@ -15,10 +15,14 @@ import {
   getDocs,
   orderBy
 } from "firebase/firestore";
+import DegenerateDerby from "./DegenerateDerby/DegenerateDerby";
 import Bank from "./Bank";
 import ParimutuelScenario from "./ParimutuelScenario";
 import HouseScenario from "./HouseScenario";
 import HouseBetScenario from "./HouseBetScenario";
+
+
+
 
 const clearRoomData = async () => {
   if (!selectedRoom?.id) {
@@ -733,6 +737,15 @@ const resolveHouseScenario = async (data, scenarioId) => {
   >
     Bank
   </button>
+
+    <button
+    className="button-gold"
+    onClick={() => setGameSelected("Degenerate Derby")}
+    style={{ marginBottom: "0.5rem" }}
+  >
+    Degenerate Derby
+  </button>
+
 </div>
     </div>
   </div>
@@ -773,6 +786,12 @@ const resolveHouseScenario = async (data, scenarioId) => {
 
     </div>
   </>
+
+) : gameSelected === "Degenerate Derby" ? (
+  <DegenerateDerby
+    playerName={playerName}
+    setGameSelected={setGameSelected}
+  />
 
 
       ) : gameSelected === "Beach Olympics" ? (
@@ -985,7 +1004,7 @@ const resolveHouseScenario = async (data, scenarioId) => {
           whiteSpace: "nowrap"
         }}
       >
-        {scenarioMode === "house" ? "Cancel House Mode" : "House Mode"}
+        {scenarioMode === "house" ? "Cancel Boss Mode" : "Boss Mode"}
       </button>
     </div>
     <button onClick={addScenario}>Create Choices</button>
@@ -1004,10 +1023,12 @@ const resolveHouseScenario = async (data, scenarioId) => {
             <div key={sc.id} className="scenario-box">
   {sc.mode === "house" ? (
       <HouseBetScenario
-        scenario={{ ...sc, roomId: selectedRoom.id }}
-        playerName={playerName}
-        adjustTokens={adjustTokens}
-      />
+  scenario={{ ...sc, roomId: selectedRoom.id }}
+  playerName={playerName}
+  adjustTokens={adjustTokens}
+  distributeWinnings={resolveHouseScenario}
+/>
+
   
   ) : sc.mode === "pari" ? (
     <ParimutuelScenario

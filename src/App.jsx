@@ -729,7 +729,7 @@ const resolveHouseScenario = async (data, scenarioId) => {
     onClick={() => setGameSelected("Beach Olympics")}
     style={{ marginBottom: "0.5rem" }}
   >
-    Beach Olympics
+    <s>Beach Olympics</s>
   </button>
   <button
     className="button-emerald"

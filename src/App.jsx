@@ -13,7 +13,8 @@ import {
   query,
   where,
   getDocs,
-  orderBy
+  orderBy,
+  increment
 } from "firebase/firestore";
 import DegenerateDerby from "./DegenerateDerby/DegenerateDerby";
 import Bank from "./Bank";
@@ -22,6 +23,26 @@ import HouseScenario from "./HouseScenario";
 import HouseBetScenario from "./HouseBetScenario";
 
 
+
+function distributeWinningsForHouseScenario(scenario, votes, adjustTokens) {
+  if (!scenario || !votes || !adjustTokens) {
+    console.error("Missing required arguments for house scenario payout.");
+    return;
+  }
+
+  const creator = scenario.creator;
+
+  const winners = Object.entries(votes)
+    .filter(([, vote]) => vote.choice === "no")
+    .map(([voter, vote]) => ({ voter, amount: vote.amount }));
+
+  for (const { voter, amount } of winners) {
+    // Payout: bettor gets their bet back + equal amount from house
+    adjustTokens(voter, amount * 2);      // full return + winnings
+    adjustTokens(creator, -amount);       // house pays the winnings
+    // Note: house never "got" their initial bet — it was implied, so only subtract once
+  }
+}
 
 
 const clearRoomData = async () => {
@@ -106,6 +127,63 @@ function App() {
     const playerRef = doc(db, "players", playerName);
     await updateDoc(playerRef, { tokens: newBalance });
   };
+const distributeWinningsForHouseScenario = async (scenarioId, votes, adjustTokens) => {
+  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  const snap = await getDoc(scenarioRef);
+  const scenario = snap.data();
+
+  // Patch: manually set id and roomId (Firestore does not store them in doc data)
+  scenario.id = scenarioId;
+  scenario.roomId = selectedRoom.id;
+
+  // The rest of your payout logic:
+  const housePlayer = scenario.creator;
+  const houseWon = scenario.winner === scenario.houseOutcome;
+  const voterEntries = Object.entries(votes || {});
+
+  for (const [voter, { amount }] of voterEntries) {
+    if (voter === housePlayer) continue;
+
+    const houseRef = doc(db, "players", housePlayer);
+    const voterRef = doc(db, "players", voter);
+
+    if (houseWon) {
+      await updateDoc(houseRef, {
+        tokens: increment(amount),
+      });
+
+      await addDoc(collection(db, "players", housePlayer, "transactions"), {
+        type: "payout",
+        amount,
+        from: voter,
+        scenarioId,
+        scenarioText: scenario.description,
+        timestamp: serverTimestamp(),
+      });
+    } else {
+      await updateDoc(voterRef, {
+        tokens: increment(amount * 2),
+      });
+
+      await addDoc(collection(db, "players", voter, "transactions"), {
+        type: "payout",
+        amount: amount * 2,
+        from: housePlayer,
+        scenarioId,
+        scenarioText: scenario.description,
+        timestamp: serverTimestamp(),
+      });
+
+      await updateDoc(houseRef, {
+        tokens: increment(-amount),
+      });
+    }
+  }
+};
+
+
+
+
 
   const [gameSelected, setGameSelected] = useState("");
   const [scenarios, setScenarios] = useState([]);
@@ -434,6 +512,8 @@ const resolveHouseScenario = async (data, scenarioId) => {
     timestamp: serverTimestamp(),
   });
 };
+
+
 
 
   const distributeWinnings = async (scenarioId) => {
@@ -1022,12 +1102,14 @@ const resolveHouseScenario = async (data, scenarioId) => {
           {scenarios.map((sc) => (
             <div key={sc.id} className="scenario-box">
   {sc.mode === "house" ? (
-      <HouseBetScenario
-  scenario={{ ...sc, roomId: selectedRoom.id }}
-  playerName={playerName}
-  adjustTokens={adjustTokens}
-  distributeWinnings={resolveHouseScenario}
+     <HouseBetScenario
+    scenario={{ ...sc, roomId: selectedRoom.id }}
+    playerName={playerName}
+    adjustTokens={adjustTokens}
+    distributeWinnings={distributeWinningsForHouseScenario}
 />
+
+
 
   
   ) : sc.mode === "pari" ? (

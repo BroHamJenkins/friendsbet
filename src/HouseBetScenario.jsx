@@ -16,24 +16,28 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
   const isHouse = scenario.housePlayer === playerName;
   const isVotingActive = scenario.launched && !scenario.winner && !scenario.betsClosed;
 
-  const houseOutcomeLabel = scenario.outcomes?.[scenario.houseOutcome] || "(unknown)";
-  const allOutcomeKeys = Object.keys(scenario.outcomes || {});
-const otherOutcomeKey = allOutcomeKeys.length === 2
-  ? allOutcomeKeys.find((key) => key !== scenario.houseOutcome)
-  : null;
-
-const otherOutcomeLabel = otherOutcomeKey ? scenario.outcomes[otherOutcomeKey] : null;
-
-console.log("🏠 House Outcome:", scenario.houseOutcome);
-console.log("🤼 Other Outcome:", otherOutcomeKey);
-
-  
+  const houseOutcomeLabel = "Yes";
+  const otherOutcomeKey = "no";
+  const otherOutcomeLabel = scenario.outcomes?.[otherOutcomeKey] ?? "No";
 
   const submitBet = async () => {
+    if (!playerName || !scenario?.id) {
+      console.error("❌ submitBet: Missing playerName or scenario.id", {
+        playerName,
+        scenarioId: scenario?.id,
+      });
+      alert("Error: Missing player name or scenario. Bet not submitted.");
+      return;
+    }
+
     const amount = Number(betAmount);
     if (!amount || isNaN(amount)) {
       alert("Enter a valid bet amount");
       return;
+    }
+
+    if (!scenario.outcomes || typeof scenario.outcomes[otherOutcomeKey] !== "string") {
+      console.warn("Unexpected or missing outcome. Proceeding cautiously.");
     }
 
     if (amount < scenario.minBet || amount > scenario.maxBet) {
@@ -70,10 +74,16 @@ console.log("🤼 Other Outcome:", otherOutcomeKey);
     setBetAmount("");
   };
 
+  // FIXED: Call payout with scenario.id, not the full scenario object
   const declareWin = async (winningKey) => {
     const scenarioRef = doc(db, "rooms", scenario.roomId, "scenarios", scenario.id);
     await updateDoc(scenarioRef, { winner: winningKey });
-    await distributeWinnings(scenario.id);
+
+    const snap = await getDoc(scenarioRef);
+    const data = snap.data();
+    const votes = data.votes || {};
+
+    await distributeWinnings(scenario.id, votes, adjustTokens); // <-- THIS IS THE FIX
   };
 
   return (
@@ -81,9 +91,7 @@ console.log("🤼 Other Outcome:", otherOutcomeKey);
       <h3>{scenario.description}</h3>
 
       <p><strong>House:</strong> {scenario.housePlayer}</p>
-
       <p><strong>House’s Outcome:</strong> {houseOutcomeLabel}</p>
-
       <p>
         <strong>Status:</strong>{" "}
         {scenario.winner
@@ -94,25 +102,24 @@ console.log("🤼 Other Outcome:", otherOutcomeKey);
       </p>
 
       {isVotingActive && !hasVoted && !isHouse && (
-  <>
-    {otherOutcomeKey && otherOutcomeLabel ? (
-      <>
-        <p><strong>Your Option:</strong> {otherOutcomeLabel}</p>
-        <input
-          type="number"
-          value={betAmount}
-          onChange={(e) => setBetAmount(Number(e.target.value))}
-          min={1}
-          placeholder="Enter bet amount"
-        />
-        <button onClick={submitBet}>Bet Against House</button>
-      </>
-    ) : (
-      <p style={{ color: "red" }}>⚠️ Could not identify your voting option. This scenario may be misconfigured.</p>
-    )}
-  </>
-)}
-
+        <>
+          {otherOutcomeKey && otherOutcomeLabel ? (
+            <>
+              <p><strong>Your Option:</strong> {otherOutcomeLabel}</p>
+              <input
+                type="number"
+                value={betAmount}
+                onChange={(e) => setBetAmount(Number(e.target.value))}
+                min={1}
+                placeholder="Enter bet amount"
+              />
+              <button onClick={submitBet}>Bet Against House</button>
+            </>
+          ) : (
+            <p style={{ color: "red" }}>⚠️ Could not identify your voting option. This scenario may be misconfigured.</p>
+          )}
+        </>
+      )}
 
       {isHouse && <p className="info-text">You are the house. Waiting on bets...</p>}
       {hasVoted && <p className="info-text">You’ve already bet against the house.</p>}

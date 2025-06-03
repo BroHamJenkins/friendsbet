@@ -100,11 +100,11 @@ if (view === "score") {
   const updated = { ...completed, [task.id]: true };
 
   try {
-    await setDoc(
-  doc(db, "derbySubmissions", playerName),
-  { scavengerTasks: updated },
-  { merge: true }
-);
+//    await setDoc(
+//  doc(db, "derbySubmissions", playerName),    //Probably need  to address what 
+//  { scavengerTasks: updated },                //derbySubmissions is doing and if needed
+//</div>  { merge: true }
+//);
 markTaskComplete(playerName, task.id); // <- update local context state
 
   } catch (err) {

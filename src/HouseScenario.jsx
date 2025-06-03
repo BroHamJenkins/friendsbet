@@ -5,6 +5,7 @@ import { db } from "./firebase";
 
 const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
   const [description, setDescription] = useState("");
+  const [userInput, setUserInput] = useState("Oh, you think I can't...");
   const [outcomes, setOutcomes] = useState(["", ""]);
   const [houseOutcome, setHouseOutcome] = useState("");
   const [minBet, setMinBet] = useState(1);
@@ -21,67 +22,47 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
   };
 
   const createScenario = async () => {
-    const scenarioId = `${playerName}-${Date.now()}`;
-    const scenarioData = {
-        mode: "house",
-      description,
-      outcomes: outcomes.reduce((acc, curr, i) => {
-        if (curr.trim()) acc[`opt${i}`] = curr.trim();
-        return acc;
-      }, {}),
-      housePlayer: playerName,
-      houseOutcome,
-      isHouseGame: true,
-      minBet,
-      maxBet,
-      launched: false,
-      winner: null,
-      votes: {},
-    };
-
-    const scenarioRef = doc(collection(db, "rooms", roomId, "scenarios"));
-await setDoc(scenarioRef, {
-  ...scenarioData,
-  createdAt: serverTimestamp(),
-  creator: playerName
-});
-    onScenarioCreated();
+  const scenarioRef = doc(collection(db, "rooms", roomId, "scenarios"));
+  const outcomes = {
+    yes: "Yes",
+    no: "No"
   };
+
+  await setDoc(scenarioRef, {
+    mode: "house",
+    description: userInput,
+    outcomes,
+    order: ["yes", "no"],
+    housePlayer: playerName,
+    houseOutcome: "yes",
+    isHouseGame: true,
+    minBet,
+    maxBet,
+    launched: true,
+    winner: null,
+    votes: {}, // House doesn't wager tokens
+    createdAt: serverTimestamp(),
+    creator: playerName
+  });
+
+  onScenarioCreated();
+};
+
 
   return (
     <div className="house-scenario">
-      <h2>Create House Scenario</h2>
+      <h2>Create House Bet</h2>
       <input
-        type="text"
-        placeholder="Scenario Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+  type="text"
+  value={userInput}
+  onChange={(e) => setUserInput(e.target.value)}
+/>
+
 
       <h3>Outcomes</h3>
-      {outcomes.map((value, index) => (
-        <input
-          key={index}
-          type="text"
-          placeholder={`Outcome ${index + 1}`}
-          value={value}
-          onChange={(e) => handleOutcomeChange(index, e.target.value)}
-        />
-      ))}
-      <button onClick={addOutcome}>Add Outcome</button>
-
-      <h3>Pick Outcome You're Backing (as House)</h3>
-      <select
-        value={houseOutcome}
-        onChange={(e) => setHouseOutcome(e.target.value)}
-      >
-        <option value="">-- Select --</option>
-        {outcomes.map((outcome, index) => (
-          <option key={index} value={`opt${index}`}>
-            {outcome || `Option ${index + 1}`}
-          </option>
-        ))}
-      </select>
+      <p>Yep, sure can  </p>
+      <p>Nope, no way</p>
+      
 
       <div>
         <label>Min Bet: </label>
@@ -100,7 +81,9 @@ await setDoc(scenarioRef, {
         />
       </div>
 
-      <button onClick={createScenario} disabled={!description || !houseOutcome}>
+      <button onClick={createScenario} disabled={!userInput}>
+
+
         Create House Scenario
       </button>
     </div>

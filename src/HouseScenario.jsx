@@ -59,13 +59,12 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
 />
 
 
-      <h3>Outcomes</h3>
-      <p>Yep, sure can  </p>
-      <p>Nope, no way</p>
+      
+      <h3>If you win, you take all the money. Lose and pay everyone.</h3>
       
 
       <div>
-        <label>Min Bet: </label>
+        <label style={{ color: "white" }}>Min Bet: </label>
         <input
           type="number"
           value={minBet}
@@ -73,7 +72,7 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
         />
       </div>
       <div>
-        <label>Max Bet: </label>
+        <label style={{ color: "white" }}>Max Bet: </label>
         <input
           type="number"
           value={maxBet}
@@ -84,7 +83,7 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
       <button onClick={createScenario} disabled={!userInput}>
 
 
-        Create House Scenario
+        Create House Bet
       </button>
     </div>
   );

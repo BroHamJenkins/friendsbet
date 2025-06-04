@@ -88,11 +88,17 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
 
   return (
     <div className="house-scenario-box">
-      <h3>{scenario.description}</h3>
+      <h3 style={{ color: "red" }}>{scenario.description}</h3>
 
-      <p><strong>House:</strong> {scenario.housePlayer}</p>
-      <p><strong>House’s Outcome:</strong> {houseOutcomeLabel}</p>
-      <p>
+      <p><strong> {scenario.housePlayer} is betting he can!</strong> </p>
+      
+
+      {isVotingActive && !hasVoted && !isHouse && (
+        <>
+          {otherOutcomeKey && otherOutcomeLabel ? (
+            <>
+              
+              <p>
         <strong>Status:</strong>{" "}
         {scenario.winner
           ? scenario.winner === scenario.houseOutcome
@@ -100,20 +106,15 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
             : "House Loses"
           : "Open"}
       </p>
-
-      {isVotingActive && !hasVoted && !isHouse && (
-        <>
-          {otherOutcomeKey && otherOutcomeLabel ? (
-            <>
-              <p><strong>Your Option:</strong> {otherOutcomeLabel}</p>
               <input
                 type="number"
                 value={betAmount}
                 onChange={(e) => setBetAmount(Number(e.target.value))}
                 min={1}
                 placeholder="Enter bet amount"
+                style={{ width: "175px" }}
               />
-              <button onClick={submitBet}>Bet Against House</button>
+              <button onClick={submitBet}>Bet Against {scenario.housePlayer}</button>
             </>
           ) : (
             <p style={{ color: "red" }}>⚠️ Could not identify your voting option. This scenario may be misconfigured.</p>
@@ -122,7 +123,16 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
       )}
 
       {isHouse && <p className="info-text">You are the house. Waiting on bets...</p>}
-      {hasVoted && <p className="info-text">You’ve already bet against the house.</p>}
+      {hasVoted && (
+  <p className="info-text">
+    You&apos;ve already bet $
+    {scenario.votes && scenario.votes[playerName] && scenario.votes[playerName].amount
+      ? scenario.votes[playerName].amount
+      : "?"}
+    {" against the house."}
+  </p>
+)}
+
       {scenario.winner && (
         <p className="info-text">Scenario resolved: {scenario.outcomes?.[scenario.winner]}</p>
       )}

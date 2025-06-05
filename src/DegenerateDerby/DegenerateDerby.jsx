@@ -6,7 +6,8 @@ import CocktailComp from "./CocktailComp";
 
 export default function DegenerateDerby({ playerName, setGameSelected }) {
   const [view, setView] = useState("menu");
-  const { resetJokerData } = useDerby();
+  const { resetJokerData, resetShotgunShowdown } = useDerby();
+
   const [playerCount, setPlayerCount] = useState(8);
   const isRaul = playerName?.toLowerCase() === "raul";
 
@@ -44,12 +45,31 @@ export default function DegenerateDerby({ playerName, setGameSelected }) {
 
   {isRaul && (
     <button
-      style={{ backgroundColor: "darkred", color: "white", marginTop: "1rem" }}
+      style={{
+          background: "#800", color: "white", marginBottom: "1rem",
+          borderRadius: "8px", padding: "0.6rem 1.2rem", fontWeight: "bold" }}
       onClick={resetJokerData}
     >
-      Reset Joker Data
+      Reset Dash Data
     </button>
   )}
+{
+    isRaul && (
+      <button
+        style={{
+          background: "#800", color: "white", marginBottom: "1rem",
+          borderRadius: "8px", padding: "0.6rem 1.2rem", fontWeight: "bold"
+        }}
+        onClick={() => {
+          if (window.confirm("Are you sure you want to reset the tournament? This cannot be undone.")) {
+            resetShotgunShowdown();
+          }
+        }}
+      >
+        Reset Showdown
+      </button>
+    )
+  }
 
 
       <h2>Degenerate Derby</h2>

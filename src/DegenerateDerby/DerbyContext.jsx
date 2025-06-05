@@ -8,6 +8,97 @@ import { collection, getDocs } from "firebase/firestore";
 const DerbyContext = createContext();
 
 export function DerbyProvider({ children }) {
+  const resetShotgunShowdown = async () => {
+  await setDoc(doc(db, "derbyState", "shotgunShowdown"), {
+    bracket: [],
+    placings: {},
+    points: {},
+  });
+
+  setDerbyState(prev => ({
+    ...prev,
+    shotgunShowdownBracket: [],
+    shotgunShowdownPlacings: {},
+    shotgunShowdownPoints: {},
+  }));
+};
+
+
+useEffect(() => {
+  const unsub = onSnapshot(doc(db, "derbyState", "shotgunShowdown"), (docSnap) => {
+    const data = docSnap.data();
+    if (!data) return;
+    setDerbyState(prev => ({
+      ...prev,
+      shotgunShowdownBracket: data.bracket || [],
+      shotgunShowdownPlacings: data.placings || {},
+      shotgunShowdownPoints: data.points || {},
+    }));
+  });
+  return () => unsub();
+}, []);
+
+const createShotgunShowdownBracket = async () => {
+  const players = derbyState.players;
+  const shuffled = [...players]; // or randomize if you wish
+
+  const round1 = [
+    { id: 1, p1: shuffled[0], p2: shuffled[1], winner: null },
+    { id: 2, p1: shuffled[2], p2: shuffled[3], winner: null },
+    { id: 3, p1: shuffled[4], p2: shuffled[5], winner: null },
+    { id: 4, p1: shuffled[6], p2: shuffled[7], winner: null },
+  ];
+
+  const bracketData = [
+    { round: 1, matches: round1 },
+    { round: 2, matches: [] },
+    { round: 3, matches: [] },
+    { round: "loser", matches: [] },
+  ];
+
+  // Update Firestore
+  await setDoc(doc(db, "derbyState", "shotgunShowdown"), {
+    bracket: bracketData,
+    placings: {},
+    points: {},
+  });
+
+  // Update local state immediately for snappy UI
+  setDerbyState(prev => ({
+    ...prev,
+    shotgunShowdownBracket: bracketData,
+    shotgunShowdownPlacings: {},
+    shotgunShowdownPoints: {},
+  }));
+};
+
+
+const recordShotgunMatchWinner = async (roundNum, matchId, winner) => {
+  // Copy and update bracket in memory
+  const bracket = JSON.parse(JSON.stringify(derbyState.shotgunShowdownBracket));
+  const round = bracket[roundNum - 1];
+  const matchIdx = round.matches.findIndex(m => m.id === matchId);
+  if (matchIdx === -1) return;
+  round.matches[matchIdx].winner = winner;
+
+  // Prepare new data object for Firestore
+  const newData = {
+    bracket,
+    placings: derbyState.shotgunShowdownPlacings,
+    points: derbyState.shotgunShowdownPoints,
+  };
+
+  // Write to Firestore
+  await setDoc(doc(db, "derbyState", "shotgunShowdown"), newData, { merge: true });
+
+  // Local state update for instant feedback
+  setDerbyState(prev => ({
+    ...prev,
+    shotgunShowdownBracket: bracket,
+  }));
+};
+
+
   const resetJokerVotes = async () => {
   const votesCollection = collection(db, "jokerVotes");
   const snapshot = await getDocs(votesCollection);
@@ -38,7 +129,8 @@ export function DerbyProvider({ children }) {
       jokerSubmissions: [],
       votes: {},
       lockedVotes: {},
-      jokerVotes: {}
+      jokerVotes: {},
+      
     }));
 
     console.log("✅ Joker data fully reset.");
@@ -89,7 +181,10 @@ export function DerbyProvider({ children }) {
     scores: {},
     scavengerProgress: {},
     jokerVotes: {},
-    lockedVotes: {}
+    lockedVotes: {},
+    shotgunShowdownBracket: [],   // [{round: 1, matches: [ {p1: "Jake", p2: "Christian", winner: null}, ... ]}, ...]
+    shotgunShowdownPlacings: {},  // { player: place }
+    shotgunShowdownPoints: {}    // { player: points }
   });
 
 useEffect(() => {
@@ -234,7 +329,10 @@ const recordJokerVote = async (voterName, player, score) => {
   submitJoker,
   scoreJoker,
   recordJokerVote,
-  resetJokerData
+  resetJokerData,
+  createShotgunShowdownBracket,     
+  recordShotgunMatchWinner,
+  resetShotgunShowdown    
 }}>
 
 

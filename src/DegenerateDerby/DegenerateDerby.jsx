@@ -71,7 +71,14 @@ export default function DegenerateDerby({ playerName, setGameSelected }) {
     )
   }
 
-
+  <img
+  src="/DDT2.png"
+  style={{
+    width: "240px", // or whatever size looks right
+    display: "block",
+    margin: "0 auto 1.5rem auto"
+  }}
+/>
       <h2>Degenerate Derby</h2>
       <button 
         className="button-burgundy"
@@ -83,5 +90,6 @@ export default function DegenerateDerby({ playerName, setGameSelected }) {
       <button onClick={() => setView("shotgun")}>Shotgun Showdown</button>
       <button onClick={() => setView("cockfight")}>Cockfight</button>
     </div>
+    
   );
 }

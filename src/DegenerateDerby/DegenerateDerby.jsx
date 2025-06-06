@@ -71,15 +71,25 @@ export default function DegenerateDerby({ playerName, setGameSelected }) {
     )
   }
 
+<div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
   <img
   src="/DDT2.png"
   style={{
     width: "240px", // or whatever size looks right
     display: "block",
-    margin: "0 auto 1.5rem auto"
+    margin: "0"
   }}
 />
-      <h2>Degenerate Derby</h2>
+    <img
+  src="/DDlinebreak2.png"
+  style={{
+    width: "260px", // or whatever size looks right
+    display: "block",
+    margin: "0"
+  }}
+/>  
+</div>
+
       <button 
         className="button-burgundy"
         onClick={() => setGameSelected("")} style={{ marginTop: "1rem" }}>

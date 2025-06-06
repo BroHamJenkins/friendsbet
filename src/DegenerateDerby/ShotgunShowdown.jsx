@@ -9,12 +9,12 @@ export default function ShotgunShowdown({ playerName, goBack }) {
   );
 
 
-  
+
   // Start bracket if not started
   if (!bracketStarted) {
     return (
       <div>
-      
+
         <h2 style={{ color: "white" }}>Shotgun Showdown</h2>
         {isRaul ? (
           <button onClick={() => {
@@ -68,25 +68,42 @@ export default function ShotgunShowdown({ playerName, goBack }) {
   );
 
   return (
-    <div>
-      <div>
-
-      <img
-  src="/PBRLogo.png"
-  alt="Pabst Blue Ribbon Logo"
+    
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <img
+            src="/PBRLogo.png"
+            alt="Pabst Blue Ribbon Logo"
+            style={{
+              width: "240px", // or whatever size looks right
+              display: "block",
+              margin: "1rem auto 0rem auto"
+            }}
+          />
+        <p style={{ fontFamily: "Dancing Script", color: "white", textAlign: "center", margin: "0" }}>Presents</p>
+        
+        
+        <h2
   style={{
-    width: "240px", // or whatever size looks right
-    display: "block",
-    margin: "0 auto 1.5rem auto"
+    fontFamily: "'Oswald', serif",
+    fontWeight: 700,
+    color: "white",
+    textAlign: "center",
+    transform: "scaleX(0.85)",
+    fontSize: "1.5rem",
+    letterSpacing: ".01em",
+    textShadow: "2px 2px 0 #223355",
+    margin: "0"
   }}
-/>
+>
+The Shotgun Showdown
+</h2>
 
-
-    </div>
-      <h2 style={{ color: "white" }}>Shotgun Showdown</h2>
-      {bracket.map((roundObj, idx) => renderRound(roundObj, idx + 1))}
-      <button onClick={goBack} style={{ marginTop: "2rem" }}>Back to Menu</button>
-    </div>
+        
+        
+        {bracket.map((roundObj, idx) => renderRound(roundObj, idx + 1))}
+        <button onClick={goBack} style={{ marginTop: "2rem" }}>Back to Menu</button>
+      </div>
+    
   );
 }
 

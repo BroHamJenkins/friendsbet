@@ -542,14 +542,14 @@ const resolveHouseScenario = async (data, scenarioId) => {
 
   if (winningVoters.length > 0) {
     if (winningVoters.includes(playerName)) {
-      adjustTokens(payout);
-      await addDoc(collection(db, "players", playerName, "transactions"), {
-        type: "payout",
-        amount: payout,
-        scenarioId,
-        scenarioText: data.description,
-        timestamp: serverTimestamp()
-      });
+  adjustTokens(payout);
+  await addDoc(collection(db, "players", playerName, "transactions"), {
+    type: "payout",
+    amount: payout,
+    scenarioId,
+    scenarioText: data.description,
+    timestamp: serverTimestamp()
+  });
 
       console.log(`Awarded ${payout} tokens to ${playerName}`);
     }
@@ -1132,7 +1132,10 @@ const resolveHouseScenario = async (data, scenarioId) => {
 
   ) : (
     <>
-        <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
+        <div style={{ fontWeight: "bold", marginBottom: "0.2rem" }}>
+    {sc.description}
+  </div>
+  <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
     Flat Bet: ${sc.betAmount ?? 1}
   </div>
 

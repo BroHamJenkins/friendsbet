@@ -21,7 +21,7 @@ import Bank from "./Bank";
 import ParimutuelScenario from "./ParimutuelScenario";
 import HouseScenario from "./HouseScenario";
 import HouseBetScenario from "./HouseBetScenario";
-import Game2 from "./game2";
+import Game2 from "./Game2";
 
 
 

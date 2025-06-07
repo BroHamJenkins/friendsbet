@@ -328,7 +328,7 @@ export default function Game2({
           disabled={gameEnded}
           style={{ marginLeft: "0rem" }}
         >
-          <option value="">Pick the bitch</option>
+          <option value="">Pick a lil' bitch</option>
           {GAME2_PLAYERS.filter(p => p !== playerName && (limits[p]?.challengee ?? 0) < 5).map(p =>
             <option key={p} value={p}>{p}</option>
           )}
@@ -430,8 +430,10 @@ export default function Game2({
               (limits[playerName]?.challenger ?? 0) < 5 &&
               challenge.instances.filter(inst => inst.challenger === playerName).length === 0) && (
                 <div style={{ marginTop: "0.3rem" }}>
-                  <button onClick={() => setChallengeTarget(challenge.id)}>
-                    Challenge Someone with this Task
+                  <button
+                  className="small-button"
+                  onClick={() => setChallengeTarget(challenge.id)}>
+                    Challenge
                   </button>
                   {challengeTarget === challenge.id && (
                     <span style={{ marginLeft: "0.5rem" }}>
@@ -439,7 +441,7 @@ export default function Game2({
                         value={selectedOpponent}
                         onChange={e => setSelectedOpponent(e.target.value)}
                       >
-                        <option value="">Pick Opponent</option>
+                        <option value="">Who's your bitch?</option>
                         {GAME2_PLAYERS.filter(p =>
                           p !== playerName &&
                           (limits[p]?.challengee ?? 0) < 5 &&
@@ -456,9 +458,9 @@ export default function Game2({
                           if (ch) handleJoinChallenge(ch);
                         }}
                         disabled={!selectedOpponent}
-                        style={{ marginLeft: "0.25rem" }}
+                        className="small-button"
                       >Go</button>
-                      <button style={{ marginLeft: "0.5rem" }} onClick={() => { setChallengeTarget(null); setSelectedOpponent(""); }}>Cancel</button>
+                      <button className="small-button-red" onClick={() => { setChallengeTarget(null); setSelectedOpponent(""); }}>Cancel</button>
                     </span>
                   )}
                 </div>

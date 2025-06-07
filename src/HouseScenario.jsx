@@ -8,8 +8,11 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
   const [userInput, setUserInput] = useState("Oh, you think I can't...");
   const [outcomes, setOutcomes] = useState(["", ""]);
   const [houseOutcome, setHouseOutcome] = useState("");
-  const [minBet, setMinBet] = useState(1);
-  const [maxBet, setMaxBet] = useState(100);
+  const [minBet, setMinBet] = useState("");
+  const [maxBet, setMaxBet] = useState("");
+
+  const [showConfirm, setShowConfirm] = useState(false);
+
 
   const handleOutcomeChange = (index, value) => {
     const updated = [...outcomes];
@@ -58,33 +61,70 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
   onChange={(e) => setUserInput(e.target.value)}
 />
 
+      
+        <div style={{ display: "flex", alignItems: "center", gap: "0rem", flexWrap: "wrap" }}>
+        
+        <input
+  style={{ width: "33%" }}
+  type="number"
+  value={minBet}
+  placeholder="Min Bet"
+  onChange={e => setMinBet(e.target.value)}
+/>
+
+<input
+  style={{ width: "33%" }}
+  type="number"
+  value={maxBet}
+  placeholder="Max Bet"
+  onChange={e => setMaxBet(e.target.value)}
+/>
 
       
-      <h3>If you win, you take all the money. Lose and pay everyone.</h3>
-      
 
-      <div>
-        <label style={{ color: "white" }}>Min Bet: </label>
-        <input
-          type="number"
-          value={minBet}
-          onChange={(e) => setMinBet(Number(e.target.value))}
-        />
+      <button onClick={() => setShowConfirm(true)} disabled={!userInput}>
+  Create House Bet
+</button>
+
       </div>
-      <div>
-        <label style={{ color: "white" }}>Max Bet: </label>
-        <input
-          type="number"
-          value={maxBet}
-          onChange={(e) => setMaxBet(Number(e.target.value))}
-        />
+      {showConfirm && (
+  <div style={{
+    position: "fixed",
+    top: 0, left: 0, width: "100vw", height: "100vh",
+    background: "rgba(0,0,0,0.6)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    zIndex: 9999
+  }}>
+    <div style={{
+      background: "#fff",
+      borderRadius: "10px",
+      padding: "2rem 2.5rem",
+      textAlign: "center",
+      boxShadow: "0 0 24px #333",
+      minWidth: "300px"
+    }}>
+      <div style={{ fontWeight: "bold", marginBottom: "1rem", fontSize: "1.1rem" }}>
+        You are the House.  You will be covering all bets. 
       </div>
-
-      <button onClick={createScenario} disabled={!userInput}>
-
-
-        Create House Bet
+      <button
+        style={{ marginRight: "1.5rem", padding: "0.5rem 1.2rem" }}
+        onClick={() => {
+          createScenario();
+          setShowConfirm(false);
+        }}
+      >
+        YOLO
       </button>
+      <button
+        style={{ padding: "0.5rem 0.5rem" }}
+        onClick={() => setShowConfirm(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

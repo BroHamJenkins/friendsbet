@@ -1126,48 +1126,59 @@ function App() {
 
               ) : sc.mode === "pari" ? (
                 <ParimutuelScenario
-                  scenario={sc}
-                  playerName={playerName}
-                  voteAmounts={voteAmounts}
-                  setVoteAmounts={setVoteAmounts}
-                  voteOutcome={voteOutcome}
-                  outcomeInputs={outcomeInputs}
-                  setOutcomeInputs={setOutcomeInputs}
-                  addOutcome={addOutcome}
-                  launchScenario={launchScenario}
-                  selectedRoom={selectedRoom}
-                  showDeclareButtons={showDeclareButtons}
-                  toggleDeclareButtons={toggleDeclareButtons}
-                  declareWinner={declareWinner}
-                />
+  scenario={sc}
+  playerName={playerName}
+  voteAmounts={voteAmounts}
+  setVoteAmounts={setVoteAmounts}
+  voteOutcome={voteOutcome}
+  outcomeInputs={outcomeInputs}
+  setOutcomeInputs={setOutcomeInputs}
+  addOutcome={addOutcome}
+  launchScenario={launchScenario}
+  selectedRoom={selectedRoom}
+  showDeclareButtons={showDeclareButtons}
+  toggleDeclareButtons={toggleDeclareButtons}
+  declareWinner={declareWinner}
+  expanded={!!expandedScenarioIds[sc.id]}
+  toggleExpanded={() =>
+    setExpandedScenarioIds(prev => ({
+      ...prev,
+      [sc.id]: !prev[sc.id]
+    }))
+  }
+/>
+
 
 
               ) : (
                 <>
-  <div style={{ display: "flex", alignItems: "center", fontWeight: "bold", marginBottom: "0.2rem" }}>
+    <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      fontWeight: "bold",
+      marginBottom: "0.2rem",
+      cursor: "pointer",
+      color: "white"
+    }}
+    onClick={() =>
+      setExpandedScenarioIds(prev => ({
+        ...prev,
+        [sc.id]: !prev[sc.id]
+      }))
+    }
+  >
     <span>{sc.description}</span>
-    <button
-      style={{
-        marginLeft: "0.5rem",
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        fontSize: "1.2rem",
-        transform: expandedScenarioIds[sc.id] ? "rotate(90deg)" : "rotate(0deg)",
-        transition: "transform 0.2s"
-      }}
-      onClick={() =>
-        setExpandedScenarioIds(prev => ({
-          ...prev,
-          [sc.id]: !prev[sc.id]
-        }))
-      }
-      aria-label={expandedScenarioIds[sc.id] ? "Collapse options" : "Show options"}
-      type="button"
-    >
-      ▶
-    </button>
+    <span style={{
+      marginLeft: "1rem",
+      color: expandedScenarioIds[sc.id] ? "#ffeb9c" : "#ccc",
+      fontSize: "1.2rem",
+      fontWeight: "bold"
+    }}>
+      {expandedScenarioIds[sc.id] ? "▲" : "▼"}
+    </span>
   </div>
+
   <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
     Flat Bet: ${sc.betAmount ?? 1}
   </div>

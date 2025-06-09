@@ -19,30 +19,30 @@ function Bank({ playerName, tokenBalance, setTokenBalance }) {
   const [showLedger, setShowLedger] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
-const [loanBalance, setLoanBalance] = useState(0);
-const [loanMsg, setLoanMsg] = useState("");
-const [showLoanForm, setShowLoanForm] = useState(false);
+  const [loanBalance, setLoanBalance] = useState(0);
+  const [loanMsg, setLoanMsg] = useState("");
+  const [showLoanForm, setShowLoanForm] = useState(false);
 
 
 
   useEffect(() => {
-  const q = query(
-    collection(db, "players", playerName, "transactions"),
-    orderBy("timestamp", "desc")
-  );
-  const unsubscribeTx = onSnapshot(q, (snapshot) => {
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setTransactions(data);
-  });
+    const q = query(
+      collection(db, "players", playerName, "transactions"),
+      orderBy("timestamp", "desc")
+    );
+    const unsubscribeTx = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTransactions(data);
+    });
 
-  // Fetch loan balance
-  const playerRef = doc(db, "players", playerName);
-  getDoc(playerRef).then((snap) => {
-    setLoanBalance(snap.data()?.loan || 0);
-  });
+    // Fetch loan balance
+    const playerRef = doc(db, "players", playerName);
+    getDoc(playerRef).then((snap) => {
+      setLoanBalance(snap.data()?.loan || 0);
+    });
 
-  return () => unsubscribeTx();
-}, [playerName]);
+    return () => unsubscribeTx();
+  }, [playerName]);
 
 
   const handleTransfer = async () => {
@@ -138,9 +138,9 @@ const [showLoanForm, setShowLoanForm] = useState(false);
       case "transfer_received":
         label = `Received from ${tx.sender}`;
         break;
-        case "loan":
-  label = "Loan from Bank";
-  break;
+      case "loan":
+        label = "Loan from Bank";
+        break;
 
       default:
         label = "Unknown Transaction";
@@ -155,106 +155,109 @@ const [showLoanForm, setShowLoanForm] = useState(false);
 
   return (
     <div>
+      {showLoanForm && (
+        <div style={{ marginTop: "1rem", marginBottom: "1rem", padding: "0.75rem", background: "#222", color: "#ff3c3c", borderRadius: "8px" }}>
+          <div>
+            <b>Outstanding Loan:</b> {loanBalance}
+          </div>
+          <input
+            type="number"
+            min={1}
+            max={500} // or whatever limit you want
+            value={loanAmount}
+            placeholder="Loan amount"
+            onChange={e => setLoanAmount(parseInt(e.target.value) || 0)}
+            style={{ marginRight: "0.5rem", width: "40%" }}
+          />
+          <button
+            className="golden-button"
+            onClick={async () => {
+              if (loanAmount <= 0) { setLoanMsg("Enter a valid amount."); return; }
+              if (loanAmount + loanBalance > 500) { setLoanMsg("Loan limit is 500 tokens."); return; }
 
-{showLoanForm && (     
-<div style={{marginTop: "1rem", marginBottom: "1rem", padding: "0.75rem", background: "#222", color: "#ff3c3c", borderRadius: "8px"}}>
-  <div>
-    <b>Outstanding Loan:</b> {loanBalance}
-  </div>
-  <input
-    type="number"
-    min={1}
-    max={500} // or whatever limit you want
-    value={loanAmount}
-    placeholder="Loan amount"
-    onChange={e => setLoanAmount(parseInt(e.target.value) || 0)}
-    style={{marginRight: "0.5rem", width: "40%"}}
-  />
-  <button
-    className="golden-button"
-    onClick={async () => {
-      if (loanAmount <= 0) { setLoanMsg("Enter a valid amount."); return; }
-      if (loanAmount + loanBalance > 500) { setLoanMsg("Loan limit is 500 tokens."); return; }
+              // Update balances in Firestore
+              const playerRef = doc(db, "players", playerName);
+              const playerSnap = await getDoc(playerRef);
+              const tokens = playerSnap.data().tokens || 0;
+              const loan = playerSnap.data().loan || 0;
 
-      // Update balances in Firestore
-      const playerRef = doc(db, "players", playerName);
-      const playerSnap = await getDoc(playerRef);
-      const tokens = playerSnap.data().tokens || 0;
-      const loan = playerSnap.data().loan || 0;
+              await updateDoc(playerRef, {
+                tokens: tokens + loanAmount,
+                loan: loan + loanAmount
+              });
 
-      await updateDoc(playerRef, {
-        tokens: tokens + loanAmount,
-        loan: loan + loanAmount
-      });
+              await addDoc(collection(db, "players", playerName, "transactions"), {
+                type: "loan",
+                amount: loanAmount,
+                note: "Loan taken from bank",
+                timestamp: serverTimestamp()
+              });
 
-      await addDoc(collection(db, "players", playerName, "transactions"), {
-        type: "loan",
-        amount: loanAmount,
-        note: "Loan taken from bank",
-        timestamp: serverTimestamp()
-      });
+              await updateDoc(playerRef, {
+                tokens: tokens + loanAmount,
+                loan: loan + loanAmount
+              });
 
-      await updateDoc(playerRef, {
-  tokens: tokens + loanAmount,
-  loan: loan + loanAmount
-});
+              setLoanBalance(loan + loanAmount);
+              setLoanMsg(`Loan approved for $${loanAmount}.`);
+              setLoanAmount(0);
+              setTokenBalance(tokens + loanAmount);
+            }}
+          >Take Out Loan</button>
+          {loanMsg && <div style={{ color: "#fff", marginTop: "0.5rem" }}>{loanMsg}</div>}
+        </div>
+      )}
 
-      setLoanBalance(loan + loanAmount);
-      setLoanMsg(`Loan approved for $${loanAmount}.`);
-      setLoanAmount(0);
-      setTokenBalance(tokens + loanAmount);
-    }}
-  >Take Out Loan</button>
-  {loanMsg && <div style={{color: "#fff", marginTop: "0.5rem"}}>{loanMsg}</div>}
-</div>
-)}
-
-<button
-  className="golden-button"
-  onClick={() => setShowLoanForm((show) => !show)}
->
-  {showLoanForm ? "Cancel Loan" : "Loan Application"}
-</button>
+      <button
+        style={{ marginBottom: "0.1rem" }}
+        className="golden-button"
+        onClick={() => setShowLoanForm((show) => !show)}
+      >
+        {showLoanForm ? "Cancel Loan" : "Loan Application"}
+      </button>
 
 
-      <button 
-      className="golden-button"
-      onClick={() => setShowTransferForm(!showTransferForm)}>
+      <button
+        style={{ marginBottom: "0.1rem" }}
+        className="golden-button"
+        onClick={() => setShowTransferForm(!showTransferForm)}>
         {showTransferForm ? "Cancel" : "Send Money"}
       </button>
 
-      
-    {showTransferForm && (  
-      <>
-        <input
-          placeholder="Recipient name"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(parseInt(e.target.value))}
-        />
-        <input
-          placeholder="Optional note"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
-<span style= {{display: "flex",
-    justifyContent: "center",
-    width: "100%"}}>
-        <button style={{width: "50%"}}
+
+      {showTransferForm && (
+        <>
+          <input
+            placeholder="Recipient name"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="Amount"
+            value={amount}
+            onChange={(e) => setAmount(parseInt(e.target.value))}
+          />
+          <input
+            placeholder="Optional note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <span style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%"
+          }}>
+            <button style={{ width: "50%" }}
+              className="golden-button"
+              onClick={handleTransfer}>Send</button>
+          </span>
+        </>
+
+      )}
+      <button
         className="golden-button"
-        onClick={handleTransfer}>Send</button>
-</span>
-      </>
-      
-    )}
-      <button 
-      className="golden-button"
-      onClick={() => setShowLedger(!showLedger)}>
+        onClick={() => setShowLedger(!showLedger)}>
         {showLedger ? "Hide Ledger" : "View My Ledger"}
       </button>
       {message && <p>{message}</p>}

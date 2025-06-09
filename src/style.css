@@ -43,6 +43,18 @@ h2, h3 {
   color: #f7f9fa; 
 }
 
+.h3a {
+  margin-top: 0.1rem;
+  margin-bottom: 0rem;
+  color: #030303; 
+}
+
+.h3a p {
+  margin-top: 0rem;
+  margin-bottom: 0rem;
+  color: #030303; 
+}
+
 
 button {
   background: linear-gradient(to bottom, #f4c44e, #c88d1d);
@@ -578,7 +590,7 @@ li {
 }
 
 .bank-logo {
-  max-width: 200px;  /* Adjust size as needed */
+  max-width: 175px;  /* Adjust size as needed */
   height: auto;
 }
 
@@ -697,7 +709,6 @@ li {
   animation: slideInRight 0.5s ease-out;
 }
 
-/* From Uiverse.io by elijahgummer */ 
 .golden-button {
   touch-action: manipulation;
   display: inline-block;
@@ -798,3 +809,9 @@ li {
   box-shadow: 0.05em 0.05em;
 }
 
+.button-row-bank
+{
+  display: flex;
+  gap: 0rem;
+  flex-wrap: wrap;
+}

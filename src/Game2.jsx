@@ -61,6 +61,8 @@ export default function Game2({
   const [limits, setLimits] = useState({}); // Per-player limits
   const [showScores, setShowScores] = useState(false);
   const [showNewChallenge, setShowNewChallenge] = useState(false);
+  const [openInstances, setOpenInstances] = useState({});
+
 
 
 
@@ -70,7 +72,8 @@ export default function Game2({
   // Load challenges
   useEffect(() => {
     if (!roomId) return;
-    const q = collection(db, "rooms", roomId, "game2Challenges");
+    const q = collection(db, "game2Challenges")
+
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setChallenges(list);
@@ -121,7 +124,8 @@ export default function Game2({
     }
 
     // Create the challenge doc with first instance
-    const q = collection(db, "rooms", roomId, "game2Challenges");
+    const q = collection(db, "game2Challenges")
+
     await addDoc(q, {
       description: desc,
       createdAt: serverTimestamp(),
@@ -164,7 +168,8 @@ export default function Game2({
       return;
     }
 
-    const docRef = doc(db, "rooms", roomId, "game2Challenges", challenge.id);
+    const docRef = doc(db, "game2Challenges", challenge.id)
+
     const snap = await getDoc(docRef);
     if (!snap.exists()) return;
 
@@ -195,7 +200,8 @@ export default function Game2({
       alert("Only the challenger can decide the winner for this instance.");
       return;
     }
-    const docRef = doc(db, "rooms", roomId, "game2Challenges", challenge.id);
+    const docRef = doc(db, "game2Challenges", challenge.id);
+
     const snap = await getDoc(docRef);
     if (!snap.exists()) return;
     const data = snap.data();
@@ -366,63 +372,92 @@ export default function Game2({
         
         {challenges.length === 0 && <p>No challenges created yet.</p>}
         {challenges.map(challenge => (
-          <div
-            key={challenge.id}
-            style={{
-              border: "3px solid #555",
-              borderRadius: "10px",
-              marginBottom: "0.7rem",
-              padding: "1rem",
-              background: "#222"
-            }}
-          >
-            <div style={{ fontWeight: "bold",color: "white", marginBottom: "0.1rem" }}>
-              {challenge.description}
-            </div>
-            {/* List all matchups for this challenge */}
-            {challenge.instances.map((inst, i) => (
-  <div key={i} style={{ marginBottom: "0.1rem" }}>
-    {/* MATCHUP LINE */}
-    <div style={{
-      color: "white",
-      display: "flex",
-      alignItems: "center",
-      fontSize: "1.08rem"
-    }}>
-      <span style={{
-        ...getWinnerStyle(inst.winner, inst.challenger),
-        marginRight: "0.25rem"
-      }}>{inst.challenger}</span>
-      <span style={{
-        color: "grey",
-        fontWeight: "bold",
-        margin: "0 0.15rem"
-      }}>vs</span>
-      <span style={{
-        ...getWinnerStyle(inst.winner, inst.challengee)
-      }}>{inst.challengee}</span>
-      
-    </div>
-    {/* BUTTONS BELOW */}
-    {!inst.winner && (inst.challenger === playerName && !gameEnded) && (
-      <div style={{
+  <div
+    key={challenge.id}
+    style={{
+      border: "3px solid #555",
+      borderRadius: "10px",
+      marginBottom: "0.7rem",
+      padding: "1rem",
+      background: "#222"
+    }}
+  >
+    {/* Header row: description and chevron in flex, clicking toggles */}
+    <div
+      style={{
         display: "flex",
-        gap: "0.5rem",
-        marginTop: "0.25rem",
-        
-      }}>
-        <button
-          className="small-button"
-          onClick={() => decideWinner(challenge, i, inst.challenger)}
-        >{inst.challenger} wins</button>
-        <button
-          className="small-button"
-          onClick={() => decideWinner(challenge, i, inst.challengee)}
-        >{inst.challengee} wins</button>
-      </div>
-    )}
-  </div>
-))}
+        alignItems: "center",
+        fontWeight: "bold",
+        color: "white",
+        marginBottom: "0.1rem",
+        cursor: "pointer"
+      }}
+      onClick={() =>
+        setOpenInstances((prev) => ({
+          ...prev,
+          [challenge.id]: !prev[challenge.id],
+        }))
+      }
+    >
+      <span>{challenge.description}</span>
+      <span style={{ marginLeft: "1rem", color: openInstances[challenge.id] ? "#ffeb9c" : "#ccc" }}>
+        {openInstances[challenge.id] ? "▲" : "▼"}
+      </span>
+    </div>
+
+    {/* Only show matchups if open */}
+    {openInstances[challenge.id] &&
+      challenge.instances.map((inst, i) => (
+        <div key={i} style={{ marginBottom: "0.1rem", marginLeft: "1.2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", fontSize: "1.08rem" }}>
+            <span
+              style={{
+                color: "white",
+                ...getWinnerStyle(inst.winner, inst.challenger),
+                marginRight: "0.25rem"
+              }}
+            >
+              {inst.challenger}
+            </span>
+            <span
+              style={{
+                color: "grey",
+                fontWeight: "bold",
+                margin: "0 0.15rem"
+              }}
+            >vs</span>
+            <span
+              style={{
+                color: "white",
+                ...getWinnerStyle(inst.winner, inst.challengee)
+              }}
+            >
+              {inst.challengee}
+            </span>
+          </div>
+          {/* BUTTONS BELOW */}
+          {!inst.winner && (inst.challenger === playerName && !gameEnded) && (
+            <div style={{
+              display: "flex",
+              gap: "0.5rem",
+              marginTop: "0.25rem",
+            }}>
+              <button
+                className="small-button"
+                onClick={() => decideWinner(challenge, i, inst.challenger)}
+              >{inst.challenger} wins</button>
+              <button
+                className="small-button"
+                onClick={() => decideWinner(challenge, i, inst.challengee)}
+              >{inst.challengee} wins</button>
+            </div>
+          )}
+        </div>
+      ))
+    }
+
+   
+
 
 
             {/* Join challenge (as challenger) */}

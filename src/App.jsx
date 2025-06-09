@@ -204,6 +204,8 @@ function App() {
     }
   };
 
+  const [expandedScenarioIds, setExpandedScenarioIds] = useState({});
+
 
   const casinoMessages = [
     { text: "WELCOME TO", size: "2.2rem" },
@@ -864,7 +866,12 @@ function App() {
             </div>
 
 
-            <Bank playerName={playerName} tokenBalance={tokenBalance} />
+            <Bank
+  playerName={playerName}
+  tokenBalance={tokenBalance}
+  setTokenBalance={setTokenBalance}
+/>
+
 
           </div>
         </>
@@ -1137,131 +1144,151 @@ function App() {
 
               ) : (
                 <>
-                  <div style={{ fontWeight: "bold", marginBottom: "0.2rem" }}>
-                    {sc.description}
-                  </div>
-                  <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
-                    Flat Bet: ${sc.betAmount ?? 1}
-                  </div>
+  <div style={{ display: "flex", alignItems: "center", fontWeight: "bold", marginBottom: "0.2rem" }}>
+    <span>{sc.description}</span>
+    <button
+      style={{
+        marginLeft: "0.5rem",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        fontSize: "1.2rem",
+        transform: expandedScenarioIds[sc.id] ? "rotate(90deg)" : "rotate(0deg)",
+        transition: "transform 0.2s"
+      }}
+      onClick={() =>
+        setExpandedScenarioIds(prev => ({
+          ...prev,
+          [sc.id]: !prev[sc.id]
+        }))
+      }
+      aria-label={expandedScenarioIds[sc.id] ? "Collapse options" : "Show options"}
+      type="button"
+    >
+      ▶
+    </button>
+  </div>
+  <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
+    Flat Bet: ${sc.betAmount ?? 1}
+  </div>
+  {expandedScenarioIds[sc.id] && (
+    <div>
+      {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+        const val = sc.outcomes[key];
+        const voters = Object.entries(sc.votes || {})
+          .filter(([, vote]) => vote === key)
+          .map(([voter]) => voter);
+        const isWinner = sc.winner === key;
+        const userVoted =
+          sc.mode === "pari"
+            ? sc.votes[playerName]?.choice === key
+            : sc.votes[playerName] === key;
 
+        return (
+          <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+            {!sc.launched && <span>{val}</span>}
+            {sc.launched && !sc.winner && !sc.betsClosed && (
+              <button
+                type="button"
+                onClick={() => voteOutcome(sc.id, key)}
+                className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
+                style={{ marginLeft: "0.5rem", position: "relative" }}
+              >
+                {val}
+                {userVoted && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-8px",
+                      right: "-8px",
+                      backgroundColor: "#00ff88",
+                      color: "#000",
+                      borderRadius: "50%",
+                      fontSize: "0.7rem",
+                      padding: "2px 5px",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    ✓
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+        );
+      })}
 
-                  <div>
-                    {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-                      const val = sc.outcomes[key];
-                      const voters = Object.entries(sc.votes || {})
-                        .filter(([, vote]) => vote === key)
-                        .map(([voter]) => voter);
-                      const isWinner = sc.winner === key;
-                      const userVoted =
-                        sc.mode === "pari"
-                          ? sc.votes[playerName]?.choice === key
-                          : sc.votes[playerName] === key;
+      {sc.creator === playerName && !sc.launched && (
+        <div>
+          <input
+            placeholder="New outcome"
+            value={outcomeInputs[sc.id] || ""}
+            onChange={(e) =>
+              setOutcomeInputs({ ...outcomeInputs, [sc.id]: e.target.value })
+            }
+          />
+          <button onClick={() => addOutcome(sc.id)}>Add Outcome</button>
+        </div>
+      )}
 
-                      return (
-                        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                          {!sc.launched && <span>{val}</span>}
-                          {sc.launched && !sc.winner && !sc.betsClosed && (
-                            <button
-                              type="button"
-                              onClick={() => voteOutcome(sc.id, key)}
+      {sc.creator === playerName && !sc.launched && (
+        <button onClick={() => launchScenario(sc.id)}>Ready, set, BET!</button>
+      )}
 
+      {selectedRoom.type === "prop" &&
+        sc.creator === playerName &&
+        sc.launched &&
+        !sc.winner && (
+          <div>
+            {!showDeclareButtons[sc.id] ? (
+              <button onClick={() => toggleDeclareButtons(sc.id)}>End All Bets</button>
+            ) : (
+              <>
+                <p>Declare Winner:</p>
+                {(sc.order || Object.keys(sc.outcomes)).map((key) => (
+                  <button key={key} onClick={() => declareWinner(sc.id, key)}>
+                    {sc.outcomes[key]}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+        )}
 
-                              className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
-                              style={{ marginLeft: "0.5rem", position: "relative" }}
-                            >
-                              {val}
-                              {userVoted && (
-                                <span
-                                  style={{
-                                    position: "absolute",
-                                    top: "-8px",
-                                    right: "-8px",
-                                    backgroundColor: "#00ff88",
-                                    color: "#000",
-                                    borderRadius: "50%",
-                                    fontSize: "0.7rem",
-                                    padding: "2px 5px",
-                                    fontWeight: "bold"
-                                  }}
-                                >
-                                  ✓
-                                </span>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
+      {selectedRoom.type === "poll" &&
+        sc.creator === playerName &&
+        sc.launched &&
+        !sc.winner && (
+          <button onClick={() => closePoll(sc.id)}>Close Poll</button>
+        )}
 
-                    {sc.creator === playerName && !sc.launched && (
-                      <div>
-                        <input
-                          placeholder="New outcome"
-                          value={outcomeInputs[sc.id] || ""}
-                          onChange={(e) =>
-                            setOutcomeInputs({ ...outcomeInputs, [sc.id]: e.target.value })
-                          }
-                        />
-                        <button onClick={() => addOutcome(sc.id)}>Add Outcome</button>
-                      </div>
-                    )}
+      {sc.winner && (
+        <div>
+          {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+            const val = sc.outcomes[key];
+            const voters = Object.entries(sc.votes || {})
+              .filter(([, vote]) => vote === key)
+              .map(([voter]) => voter);
+            const isWinner = Array.isArray(sc.winner)
+              ? sc.winner.includes(key)
+              : sc.winner === key;
+            return (
+              <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+                {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
+                {isWinner && voters.length === 0
+                  ? "(Push - All Bets Returned)"
+                  : isWinner
+                    ? "(Winner)"
+                    : ""}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  )}
+</>
 
-                    {sc.creator === playerName && !sc.launched && (
-                      <button onClick={() => launchScenario(sc.id)}>Ready, set, BET!</button>
-                    )}
-
-                    {selectedRoom.type === "prop" &&
-                      sc.creator === playerName &&
-                      sc.launched &&
-                      !sc.winner && (
-                        <div>
-                          {!showDeclareButtons[sc.id] ? (
-                            <button onClick={() => toggleDeclareButtons(sc.id)}>End All Bets</button>
-                          ) : (
-                            <>
-                              <p>Declare Winner:</p>
-                              {(sc.order || Object.keys(sc.outcomes)).map((key) => (
-                                <button key={key} onClick={() => declareWinner(sc.id, key)}>
-                                  {sc.outcomes[key]}
-                                </button>
-                              ))}
-                            </>
-                          )}
-                        </div>
-                      )}
-
-                    {selectedRoom.type === "poll" &&
-                      sc.creator === playerName &&
-                      sc.launched &&
-                      !sc.winner && (
-                        <button onClick={() => closePoll(sc.id)}>Close Poll</button>
-                      )}
-
-                    {sc.winner && (
-                      <div>
-                        {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-                          const val = sc.outcomes[key];
-                          const voters = Object.entries(sc.votes || {})
-                            .filter(([, vote]) => vote === key)
-                            .map(([voter]) => voter);
-                          const isWinner = Array.isArray(sc.winner)
-                            ? sc.winner.includes(key)
-                            : sc.winner === key;
-                          return (
-                            <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                              {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
-                              {isWinner && voters.length === 0
-                                ? "(Push - All Bets Returned)"
-                                : isWinner
-                                  ? "(Winner)"
-                                  : ""}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </>
               )}
             </div>
 

@@ -87,8 +87,8 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
   };
 
   return (
-    <div className="house-scenario-box">
-      <h3 style={{ color: "red" }}>{scenario.description}</h3>
+    <div className= "h3a">
+      <p style={{ color: "red" }}><strong>{scenario.description}</strong></p>
 
       <p><strong> {scenario.housePlayer} is betting he can!</strong> </p>
       

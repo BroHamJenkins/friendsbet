@@ -820,14 +820,14 @@ function App() {
                 Bank
               </button>
 
-              <button
+          {/*<button
                 className="golden-button"
                 onClick={() => setGameSelected("Degenerate Derby")}
                 style={{ marginBottom: "0.5rem" }}
               >
                 Degenerate Derby
               </button>
-
+        */}
             </div>
           </div>
         </div>

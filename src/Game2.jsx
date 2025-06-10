@@ -217,7 +217,7 @@ export default function Game2({
 
   // UI
   return (
-    <div style={{ margin: "0 auto", padding: "1rem" }}>
+    <div style={{ margin: "0 auto", padding: "0.5rem" }}>
       <div className="derby-logo-container">
         <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
       </div>
@@ -251,17 +251,16 @@ export default function Game2({
   width: "100%",       // ✅ force it to use full width of the parent
   textAlign: "center", // optional: helps with fallback rendering
   gap: "1rem",
-  marginBottom: "0.5rem"
+  padding: "0.1rem",
 }}
 >
-
         <button
           className="button-score"
           onClick={() => setShowScores((s) => !s)}
-          style={{
+          style={{            
             background: "transparent",    // Or use your class styling
             border: "none",
-            padding: 0,
+            padding: "0",
             cursor: "pointer",
             outline: "none"
           }}
@@ -269,9 +268,9 @@ export default function Game2({
           <img
             src="/score-button2.png"
             alt="Show scores"
-            style={{
-              height: "54px",   // Adjust size as needed
-              width: "auto",
+            style={{              
+              height: "auto",   // Adjust size as needed
+              width: "80px",
               display: "block",
               pointerEvents: "none",  // Ensures the button click still works
               userSelect: "none"
@@ -286,7 +285,7 @@ export default function Game2({
           style={{
             background: "transparent",
             border: "none",
-            padding: 0,
+            padding: "0",
             cursor: "pointer",
             outline: "none"
           }}
@@ -295,8 +294,8 @@ export default function Game2({
             src="/New-challenge.png"
             alt="New Challenge"
             style={{
-              height: "75px",
-              width: "auto",
+              height: "auto",
+              width: "100px",
               display: "block",
               pointerEvents: "none",
               userSelect: "none"
@@ -311,7 +310,7 @@ export default function Game2({
           style={{
             background: "transparent",    // Or use your class styling
             border: "none",
-            padding: 0,
+            padding: "0",
             cursor: "pointer",
             outline: "none"
           }}
@@ -320,8 +319,8 @@ export default function Game2({
             src="/exit-button.png"
             alt="Show scores"
             style={{
-              height: "54px",   // Adjust size as needed
-              width: "auto",
+              height: "auto",   // Adjust size as needed
+              width: "80px",
               display: "block",
               pointerEvents: "none",  // Ensures the button click still works
               userSelect: "none"
@@ -337,7 +336,7 @@ export default function Game2({
         <div>
           {/* SHOW LIMITS */}
           <div style={{
-            display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0rem 0", alignItems: "center", justifyContent: "center", background: "#222", padding: "0.5rem", borderRadius: "10px"
+            display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0", alignItems: "center", justifyContent: "center", background: "#222", padding: "0.5rem", borderRadius: "10px"
           }}>
             {GAME2_PLAYERS.map(p => (
               <div key={p} style={{
@@ -349,8 +348,8 @@ export default function Game2({
               }}>
                 <div style={{ fontWeight: "bold" }}>{p}</div>
                 <div style={{ fontSize: "0.9rem" }}>
-                  <span title="Times as Challenger">C:</span> {limits[p]?.challenger ?? 0} / 5<br />
-                  <span title="Times as Challengee">LB:</span> {limits[p]?.challengee ?? 0} / 5
+                  <span title="Times as Challenger">Sent:</span> {limits[p]?.challenger ?? 0} / 5<br />
+                  <span title="Times as Challengee">Rec'v:</span> {limits[p]?.challengee ?? 0} / 5
                 </div>
                 <div style={{ fontSize: "0.9rem", color: "red" }}>Score: {scores[p]}</div>
               </div>
@@ -360,7 +359,7 @@ export default function Game2({
       )}
       {/* DISABLE CREATE IF LIMIT HIT OR GAME OVER */}
       {(!gameEnded && (limits[playerName]?.challenger ?? 0) < 5) ? (
-        <div style={{ margin: "1.5rem 0" }}>
+        <div style={{ margin: "0" }}>
 
 
           {showNewChallenge && (
@@ -420,7 +419,7 @@ export default function Game2({
 
 
       {/* LIST ALL CHALLENGES */}
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: "0" }}>
 
         {challenges.length === 0 && <p>No challenges created yet.</p>}
         {challenges.map(challenge => (
@@ -429,7 +428,7 @@ export default function Game2({
             style={{
               border: "3px solid #555",
               borderRadius: "10px",
-              marginBottom: "0.7rem",
+              marginBottom: "0.4rem",
               padding: "1rem",
               background: "#222"
             }}

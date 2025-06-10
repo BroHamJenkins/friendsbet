@@ -802,14 +802,16 @@ function App() {
               <button
                 className="button"
                 onClick={() => setGameSelected("Casino")}
-                style={{ marginBottom: "0.5rem" }}
+                style={{ 
+                  marginBottom: "0.25rem",
+                  marginTop: "0rem",}}
               >
                 Casino
               </button>
               <button
                 className="button-ocean"
                 onClick={() => setGameSelected("Game2")}
-                style={{ marginBottom: "0.5rem" }}
+                style={{ marginBottom: "0.25rem" }}
               >
                 Derby
               </button>

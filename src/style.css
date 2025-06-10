@@ -538,7 +538,7 @@ li {
   height: auto;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.5rem 2rem;
+  padding: 0.5rem;
   font-family: Arial, sans-serif;
   background-size: cover;
   background-position: center;
@@ -599,21 +599,25 @@ li {
 .derby-logo-container {
   text-align: center;
   margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
 }
 
 .derby-logo {
   max-width: 220px;  /* Adjust size as needed */
   height: auto;
+  margin-bottom: 0;
+  padding: 0;
 }
 
 .home-logo-container {
   text-align: center;
-  margin-top: 0;
+  margin-top: 0 ;
   margin-bottom: 0;
 }
 
 .home-logo {
-  max-width: 250px;
+  max-width: 215px;
   width: 80%;
   height: auto;
 }

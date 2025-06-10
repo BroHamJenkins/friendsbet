@@ -218,12 +218,9 @@ export default function Game2({
   // UI
   return (
     <div style={{ maxWidth: 620, margin: "0 auto", padding: "1rem" }}>
-      <div style={{ textAlign: "center", margin: "0" }}>
-  <h2 style={{ margin: "0.2em 0" }}>Your</h2>
-  <h2 style={{ margin: "0.2em 0" }}>Lame-Ass</h2>
-  <h2 style={{ margin: "0.2em 0" }}>Logo</h2>
-  <h2 style={{ margin: "0.2em 0" }}>Here</h2>
-</div>
+      <div className="derby-logo-container">
+            <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
+          </div>
       
       <button onClick={() => setGameSelected("")} className="button-burgundy">
         Leave
@@ -250,23 +247,92 @@ export default function Game2({
         </div>
       )}
 
+<div style={{
+  display: "flex",
+  gap: "1rem",
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: "1rem"
+}}>
+
 <button
+  className="button-score"
   onClick={() => setShowScores((s) => !s)}
   style={{
-    margin: "1rem 0",
-    padding: "0.5rem 1.2rem",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    background: "#444",
-    color: "#ffeb9c",
-    fontFamily: "'Orbitron', sans-serif",
-    cursor: "pointer"
+    background: "transparent",    // Or use your class styling
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    outline: "none"
   }}
 >
-
-  {showScores ? "Hide Scores" : "Show Scores"}
-
+  <img
+    src="/score-button.png"
+    alt="Show scores"
+    style={{
+      height: "54px",   // Adjust size as needed
+      width: "auto",
+      display: "block",
+      pointerEvents: "none",  // Ensures the button click still works
+      userSelect: "none"
+    }}
+    draggable="false"
+  />
 </button>
+
+<button
+  className="button-newchallenge"
+  onClick={() => setShowNewChallenge(s => !s)}
+  style={{
+    background: "transparent",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    outline: "none"
+  }}
+>
+  <img
+    src="/New-challenge.png"
+    alt="New Challenge"
+    style={{
+      height: "65px",
+      width: "auto",
+      display: "block",
+      pointerEvents: "none",
+      userSelect: "none"
+    }}
+    draggable="false"
+  />
+</button>
+
+<button
+  className="button-score"
+  onClick={() => setShowScores((s) => !s)}
+  style={{
+    background: "transparent",    // Or use your class styling
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    outline: "none"
+  }}
+>
+  <img
+    src="/score-button.png"
+    alt="Show scores"
+    style={{
+      height: "54px",   // Adjust size as needed
+      width: "auto",
+      display: "block",
+      pointerEvents: "none",  // Ensures the button click still works
+      userSelect: "none"
+    }}
+    draggable="false"
+  />
+</button>
+
+</div>
+
+
 {showScores && (
 <div>
       {/* SHOW LIMITS */}
@@ -295,70 +361,56 @@ export default function Game2({
       {/* DISABLE CREATE IF LIMIT HIT OR GAME OVER */}
       {(!gameEnded && (limits[playerName]?.challenger ?? 0) < 5) ? (
   <div style={{ margin: "1.5rem 0" }}>
-    {!showNewChallenge ? (
-      <button
-        onClick={() => setShowNewChallenge(true)}
-        style={{
-    margin: "1rem 0",
-    padding: "0.5rem 1.2rem",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    background: "#444",
-    color: "#ffeb9c",
-    fontFamily: "'Orbitron', sans-serif",
-    cursor: "pointer"
-  }}
-      >
-        + New Challenge
-      </button>
-    ) : (
-      <div
-        style={{
-          border: "1px solid #888",
-          padding: "1rem",
-          borderRadius: "12px",
-          background: "#1b1b2f"
-        }}
-      >
-        
-        <input
-          style={{ width: "90%", marginBottom: "0.5rem" }}
-          placeholder="Describe your challenge"
-          value={challengeDesc}
-          onChange={e => setChallengeDesc(e.target.value)}
-          disabled={gameEnded}
-        />
-        <select
-          value={selectedOpponent}
-          onChange={e => setSelectedOpponent(e.target.value)}
-          disabled={gameEnded}
-          style={{ marginLeft: "0rem" }}
-        >
-          <option value="">Pick a lil' bitch</option>
-          {GAME2_PLAYERS.filter(p => p !== playerName && (limits[p]?.challengee ?? 0) < 5).map(p =>
-            <option key={p} value={p}>{p}</option>
-          )}
-        </select>
-        <button
-          style={{ marginLeft: "0rem" }}
-          onClick={handleCreateChallenge}
-          disabled={!challengeDesc || !selectedOpponent || gameEnded}
-        >
-          SEND IT!
-        </button>
-        <button
-          style={{
-            background: "#eee",
-            color: "#333",
-            borderRadius: "8px",
-            padding: "0.32rem 0.75rem"
-          }}
-          onClick={() => setShowNewChallenge(false)}
-        >
-          Cancel
-        </button>
-      </div>
-    )}
+    
+
+{showNewChallenge && (
+  <div
+    style={{
+      border: "1px solid #888",
+      padding: "1rem",
+      borderRadius: "12px",
+      background: "#1b1b2f"
+    }}
+  >
+    <input
+      style={{ width: "90%", marginBottom: "0.5rem" }}
+      placeholder="Describe your challenge"
+      value={challengeDesc}
+      onChange={e => setChallengeDesc(e.target.value)}
+      disabled={gameEnded}
+    />
+    <select
+      value={selectedOpponent}
+      onChange={e => setSelectedOpponent(e.target.value)}
+      disabled={gameEnded}
+      style={{ marginLeft: "0rem" }}
+    >
+      <option value="">Choose your opponent</option>
+      {GAME2_PLAYERS.filter(p => p !== playerName && (limits[p]?.challengee ?? 0) < 5).map(p =>
+        <option key={p} value={p}>{p}</option>
+      )}
+    </select>
+    <button
+      style={{ marginLeft: "0rem" }}
+      onClick={handleCreateChallenge}
+      disabled={!challengeDesc || !selectedOpponent || gameEnded}
+    >
+      SEND IT!
+    </button>
+    <button
+      style={{
+        background: "#eee",
+        color: "#333",
+        borderRadius: "8px",
+        padding: "0.32rem 0.75rem"
+      }}
+      onClick={() => setShowNewChallenge(false)}
+    >
+      Cancel
+    </button>
+  </div>
+)}
+
   </div>
 ) : !gameEnded && (
   <div style={{ color: "#aaa", margin: "1rem 0" }}>

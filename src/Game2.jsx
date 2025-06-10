@@ -245,19 +245,19 @@ export default function Game2({
       )}
 
       <div style={{
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  width: "100%",       // ✅ force it to use full width of the parent
-  textAlign: "center", // optional: helps with fallback rendering
-  gap: "1rem",
-  padding: "0.1rem",
-}}
->
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",       // ✅ force it to use full width of the parent
+        textAlign: "center", // optional: helps with fallback rendering
+        gap: "1rem",
+        padding: "0.1rem",
+      }}
+      >
         <button
           className="button-score"
           onClick={() => setShowScores((s) => !s)}
-          style={{            
+          style={{
             background: "transparent",    // Or use your class styling
             border: "none",
             padding: "0",
@@ -268,7 +268,7 @@ export default function Game2({
           <img
             src="/score-button2.png"
             alt="Show scores"
-            style={{              
+            style={{
               height: "auto",   // Adjust size as needed
               width: "80px",
               display: "block",
@@ -428,8 +428,8 @@ export default function Game2({
             style={{
               border: "3px solid #555",
               borderRadius: "10px",
-              marginBottom: "0.4rem",
-              padding: "1rem",
+              marginBottom: "0.3rem",
+              padding: "0.5rem",
               background: "#222"
             }}
           >
@@ -489,6 +489,7 @@ export default function Game2({
                   {/* BUTTONS BELOW */}
                   {!inst.winner && (inst.challenger === playerName && !gameEnded) && (
                     <div style={{
+
                       display: "flex",
                       gap: "0.5rem",
                       marginTop: "0.25rem",
@@ -515,12 +516,37 @@ export default function Game2({
             {(!gameEnded &&
               (limits[playerName]?.challenger ?? 0) < 5 &&
               challenge.instances.filter(inst => inst.challenger === playerName).length === 0) && (
-                <div style={{ marginTop: "0.3rem" }}>
-                  <button
-                    className="small-button"
-                    onClick={() => setChallengeTarget(challenge.id)}>
-                    Challenge
-                  </button>
+                <div>
+
+                  <div style={{ display: "flex", justifyContent: "center", margin: "0", padding: "0" }}>
+                    <button
+                      className="challenge-orange"
+                      onClick={() => setChallengeTarget(challenge.id)}
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        border: "none",
+                        background: "transparent",
+                        padding: "none"
+                      }}
+                    >
+                      <img
+                        src="/challenge-orange.png"
+                        alt="Issue Challenge"
+                        style={{
+                          width: "80px",
+                          height: "auto",                          
+                          display: "block",
+                          pointerEvents: "none",  // Ensures the button click still works
+                          userSelect: "none"
+                        }}
+                        draggable="false"
+                      />
+
+                    </button>
+                  </div>
+
                   {challengeTarget === challenge.id && (
                     <span style={{ marginLeft: "0.5rem" }}>
                       <select

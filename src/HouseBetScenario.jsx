@@ -98,6 +98,10 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
           {otherOutcomeKey && otherOutcomeLabel ? (
             <>
               
+<div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
+      Bet ${scenario.minBet} —  ${scenario.maxBet}
+    </div>
+
               <p>
         <strong>Status:</strong>{" "}
         {scenario.winner

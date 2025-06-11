@@ -13,11 +13,14 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { deleteDoc } from "firebase/firestore";
 
 // Your 8 players
 const GAME2_PLAYERS = [
   "Bob", "Christian", "Danny", "David", "Jake", "Luke", "Ryan", "Will",
 ];
+
+const CHALLENGE_LIMIT = 2;  // sets a limit on challenges issued and received per player
 
 function getChallengeLimit(instances, player, role) {
   return instances.filter(
@@ -62,6 +65,8 @@ export default function Game2({
   const [showScores, setShowScores] = useState(false);
   const [showNewChallenge, setShowNewChallenge] = useState(false);
   const [openInstances, setOpenInstances] = useState({});
+  
+
 
 
 
@@ -82,15 +87,26 @@ export default function Game2({
 
   // Compute limits every time challenges update
   useEffect(() => {
-    const lims = calcAllPlayerLimits(challenges);
-    setLimits(lims);
+  const lims = calcAllPlayerLimits(challenges);
+  setLimits(lims);
 
-    // Game ends if all players have 5+ in both roles
-    const allFull = GAME2_PLAYERS.every(
-      (p) => (lims[p]?.challenger ?? 0) >= 5 && (lims[p]?.challengee ?? 0) >= 5
-    );
-    setGameEnded(allFull);
-  }, [challenges]);
+  // Check if all players have issued/received their limit
+  const allLimitsReached = GAME2_PLAYERS.every(
+    (p) =>
+      (lims[p]?.challenger ?? 0) >= CHALLENGE_LIMIT &&
+      (lims[p]?.challengee ?? 0) >= CHALLENGE_LIMIT
+  );
+
+  // Check if all challenge instances have a winner (no undecided)
+  const allDecided = challenges.every(
+    (ch) =>
+      ch.instances.every((inst) => !!inst.winner)
+  );
+
+  // Only end the game if both conditions are true
+  setGameEnded(allLimitsReached && allDecided);
+}, [challenges]);
+
 
   // Compute scores
   useEffect(() => {
@@ -113,11 +129,11 @@ export default function Game2({
       alert("Enter a task and pick a valid opponent.");
       return;
     }
-    if ((limits[playerName]?.challenger ?? 0) >= 5) {
+    if ((limits[playerName]?.challenger ?? 0) >= CHALLENGE_LIMIT) {
       alert("You’ve hit your challenger limit.");
       return;
     }
-    if ((limits[opp]?.challengee ?? 0) >= 5) {
+    if ((limits[opp]?.challengee ?? 0) >= CHALLENGE_LIMIT) {
       alert(`${opp} has reached their challengee limit.`);
       return;
     }
@@ -149,11 +165,11 @@ export default function Game2({
       alert("Pick a valid opponent.");
       return;
     }
-    if ((limits[playerName]?.challenger ?? 0) >= 5) {
+    if ((limits[playerName]?.challenger ?? 0) >= CHALLENGE_LIMIT) {
       alert("You’ve hit your challenger limit.");
       return;
     }
-    if ((limits[selectedOpponent]?.challengee ?? 0) >= 5) {
+    if ((limits[selectedOpponent]?.challengee ?? 0) >= CHALLENGE_LIMIT) {
       alert(`${selectedOpponent} has reached their challengee limit.`);
       return;
     }
@@ -229,25 +245,42 @@ export default function Game2({
 
 
       {/* GAME END DISPLAY */}
-      {gameEnded && (
-        <div style={{
-          background: "#222",
-          color: "#00ff88",
-          borderRadius: "14px",
-          padding: "1rem",
-          margin: "1rem 0",
-          textAlign: "center"
-        }}>
-          <h3>GAME OVER</h3>
-          <p>All players have exhausted their limits.</p>
-          <strong>Final Scores:</strong>
-          <ul style={{ listStyle: "none", padding: 0, margin: "0.5rem 0" }}>
-            {GAME2_PLAYERS.map(p =>
-              <li key={p}>{p}: <b>{scores[p]}</b></li>
-            )}
-          </ul>
-        </div>
-      )}
+      {gameEnded && (() => {
+  // Get array of players and their scores
+  const sortedPlayers = [...GAME2_PLAYERS].sort((a, b) => (scores[b] ?? 0) - (scores[a] ?? 0));
+  const highScore = scores[sortedPlayers[0]] ?? 0;
+  // Get all players with the top score (handle ties)
+  const winners = sortedPlayers.filter(p => scores[p] === highScore);
+
+  return (
+    <div style={{
+      background: "#222",
+      color: "#00ff88",
+      borderRadius: "14px",
+      padding: "1rem",
+      margin: "1rem 0",
+      textAlign: "center"
+    }}>
+      <h3>GAME OVER</h3>
+      <p>
+        And the winner{winners.length > 1 ? "s are" : " is"}...
+        <b>
+          {winners.map((p, i) =>
+            `${i > 0 ? " & " : " "}${p}`
+          )}
+        </b>
+        !
+      </p>
+      <strong>Final Scores:</strong>
+      <ul style={{ listStyle: "none", padding: 0, margin: "0.5rem 0" }}>
+        {sortedPlayers.map(p =>
+          <li key={p}>{p}: <b>{scores[p]}</b></li>
+        )}
+      </ul>
+    </div>
+  );
+})()}
+
 
       <div style={{
         display: "flex",
@@ -336,6 +369,34 @@ export default function Game2({
 
       </div>
 
+{playerName === "Raul" && (
+ <button
+    style={{
+      background: "#f44",
+      color: "white",
+      fontWeight: "bold",
+      borderRadius: "8px",
+      border: "none",
+      padding: "0.6rem 1.2rem",
+      margin: "1rem auto",
+      display: "block",
+      fontSize: "1.15rem",
+      cursor: "pointer"
+    }}
+    onClick={async () => {
+      if (!window.confirm("Are you sure you want to reset the Derby? This will delete ALL current challenges!")) return;
+      const q = collection(db, "game2Challenges");
+      const docs = await getDocs(q);
+      for (const docSnap of docs.docs) {
+        await deleteDoc(docSnap.ref); // CORRECT WAY
+      }
+      alert("Derby has been reset.");
+    }}
+  >
+    Reset Derby (Danger!)
+  </button>
+)}
+
 
       {showScores && (
         <div>
@@ -353,8 +414,8 @@ export default function Game2({
               }}>
                 <div style={{ fontWeight: "bold" }}>{p}</div>
                 <div style={{ fontSize: "0.9rem" }}>
-                  <span title="Times as Challenger">Sent:</span> {limits[p]?.challenger ?? 0} / 5<br />
-                  <span title="Times as Challengee">Rec'v:</span> {limits[p]?.challengee ?? 0} / 5
+                  <span title="Times as Challenger">Sent:</span> {limits[p]?.challenger ?? 0} / {CHALLENGE_LIMIT}<br />
+                  <span title="Times as Challengee">Rec'v:</span> {limits[p]?.challengee ?? 0} / {CHALLENGE_LIMIT}
                 </div>
                 <div style={{ fontSize: "0.9rem", color: "red" }}>Score: {scores[p]}</div>
               </div>
@@ -363,7 +424,7 @@ export default function Game2({
         </div>
       )}
       {/* DISABLE CREATE IF LIMIT HIT OR GAME OVER */}
-      {(!gameEnded && (limits[playerName]?.challenger ?? 0) < 5) ? (
+      {(!gameEnded && (limits[playerName]?.challenger ?? 0) < CHALLENGE_LIMIT) ? (
         <div style={{ margin: "0" }}>
 
 
@@ -390,7 +451,7 @@ export default function Game2({
                 style={{ marginLeft: "0rem" }}
               >
                 <option value="">Choose your opponent</option>
-                {GAME2_PLAYERS.filter(p => p !== playerName && (limits[p]?.challengee ?? 0) < 5).map(p =>
+                {GAME2_PLAYERS.filter(p => p !== playerName && (limits[p]?.challengee ?? 0) < CHALLENGE_LIMIT).map(p =>
                   <option key={p} value={p}>{p}</option>
                 )}
               </select>
@@ -428,13 +489,11 @@ export default function Game2({
 
         {challenges.length === 0 && <p>No challenges created yet.</p>}
         {challenges.map(challenge => (
-         
-         <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-          <div
-            key={challenge.id}
-            className="challenge-info-block"
-            
-          >
+  <div
+    key={challenge.id} // <-- Move key here!
+    style={{ display: "flex", justifyContent: "center", width: "100%" }}
+  >
+    <div className="challenge-info-block">
             {/* Header row: description and chevron in flex, clicking toggles */}
             <div
               style={{
@@ -461,8 +520,8 @@ export default function Game2({
             {/* Only show matchups if open */}
             {openInstances[challenge.id] &&
               challenge.instances.map((inst, i) => (
-                <div key={i} style={{ marginBottom: "0.1rem", marginLeft: "1.2rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", fontSize: "1.08rem" }}>
+                <div key={i} style={{ marginBottom: "0.1rem"}}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.08rem" }}>
                     <span
                       style={{
                         color: "white",
@@ -497,11 +556,11 @@ export default function Game2({
                       marginTop: "0.25rem",
                     }}>
                       <button
-                        className="small-button"
+                        className="button-37"
                         onClick={() => decideWinner(challenge, i, inst.challenger)}
                       >{inst.challenger} wins</button>
                       <button
-                        className="small-button"
+                        className="button-37"
                         onClick={() => decideWinner(challenge, i, inst.challengee)}
                       >{inst.challengee} wins</button>
                     </div>
@@ -516,7 +575,7 @@ export default function Game2({
 
             {/* Join challenge (as challenger) */}
             {(!gameEnded &&
-              (limits[playerName]?.challenger ?? 0) < 5 &&
+              (limits[playerName]?.challenger ?? 0) < CHALLENGE_LIMIT &&
               challenge.instances.filter(inst => inst.challenger === playerName).length === 0) && (
                 <div>
 
@@ -558,7 +617,7 @@ export default function Game2({
                         <option value="">Who's your bitch?</option>
                         {GAME2_PLAYERS.filter(p =>
                           p !== playerName &&
-                          (limits[p]?.challengee ?? 0) < 5 &&
+                          (limits[p]?.challengee ?? 0) < CHALLENGE_LIMIT &&
                           !challenge.instances.some(inst =>
                             inst.challenger === playerName && inst.challengee === p
                           )

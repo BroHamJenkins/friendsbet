@@ -930,3 +930,40 @@ li {
   width: 80px !important;
   height: auto !important;
 }
+
+.challenge-info-box {
+  background: #ffe47a;                   /* playful yellow base, or use #ffaaff for pink, #7ad3ff for blue, etc. */
+  border: 5px solid #111;                /* thick black border */
+  border-radius: 18px;                   /* more cartoony */
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12), 0 1.5px 7px #222;
+  padding: 1rem 1.2rem 0.6rem 1.2rem;
+  margin-bottom: 1.3rem;
+  position: relative;
+  overflow: hidden;
+}
+.challenge-info-box-header {
+  background: #ff9300;
+  color: #191919;
+  font-family: 'Limelight', 'Comic Sans MS', cursive;
+  font-size: 1.4rem;
+  text-align: center;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 3px solid #111;
+  border-radius: 12px 12px 0 0;
+  margin: -1rem -1.2rem 0.6rem -1.2rem;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+.challenge-info-block {
+  display: inline-block;
+  background: #25919d;
+  border: 6px solid #111;
+  border-radius: 8px;
+  padding: 0.25rem 0.7rem;
+  margin: 0.3rem 0.3rem 0.3rem 0;
+  color: #222;
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: inherit;
+}
+

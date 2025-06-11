@@ -782,7 +782,9 @@ li {
 }
 
 .small-button {
-  background: #caa933;
+
+  width: 60%;
+  background: #1fa7b0;
   font-family: inherit;
   padding: 0.2em;
   font-weight: 900;
@@ -907,4 +909,24 @@ li {
   box-shadow: none !important;
   padding: 0 !important;
 
+}
+
+.challenge-orange {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  width: auto !important;
+  height: auto !important;
+  line-height: 0 !important;
+  vertical-align: middle !important;
+  font-size: 0 !important;       /* <-- This kills any text height/linebox */
+}
+
+.challenge-orange img {
+  display: block !important;     /* removes inline img gap */
+  width: 80px !important;
+  height: auto !important;
 }

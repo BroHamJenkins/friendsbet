@@ -307,20 +307,17 @@ function App() {
   };
 
   useEffect(() => {
-    if (!playerName) return;
+  if (!playerName) return;
+  const playerRef = doc(db, "players", playerName);
+  // Listen for real-time updates
+  const unsubscribe = onSnapshot(playerRef, (docSnap) => {
+    if (docSnap.exists()) {
+      setTokenBalance(docSnap.data().tokens ?? 0);
+    }
+  });
+  return () => unsubscribe();
+}, [playerName]);
 
-    const playerRef = doc(db, "players", playerName);
-
-    getDoc(playerRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        setTokenBalance(docSnap.data().tokens ?? 0);
-
-      } else {
-        setDoc(playerRef, { tokens: 0 });
-        setTokenBalance(0);
-      }
-    });
-  }, [playerName]);
 
   const joinRoom = (room) => {
     setSelectedRoom(room);
@@ -1161,7 +1158,7 @@ function App() {
       fontWeight: "bold",
       marginBottom: "0.2rem",
       cursor: "pointer",
-      color: "white"
+      color: "black"
     }}
     onClick={() =>
       setExpandedScenarioIds(prev => ({

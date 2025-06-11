@@ -423,15 +423,12 @@ export default function Game2({
 
         {challenges.length === 0 && <p>No challenges created yet.</p>}
         {challenges.map(challenge => (
+         
+         <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
           <div
             key={challenge.id}
-            style={{
-              border: "3px solid #555",
-              borderRadius: "10px",
-              marginBottom: "0.3rem",
-              padding: "0.5rem",
-              background: "#222"
-            }}
+            className="challenge-info-block"
+            
           >
             {/* Header row: description and chevron in flex, clicking toggles */}
             <div
@@ -532,7 +529,7 @@ export default function Game2({
                       }}
                     >
                       <img
-                        src="/challenge-orange.png"
+                        src="/challenge-button.png"
                         alt="Issue Challenge"
                         style={{
                           width: "80px",
@@ -578,6 +575,8 @@ export default function Game2({
                 </div>
               )}
           </div>
+</div>
+
         ))}
       </div>
     </div>

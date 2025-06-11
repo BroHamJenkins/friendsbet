@@ -967,3 +967,30 @@ li {
   font-family: inherit;
 }
 
+.derby-logo-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
+.derby-logo {
+  max-width: 220px;
+  height: auto;
+  z-index: 1;
+  position: relative;
+  /* keep your current styling here */
+}
+
+.derby-sticker {
+  position: absolute;
+  top: -8px;       /* adjust for best overlap */
+  right: -44px;     /* adjust for best overlap */
+  width: 90px;     /* sticker size; adjust to fit your logo */
+  z-index: 2;
+  pointer-events: none; /* so clicks go through to the logo if needed */
+  user-select: none;
+}

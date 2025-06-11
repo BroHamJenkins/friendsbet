@@ -66,20 +66,19 @@ export default function Game2({
 
 
 
-  // Get the current roomId from localStorage
-  const roomId = localStorage.getItem("lastRoomId");
+  
 
   // Load challenges
   useEffect(() => {
-    if (!roomId) return;
-    const q = collection(db, "game2Challenges")
+  const q = collection(db, "game2Challenges");
 
-    const unsub = onSnapshot(q, (snap) => {
-      const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setChallenges(list);
-    });
-    return () => unsub();
-  }, [roomId]);
+  const unsub = onSnapshot(q, (snap) => {
+    const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setChallenges(list);
+  });
+  return () => unsub();
+}, []);
+
 
   // Compute limits every time challenges update
   useEffect(() => {
@@ -218,9 +217,15 @@ export default function Game2({
   // UI
   return (
     <div style={{ margin: "0 auto", padding: "0.5rem" }}>
-      <div className="derby-logo-container">
-        <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
-      </div>
+      <div className="derby-logo-wrapper">
+  <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
+  <img
+    src="/derby-sticker.png"
+    alt="17% more alliteration"
+    className="derby-sticker"
+  />
+</div>
+
 
 
       {/* GAME END DISPLAY */}

@@ -1035,7 +1035,8 @@ function App() {
 
 
           {!showScenarioForm ? (
-            <button onClick={() => setShowScenarioForm(true)}>
+            <button 
+            onClick={() => setShowScenarioForm(true)}>
               + New Prop Bet
             </button>
           ) : scenarioMode === "house" ? (

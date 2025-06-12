@@ -932,6 +932,7 @@ li {
 }
 
 .challenge-info-box {
+  font-family: 'Patrick Hand', cursive; 
   background: #ffe47a;                   /* playful yellow base, or use #ffaaff for pink, #7ad3ff for blue, etc. */
   border: 5px solid #111;                /* thick black border */
   border-radius: 18px;                   /* more cartoony */
@@ -955,8 +956,9 @@ li {
   font-weight: bold;
 }
 .challenge-info-block {
+  font-family: 'Patrick Hand', cursive; 
   display: inline-block;
-  background: #25919d;
+  background: linear-gradient(to right, #25919d 85%, #ffbe40 15%);
   border: 6px solid #111;
   border-radius: 8px;
   padding: 0.25rem 0.7rem;
@@ -1021,4 +1023,10 @@ li {
 
 .button-37:active {
   transform: scale(.95);
+}
+
+.patrick-hand-regular {
+  font-family: "Patrick Hand", cursive;
+  font-weight: 400;
+  font-style: normal;
 }

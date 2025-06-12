@@ -675,7 +675,8 @@ export default function Game2({
 
                     {challengeTarget === challenge.id && (
                       <span style={{ marginLeft: "0.5rem" }}>
-                        <select
+                        
+                        <select style={{ width: "75%" }}
                           value={selectedOpponent}
                           onChange={e => setSelectedOpponent(e.target.value)}
                         >
@@ -690,6 +691,7 @@ export default function Game2({
                             <option key={p} value={p}>{p}</option>
                           )}
                         </select>
+
                         <button
                           onClick={() => {
                             const ch = challenges.find(ch => ch.id === challenge.id);

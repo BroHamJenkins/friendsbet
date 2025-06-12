@@ -88,6 +88,38 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
     await distributeWinnings(scenario.id, votes, adjustTokens); // <-- THIS IS THE FIX
   };
 
+// ====== [ADD THIS BLOCK before return()] ======
+let resultsDisplay = null;
+
+if (scenario.winner) {
+  const votes = scenario.votes || {};
+  const bettors = Object.entries(votes);
+
+  if (scenario.winner === scenario.houseOutcome) {
+    // House wins, collects all losing bets
+    const total = bettors.reduce((sum, [player, v]) => sum + (v.amount || 0), 0);
+    resultsDisplay = (
+      <div style={{ fontWeight: 600, color: "black", margin: "0.5rem 0" }}>
+        HOUSE ({scenario.housePlayer}) WINS<br />
+        Wins: ${total}
+      </div>
+    );
+  } else {
+    // Bettors win, each gets 2x their bet
+    resultsDisplay = (
+      <div style={{ fontWeight: 600, color: "black", margin: "0.5rem 0" }}>
+        BETTORS WIN!<br />
+        {bettors.map(([player, v]) => (
+          <div key={player}>
+            {player} wins ${v.amount * 2}
+          </div>
+        ))}
+      </div>
+    );
+  }
+}
+
+
   return (
   <div>
     {/* HEADER WITH CHEVRON - ONLY DESCRIPTION AND HOUSEPLAYER */}
@@ -104,7 +136,7 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
       
       <span style={{ color: "red" }}>{scenario.description}</span>
       <span style={{
-        marginLeft: "1rem",
+        
         color: expanded ? "#ffeb9c" : "#ccc",
         fontSize: "1.2rem",
         fontWeight: "bold"
@@ -124,7 +156,7 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
           color: "#333"
         }}
       >
-        {scenario.housePlayer} is betting he can!
+        {scenario.housePlayer} bets he can!
       </span>
 
         {isVotingActive && !hasVoted && !isHouse && (
@@ -135,14 +167,7 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
                   Bet ${scenario.minBet} —  ${scenario.maxBet}
                 </div>
 
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {scenario.winner
-                    ? scenario.winner === scenario.houseOutcome
-                      ? "House Wins"
-                      : "House Loses"
-                    : "Open"}
-                </p>
+                
                 <input
                   type="number"
                   value={betAmount}
@@ -161,10 +186,10 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
           </>
         )}
 
-        {isHouse && <p className="info-text">You are the house. Waiting on bets...</p>}
+        {isHouse && <p className="info-text">You are the house.</p>}
         {hasVoted && (
           <p className="info-text">
-            You&apos;ve already bet $
+            You&apos;ve bet $
             {scenario.votes && scenario.votes[playerName] && scenario.votes[playerName].amount
               ? scenario.votes[playerName].amount
               : "?"}
@@ -172,11 +197,9 @@ const HouseBetScenario = ({ scenario, playerName, adjustTokens, distributeWinnin
           </p>
         )}
 
-        {scenario.winner && (
-          <p className="info-text">
-            Scenario resolved: {scenario.outcomes?.[scenario.winner]}
-          </p>
-        )}
+        {resultsDisplay}
+
+
 
         {isHouse && scenario.launched && !scenario.winner && (
           <>

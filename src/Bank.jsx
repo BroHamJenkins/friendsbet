@@ -97,7 +97,7 @@ function Bank({ playerName, tokenBalance, setTokenBalance }) {
       timestamp: serverTimestamp()
     });
 
-    setMessage(`Successfully sent ${amount} tokens to ${normalizedRecipient}. Note: ${note}`);
+    setMessage(`Successfully sent $${amount} to ${normalizedRecipient}. Note: ${note}`);
     setAmount(0);
     setNote("");
     setRecipient("");

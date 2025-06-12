@@ -30,12 +30,12 @@ html {
 }
 
 input, select, button {
-  margin-top: 0.5rem;
+  margin-top: 0.2rem;
   display: block;
   width: 100%;
   padding: 0.5rem;
   font-size: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.3rem;
 }
 
 h2, h3 {
@@ -934,7 +934,7 @@ li {
 }
 
 .challenge-info-box {
-  font-family: 'Patrick Hand', cursive; 
+  font-family: 'Bungee', cursive; 
   background: #ffe47a;                   /* playful yellow base, or use #ffaaff for pink, #7ad3ff for blue, etc. */
   border: 5px solid #111;                /* thick black border */
   border-radius: 18px;                   /* more cartoony */
@@ -958,7 +958,7 @@ li {
   font-weight: bold;
 }
 .challenge-info-block {
-  font-family: 'Patrick Hand', cursive; 
+  font-family: 'Bungee', cursive; 
   width: 250px;
   display: block;
   background: linear-gradient(to right, #25919d 83%, #ffbe40 17%);
@@ -1072,4 +1072,10 @@ li {
   box-shadow: none;
   cursor: pointer;
   display: inline-block;
+}
+
+.bungee-regular {
+  font-family: "Bungee", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }

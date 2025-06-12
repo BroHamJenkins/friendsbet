@@ -46,7 +46,7 @@ function calcAllPlayerLimits(challenges) {
 function getWinnerStyle(winner, player) {
   if (!winner) return {};
   return {
-    color: winner === player ? "green" : "white",
+    color: winner === player ? "lawngreen" : "white",
     fontWeight: winner === player ? "bold" : "normal"
   };
 }
@@ -125,52 +125,52 @@ export default function Game2({
 
   // Create a new challenge (as the challenger)
   async function handleCreateChallenge() {
-  if (sending) return;           // Guard: ignore if already sending
-  setSending(true);
-  setShowNewChallenge(false);    // Closes modal immediately
+    if (sending) return;           // Guard: ignore if already sending
+    setSending(true);
+    setShowNewChallenge(false);    // Closes modal immediately
 
-  try {
-    const desc = challengeDesc.trim();
-    const opp = selectedOpponent.trim();
-    if (!desc || !opp || opp === playerName) {
-      alert("Enter a task and pick a valid opponent.");
-      return;
-    }
-    if ((limits[playerName]?.challenger ?? 0) >= CHALLENGE_LIMIT) {
-      alert("You’ve hit your challenger limit.");
-      return;
-    }
-    if ((limits[opp]?.challengee ?? 0) >= CHALLENGE_LIMIT) {
-      alert(`${opp} has reached their challengee limit.`);
-      return;
-    }
+    try {
+      const desc = challengeDesc.trim();
+      const opp = selectedOpponent.trim();
+      if (!desc || !opp || opp === playerName) {
+        alert("Enter a task and pick a valid opponent.");
+        return;
+      }
+      if ((limits[playerName]?.challenger ?? 0) >= CHALLENGE_LIMIT) {
+        alert("You’ve hit your challenger limit.");
+        return;
+      }
+      if ((limits[opp]?.challengee ?? 0) >= CHALLENGE_LIMIT) {
+        alert(`${opp} has reached their challengee limit.`);
+        return;
+      }
 
-    // Create the challenge doc with first instance
-    const q = collection(db, "game2Challenges")
+      // Create the challenge doc with first instance
+      const q = collection(db, "game2Challenges")
 
-    await addDoc(q, {
-      description: desc,
-      createdAt: serverTimestamp(),
-      creator: playerName,
-      instances: [
-        {
-          challenger: playerName,
-          challengee: opp,
-          winner: null,
-          decidedBy: null,
-          decidedAt: null
-        }
-      ]
-    });
-    setChallengeDesc("");
-    setSelectedOpponent("");
-  } catch (err) {
-    alert("Failed to create challenge. Try again.");
-    console.error(err);
-  } finally {
-    setSending(false); // Always re-enable button on finish
+      await addDoc(q, {
+        description: desc,
+        createdAt: serverTimestamp(),
+        creator: playerName,
+        instances: [
+          {
+            challenger: playerName,
+            challengee: opp,
+            winner: null,
+            decidedBy: null,
+            decidedAt: null
+          }
+        ]
+      });
+      setChallengeDesc("");
+      setSelectedOpponent("");
+    } catch (err) {
+      alert("Failed to create challenge. Try again.");
+      console.error(err);
+    } finally {
+      setSending(false); // Always re-enable button on finish
+    }
   }
-}
 
 
   // Join an existing challenge (as challenger)
@@ -416,7 +416,7 @@ export default function Game2({
         <div>
           {/* SHOW LIMITS */}
           <div style={{
-            display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0", alignItems: "center", justifyContent: "center", background: "#222", padding: "0.5rem", borderRadius: "10px"
+            display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0", alignItems: "center", justifyContent: "center", background: "", padding: "0.5rem", borderRadius: "10px"
           }}>
             {GAME2_PLAYERS.map(p => (
               <div key={p} style={{
@@ -462,78 +462,78 @@ export default function Game2({
                 value={selectedOpponent}
                 onChange={e => setSelectedOpponent(e.target.value)}
                 disabled={gameEnded}
-                style={{ marginLeft: "0rem" }}
+                style={{ marginLeft: "0rem", width: "98%" }}
               >
                 <option value="">Choose your opponent</option>
                 {GAME2_PLAYERS.filter(p => p !== playerName && (limits[p]?.challengee ?? 0) < CHALLENGE_LIMIT).map(p =>
                   <option key={p} value={p}>{p}</option>
                 )}
               </select>
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", justifyContent: "center" }}>
-  <button
-    className="img-button"
-    style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 0,
-    margin: 0,
-    border: "none",
-    background: "none",
-    width: "120px",         // or whatever (should be >= image width)
-    height: "60px",
-    outline: "none",
-    boxShadow: "none",
-    cursor: "pointer",
-  }}
-    onClick={handleCreateChallenge}
-     disabled={sending || !challengeDesc || !selectedOpponent || gameEnded}
-  >
-    <img
-      src="/send-button.png"
-      alt="Send button"
-      style={{
-        height: "auto",
-        width: "140px",
-        display: "block",
-        pointerEvents: "none",
-        userSelect: "none"
-      }}
-      draggable="false"
-    />
-  </button>
-  <button
-    className="img-button"
-    style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 0,
-    margin: 0,
-    border: "none",
-    background: "none",
-    width: "120px",         // or whatever (should be >= image width)
-    height: "60px",
-    outline: "none",
-    boxShadow: "none",
-    cursor: "pointer",
-  }}
-    onClick={() => setShowNewChallenge(false)}
-  >
-    <img
-      src="/derby-cancel.png"
-      alt="Cancel button"
-      style={{
-        height: "auto",
-        width: "140px",
-        display: "block",
-        pointerEvents: "none",
-        userSelect: "none"
-      }}
-      draggable="false"
-    />
-  </button>
-</div>
+              <div style={{ display: "flex", gap: "1rem", marginBottom: "10px", justifyContent: "center" }}>
+                <button
+                  className="img-button"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 0,
+                   
+                    border: "none",
+                    background: "none",
+                    width: "130px",         // or whatever (should be >= image width)
+                    height: "60px",
+                    outline: "none",
+                    boxShadow: "none",
+                    cursor: "pointer",
+                  }}
+                  onClick={handleCreateChallenge}
+                  disabled={sending || !challengeDesc || !selectedOpponent || gameEnded}
+                >
+                  <img
+                    src="/send-button.png"
+                    alt="Send button"
+                    style={{
+                      height: "auto",
+                      width: "130px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
+                </button>
+                <button
+                  className="img-button"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 0,
+                    margin: 0,
+                    border: "none",
+                    background: "none",
+                    width: "130px",         // or whatever (should be >= image width)
+                    height: "60px",
+                    outline: "none",
+                    boxShadow: "none",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setShowNewChallenge(false)}
+                >
+                  <img
+                    src="/derby-cancel.png"
+                    alt="Cancel button"
+                    style={{
+                      height: "auto",
+                      width: "130px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
+                </button>
+              </div>
 
             </div>
           )}
@@ -557,10 +557,10 @@ export default function Game2({
           >
             <div className="challenge-info-block">
               {/* Header row: description and chevron in flex, clicking toggles */}
-              <div
+              <div className="bungee-regular"
                 style={{
-                  fontFamily: "Patrick Hand",
-                  fontSize: "1.4rem",
+
+
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
@@ -598,7 +598,7 @@ export default function Game2({
                       </span>
                       <span
                         style={{
-                          color: "grey",
+                          color: "black",
                           fontWeight: "bold",
                           margin: "0 0.15rem"
                         }}

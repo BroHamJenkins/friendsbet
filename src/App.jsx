@@ -74,7 +74,7 @@ const clearRoomData = async () => {
 
 const approvedUsers = [
   "David", "Raul", "Christian", "Cole", "Bob", "Will", "Danny", "Ryan", "Luke", "Kaya", "Jake",
-  "Sleepy", "Doc", "Bashful", "Dopey", "Grumpy", "Sneezy", "Happy"
+  "Sleepy", "Doc", "Bashful", "Dopey", "Grumpy", "Sneezy", "Happy", "Snow White"
 ];
 
 const normalize = (name) => name.trim().toLowerCase();
@@ -940,15 +940,26 @@ function App() {
               <button onClick={createRoom}>Create Room</button>
             </>
           )}
-
+<div style={{ justifyContent: "center", display: "flex", marginBottom: "0.5rem" }}>
           <button                  //takes user back to Home page (aka Select a game page)
-            className="button-burgundy"
+            className="img-button"
             onClick={() => setGameSelected("")}
           >
-            Leave
+           <img
+                  src="/NewBetExit.png"
+                  alt="NewBet Exit button"
+                  style={{
+                    height: "auto",
+                    width: "90px",
+                    display: "block",
+                    pointerEvents: "none",
+                    userSelect: "none"
+                  }}
+                  draggable="false"
+                />
 
           </button>
-
+</div>
           <h3 style={{ textAlign: "center" }}>Where to, Boss?</h3>
 
           <ul>
@@ -1039,12 +1050,12 @@ function App() {
                 style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer" }}
               >
                 <img
-                  src="/new-prop-bet2.png"
+                  src="/NewBet.png"
                   alt="New bet button"
                   style={{
                     justifyContent: "center",
                     height: "auto",
-                    width: "80px",
+                    width: "100px",
                     display: "block",
                     pointerEvents: "none",
                     userSelect: "none"
@@ -1058,11 +1069,11 @@ function App() {
                 style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer" }}
               >
                 <img
-                  src="/king-exit.png"
-                  alt="King button"
+                  src="/NewBetExit.png"
+                  alt="NewBet Exit button"
                   style={{
                     height: "auto",
-                    width: "70px",
+                    width: "90px",
                     display: "block",
                     pointerEvents: "none",
                     userSelect: "none"
@@ -1114,6 +1125,7 @@ function App() {
                 <button
                   onClick={() => setScenarioMode((prev) => prev === "house" ? "" : "house")}
                   style={{
+                    width: "40%",
                     padding: "0.4rem 0.75rem",
                     fontSize: "0.9rem",
                     borderRadius: "8px",

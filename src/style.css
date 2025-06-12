@@ -959,8 +959,9 @@ li {
 }
 .challenge-info-block {
   font-family: 'Patrick Hand', cursive; 
-  display: inline-block;
-  background: linear-gradient(to right, #25919d 85%, #ffbe40 15%);
+  width: 250px;
+  display: block;
+  background: linear-gradient(to right, #25919d 83%, #ffbe40 17%);
   border: 6px solid #111;
   border-radius: 8px;
   padding: 0.25rem 0.7rem;
@@ -1031,4 +1032,44 @@ li {
   font-family: "Patrick Hand", cursive;
   font-weight: 400;
   font-style: normal;
+}
+
+.img-button {
+  display: inline-block !important;
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  vertical-align: middle !important;
+}
+.img-button img {
+  display: block;
+  margin: 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+
+.img-button:focus {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-shadow: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.img-button:active {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-shadow: none;
+  cursor: pointer;
+  display: inline-block;
 }

@@ -307,16 +307,16 @@ function App() {
   };
 
   useEffect(() => {
-  if (!playerName) return;
-  const playerRef = doc(db, "players", playerName);
-  // Listen for real-time updates
-  const unsubscribe = onSnapshot(playerRef, (docSnap) => {
-    if (docSnap.exists()) {
-      setTokenBalance(docSnap.data().tokens ?? 0);
-    }
-  });
-  return () => unsubscribe();
-}, [playerName]);
+    if (!playerName) return;
+    const playerRef = doc(db, "players", playerName);
+    // Listen for real-time updates
+    const unsubscribe = onSnapshot(playerRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setTokenBalance(docSnap.data().tokens ?? 0);
+      }
+    });
+    return () => unsubscribe();
+  }, [playerName]);
 
 
   const joinRoom = (room) => {
@@ -593,10 +593,10 @@ function App() {
 
   return (
     <div className={`app-wrapper ${!hasEnteredName
-        ? 'login'
-        : gameSelected
-          ? gameSelected.toLowerCase().replace(/\s/g, '-')
-          : 'home'
+      ? 'login'
+      : gameSelected
+        ? gameSelected.toLowerCase().replace(/\s/g, '-')
+        : 'home'
 
       }`}>
 
@@ -704,7 +704,7 @@ function App() {
         </>
       )}
 
-    
+
 
 
       {!hasEnteredName ? (
@@ -799,9 +799,10 @@ function App() {
               <button
                 className="button"
                 onClick={() => setGameSelected("Casino")}
-                style={{ 
+                style={{
                   marginBottom: "0.25rem",
-                  marginTop: "0rem",}}
+                  marginTop: "0rem",
+                }}
               >
                 Casino
               </button>
@@ -819,7 +820,7 @@ function App() {
                 Bank
               </button>
 
-          {/*/<button
+              {/*/<button
                 className="button-53"
                 onClick={() => setGameSelected("Degenerate Derby")}
                 style={{ marginBottom: "0.5rem" }}
@@ -831,8 +832,8 @@ function App() {
           </div>
         </div>
 
-) : gameSelected === "Game2" ? (
-      <Game2 playerName={playerName} setGameSelected={setGameSelected} />
+      ) : gameSelected === "Game2" ? (
+        <Game2 playerName={playerName} setGameSelected={setGameSelected} />
 
       ) : gameSelected === "Bank" ? (
         <>
@@ -866,10 +867,10 @@ function App() {
 
 
             <Bank
-  playerName={playerName}
-  tokenBalance={tokenBalance}
-  setTokenBalance={setTokenBalance}
-/>
+              playerName={playerName}
+              tokenBalance={tokenBalance}
+              setTokenBalance={setTokenBalance}
+            />
 
 
           </div>
@@ -1003,14 +1004,10 @@ function App() {
               </button>
             </div>
           ) : (
-            <h2 style= {{margin: "0.5rem"}}className="room-name-display">{selectedRoom.name}</h2>
+            <h2 style={{ margin: "0.5rem" }} className="room-name-display">{selectedRoom.name}</h2>
           )}
-          <button 
-            className="button-burgundy"               //takes user back to Casino Main Page
-            onClick={() => setSelectedRoom(null)}>
-            Leave
-          </button>
-          
+
+
 
           {playerName === "Raul" && selectedRoom && (
             <div style={{ marginTop: "1rem" }}>
@@ -1035,10 +1032,46 @@ function App() {
 
 
           {!showScenarioForm ? (
-            <button 
-            onClick={() => setShowScenarioForm(true)}>
-              + New Prop Bet
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "0.5rem",justifyContent: "center" }}>
+              <button
+                className="img-button"
+                onClick={() => setShowScenarioForm(true)}
+                style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer" }}
+              >
+                <img
+                  src="/new-prop-bet2.png"
+                  alt="New bet button"
+                  style={{
+                    justifyContent: "center",
+                    height: "auto",
+                    width: "80px",
+                    display: "block",
+                    pointerEvents: "none",
+                    userSelect: "none"
+                  }}
+                  draggable="false"
+                />
+              </button>
+              <button
+                className="img-button"
+                onClick={() => setSelectedRoom(null)}
+                style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer" }}
+              >
+                <img
+                  src="/king-exit.png"
+                  alt="King button"
+                  style={{
+                    height: "auto",
+                    width: "70px",
+                    display: "block",
+                    pointerEvents: "none",
+                    userSelect: "none"
+                  }}
+                  draggable="false"
+                />
+              </button>
+            </div>
+
           ) : scenarioMode === "house" ? (
             <>
               <HouseScenario
@@ -1126,179 +1159,179 @@ function App() {
 
               ) : sc.mode === "pari" ? (
                 <ParimutuelScenario
-  scenario={sc}
-  playerName={playerName}
-  voteAmounts={voteAmounts}
-  setVoteAmounts={setVoteAmounts}
-  voteOutcome={voteOutcome}
-  outcomeInputs={outcomeInputs}
-  setOutcomeInputs={setOutcomeInputs}
-  addOutcome={addOutcome}
-  launchScenario={launchScenario}
-  selectedRoom={selectedRoom}
-  showDeclareButtons={showDeclareButtons}
-  toggleDeclareButtons={toggleDeclareButtons}
-  declareWinner={declareWinner}
-  expanded={!!expandedScenarioIds[sc.id]}
-  toggleExpanded={() =>
-    setExpandedScenarioIds(prev => ({
-      ...prev,
-      [sc.id]: !prev[sc.id]
-    }))
-  }
-/>
+                  scenario={sc}
+                  playerName={playerName}
+                  voteAmounts={voteAmounts}
+                  setVoteAmounts={setVoteAmounts}
+                  voteOutcome={voteOutcome}
+                  outcomeInputs={outcomeInputs}
+                  setOutcomeInputs={setOutcomeInputs}
+                  addOutcome={addOutcome}
+                  launchScenario={launchScenario}
+                  selectedRoom={selectedRoom}
+                  showDeclareButtons={showDeclareButtons}
+                  toggleDeclareButtons={toggleDeclareButtons}
+                  declareWinner={declareWinner}
+                  expanded={!!expandedScenarioIds[sc.id]}
+                  toggleExpanded={() =>
+                    setExpandedScenarioIds(prev => ({
+                      ...prev,
+                      [sc.id]: !prev[sc.id]
+                    }))
+                  }
+                />
 
 
 
               ) : (
                 <>
-    <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      fontWeight: "bold",
-      marginBottom: "0.2rem",
-      cursor: "pointer",
-      color: "black"
-    }}
-    onClick={() =>
-      setExpandedScenarioIds(prev => ({
-        ...prev,
-        [sc.id]: !prev[sc.id]
-      }))
-    }
-  >
-    <span>{sc.description}</span>
-    <span style={{
-      marginLeft: "1rem",
-      color: expandedScenarioIds[sc.id] ? "#ffeb9c" : "#ccc",
-      fontSize: "1.2rem",
-      fontWeight: "bold"
-    }}>
-      {expandedScenarioIds[sc.id] ? "▲" : "▼"}
-    </span>
-  </div>
-
-  <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
-    Flat Bet: ${sc.betAmount ?? 1}
-  </div>
-  {expandedScenarioIds[sc.id] && (
-    <div>
-      {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-        const val = sc.outcomes[key];
-        const voters = Object.entries(sc.votes || {})
-          .filter(([, vote]) => vote === key)
-          .map(([voter]) => voter);
-        const isWinner = sc.winner === key;
-        const userVoted =
-          sc.mode === "pari"
-            ? sc.votes[playerName]?.choice === key
-            : sc.votes[playerName] === key;
-
-        return (
-          <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-            {!sc.launched && <span>{val}</span>}
-            {sc.launched && !sc.winner && !sc.betsClosed && (
-              <button
-                type="button"
-                onClick={() => voteOutcome(sc.id, key)}
-                className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
-                style={{ marginLeft: "0.5rem", position: "relative" }}
-              >
-                {val}
-                {userVoted && (
-                  <span
+                  <div
                     style={{
-                      position: "absolute",
-                      top: "-8px",
-                      right: "-8px",
-                      backgroundColor: "#00ff88",
-                      color: "#000",
-                      borderRadius: "50%",
-                      fontSize: "0.7rem",
-                      padding: "2px 5px",
-                      fontWeight: "bold"
+                      display: "flex",
+                      alignItems: "center",
+                      fontWeight: "bold",
+                      marginBottom: "0.2rem",
+                      cursor: "pointer",
+                      color: "black"
                     }}
+                    onClick={() =>
+                      setExpandedScenarioIds(prev => ({
+                        ...prev,
+                        [sc.id]: !prev[sc.id]
+                      }))
+                    }
                   >
-                    ✓
-                  </span>
-                )}
-              </button>
-            )}
-          </div>
-        );
-      })}
+                    <span>{sc.description}</span>
+                    <span style={{
+                      marginLeft: "1rem",
+                      color: expandedScenarioIds[sc.id] ? "#ffeb9c" : "#ccc",
+                      fontSize: "1.2rem",
+                      fontWeight: "bold"
+                    }}>
+                      {expandedScenarioIds[sc.id] ? "▲" : "▼"}
+                    </span>
+                  </div>
 
-      {sc.creator === playerName && !sc.launched && (
-        <div>
-          <input
-            placeholder="New outcome"
-            value={outcomeInputs[sc.id] || ""}
-            onChange={(e) =>
-              setOutcomeInputs({ ...outcomeInputs, [sc.id]: e.target.value })
-            }
-          />
-          <button onClick={() => addOutcome(sc.id)}>Add Outcome</button>
-        </div>
-      )}
+                  <div style={{ fontStyle: "italic", marginBottom: "0.5rem" }}>
+                    Flat Bet: ${sc.betAmount ?? 1}
+                  </div>
+                  {expandedScenarioIds[sc.id] && (
+                    <div>
+                      {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+                        const val = sc.outcomes[key];
+                        const voters = Object.entries(sc.votes || {})
+                          .filter(([, vote]) => vote === key)
+                          .map(([voter]) => voter);
+                        const isWinner = sc.winner === key;
+                        const userVoted =
+                          sc.mode === "pari"
+                            ? sc.votes[playerName]?.choice === key
+                            : sc.votes[playerName] === key;
 
-      {sc.creator === playerName && !sc.launched && (
-        <button onClick={() => launchScenario(sc.id)}>Ready, set, BET!</button>
-      )}
+                        return (
+                          <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+                            {!sc.launched && <span>{val}</span>}
+                            {sc.launched && !sc.winner && !sc.betsClosed && (
+                              <button
+                                type="button"
+                                onClick={() => voteOutcome(sc.id, key)}
+                                className={`casino-button-gold ${userVoted ? "voted-button" : ""}`}
+                                style={{ marginLeft: "0.5rem", position: "relative" }}
+                              >
+                                {val}
+                                {userVoted && (
+                                  <span
+                                    style={{
+                                      position: "absolute",
+                                      top: "-8px",
+                                      right: "-8px",
+                                      backgroundColor: "#00ff88",
+                                      color: "#000",
+                                      borderRadius: "50%",
+                                      fontSize: "0.7rem",
+                                      padding: "2px 5px",
+                                      fontWeight: "bold"
+                                    }}
+                                  >
+                                    ✓
+                                  </span>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
 
-      {selectedRoom.type === "prop" &&
-        sc.creator === playerName &&
-        sc.launched &&
-        !sc.winner && (
-          <div>
-            {!showDeclareButtons[sc.id] ? (
-              <button onClick={() => toggleDeclareButtons(sc.id)}>End All Bets</button>
-            ) : (
-              <>
-                <p>Declare Winner:</p>
-                {(sc.order || Object.keys(sc.outcomes)).map((key) => (
-                  <button key={key} onClick={() => declareWinner(sc.id, key)}>
-                    {sc.outcomes[key]}
-                  </button>
-                ))}
-              </>
-            )}
-          </div>
-        )}
+                      {sc.creator === playerName && !sc.launched && (
+                        <div>
+                          <input
+                            placeholder="New outcome"
+                            value={outcomeInputs[sc.id] || ""}
+                            onChange={(e) =>
+                              setOutcomeInputs({ ...outcomeInputs, [sc.id]: e.target.value })
+                            }
+                          />
+                          <button onClick={() => addOutcome(sc.id)}>Add Outcome</button>
+                        </div>
+                      )}
 
-      {selectedRoom.type === "poll" &&
-        sc.creator === playerName &&
-        sc.launched &&
-        !sc.winner && (
-          <button onClick={() => closePoll(sc.id)}>Close Poll</button>
-        )}
+                      {sc.creator === playerName && !sc.launched && (
+                        <button onClick={() => launchScenario(sc.id)}>Ready, set, BET!</button>
+                      )}
 
-      {sc.winner && (
-        <div>
-          {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-            const val = sc.outcomes[key];
-            const voters = Object.entries(sc.votes || {})
-              .filter(([, vote]) => vote === key)
-              .map(([voter]) => voter);
-            const isWinner = Array.isArray(sc.winner)
-              ? sc.winner.includes(key)
-              : sc.winner === key;
-            return (
-              <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
-                {isWinner && voters.length === 0
-                  ? "(Push - All Bets Returned)"
-                  : isWinner
-                    ? "(Winner)"
-                    : ""}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  )}
-</>
+                      {selectedRoom.type === "prop" &&
+                        sc.creator === playerName &&
+                        sc.launched &&
+                        !sc.winner && (
+                          <div>
+                            {!showDeclareButtons[sc.id] ? (
+                              <button onClick={() => toggleDeclareButtons(sc.id)}>End All Bets</button>
+                            ) : (
+                              <>
+                                <p>Declare Winner:</p>
+                                {(sc.order || Object.keys(sc.outcomes)).map((key) => (
+                                  <button key={key} onClick={() => declareWinner(sc.id, key)}>
+                                    {sc.outcomes[key]}
+                                  </button>
+                                ))}
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                      {selectedRoom.type === "poll" &&
+                        sc.creator === playerName &&
+                        sc.launched &&
+                        !sc.winner && (
+                          <button onClick={() => closePoll(sc.id)}>Close Poll</button>
+                        )}
+
+                      {sc.winner && (
+                        <div>
+                          {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+                            const val = sc.outcomes[key];
+                            const voters = Object.entries(sc.votes || {})
+                              .filter(([, vote]) => vote === key)
+                              .map(([voter]) => voter);
+                            const isWinner = Array.isArray(sc.winner)
+                              ? sc.winner.includes(key)
+                              : sc.winner === key;
+                            return (
+                              <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+                                {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
+                                {isWinner && voters.length === 0
+                                  ? "(Push - All Bets Returned)"
+                                  : isWinner
+                                    ? "(Winner)"
+                                    : ""}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
 
               )}
             </div>

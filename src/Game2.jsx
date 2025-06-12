@@ -65,47 +65,49 @@ export default function Game2({
   const [showScores, setShowScores] = useState(false);
   const [showNewChallenge, setShowNewChallenge] = useState(false);
   const [openInstances, setOpenInstances] = useState({});
-  
+  const [sending, setSending] = useState(false);
 
 
 
 
 
-  
+
+
+
 
   // Load challenges
   useEffect(() => {
-  const q = collection(db, "game2Challenges");
+    const q = collection(db, "game2Challenges");
 
-  const unsub = onSnapshot(q, (snap) => {
-    const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setChallenges(list);
-  });
-  return () => unsub();
-}, []);
+    const unsub = onSnapshot(q, (snap) => {
+      const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setChallenges(list);
+    });
+    return () => unsub();
+  }, []);
 
 
   // Compute limits every time challenges update
   useEffect(() => {
-  const lims = calcAllPlayerLimits(challenges);
-  setLimits(lims);
+    const lims = calcAllPlayerLimits(challenges);
+    setLimits(lims);
 
-  // Check if all players have issued/received their limit
-  const allLimitsReached = GAME2_PLAYERS.every(
-    (p) =>
-      (lims[p]?.challenger ?? 0) >= CHALLENGE_LIMIT &&
-      (lims[p]?.challengee ?? 0) >= CHALLENGE_LIMIT
-  );
+    // Check if all players have issued/received their limit
+    const allLimitsReached = GAME2_PLAYERS.every(
+      (p) =>
+        (lims[p]?.challenger ?? 0) >= CHALLENGE_LIMIT &&
+        (lims[p]?.challengee ?? 0) >= CHALLENGE_LIMIT
+    );
 
-  // Check if all challenge instances have a winner (no undecided)
-  const allDecided = challenges.every(
-    (ch) =>
-      ch.instances.every((inst) => !!inst.winner)
-  );
+    // Check if all challenge instances have a winner (no undecided)
+    const allDecided = challenges.every(
+      (ch) =>
+        ch.instances.every((inst) => !!inst.winner)
+    );
 
-  // Only end the game if both conditions are true
-  setGameEnded(allLimitsReached && allDecided);
-}, [challenges]);
+    // Only end the game if both conditions are true
+    setGameEnded(allLimitsReached && allDecided);
+  }, [challenges]);
 
 
   // Compute scores
@@ -123,6 +125,11 @@ export default function Game2({
 
   // Create a new challenge (as the challenger)
   async function handleCreateChallenge() {
+  if (sending) return;           // Guard: ignore if already sending
+  setSending(true);
+  setShowNewChallenge(false);    // Closes modal immediately
+
+  try {
     const desc = challengeDesc.trim();
     const opp = selectedOpponent.trim();
     if (!desc || !opp || opp === playerName) {
@@ -157,7 +164,14 @@ export default function Game2({
     });
     setChallengeDesc("");
     setSelectedOpponent("");
+  } catch (err) {
+    alert("Failed to create challenge. Try again.");
+    console.error(err);
+  } finally {
+    setSending(false); // Always re-enable button on finish
   }
+}
+
 
   // Join an existing challenge (as challenger)
   async function handleJoinChallenge(challenge) {
@@ -234,52 +248,52 @@ export default function Game2({
   return (
     <div style={{ margin: "0 auto", padding: "0.5rem" }}>
       <div className="derby-logo-wrapper">
-  <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
-  <img
-    src="/derby-sticker.png"
-    alt="17% more alliteration"
-    className="derby-sticker"
-  />
-</div>
+        <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
+        <img
+          src="/derby-sticker.png"
+          alt="17% more alliteration"
+          className="derby-sticker"
+        />
+      </div>
 
 
 
       {/* GAME END DISPLAY */}
       {gameEnded && (() => {
-  // Get array of players and their scores
-  const sortedPlayers = [...GAME2_PLAYERS].sort((a, b) => (scores[b] ?? 0) - (scores[a] ?? 0));
-  const highScore = scores[sortedPlayers[0]] ?? 0;
-  // Get all players with the top score (handle ties)
-  const winners = sortedPlayers.filter(p => scores[p] === highScore);
+        // Get array of players and their scores
+        const sortedPlayers = [...GAME2_PLAYERS].sort((a, b) => (scores[b] ?? 0) - (scores[a] ?? 0));
+        const highScore = scores[sortedPlayers[0]] ?? 0;
+        // Get all players with the top score (handle ties)
+        const winners = sortedPlayers.filter(p => scores[p] === highScore);
 
-  return (
-    <div style={{
-      background: "#222",
-      color: "#00ff88",
-      borderRadius: "14px",
-      padding: "1rem",
-      margin: "1rem 0",
-      textAlign: "center"
-    }}>
-      <h3>GAME OVER</h3>
-      <p>
-        And the winner{winners.length > 1 ? "s are" : " is"}...
-        <b>
-          {winners.map((p, i) =>
-            `${i > 0 ? " & " : " "}${p}`
-          )}
-        </b>
-        !
-      </p>
-      <strong>Final Scores:</strong>
-      <ul style={{ listStyle: "none", padding: 0, margin: "0.5rem 0" }}>
-        {sortedPlayers.map(p =>
-          <li key={p}>{p}: <b>{scores[p]}</b></li>
-        )}
-      </ul>
-    </div>
-  );
-})()}
+        return (
+          <div style={{
+            background: "#222",
+            color: "#00ff88",
+            borderRadius: "14px",
+            padding: "1rem",
+            margin: "1rem 0",
+            textAlign: "center"
+          }}>
+            <h3>GAME OVER</h3>
+            <p>
+              And the winner{winners.length > 1 ? "s are" : " is"}...
+              <b>
+                {winners.map((p, i) =>
+                  `${i > 0 ? " & " : " "}${p}`
+                )}
+              </b>
+              !
+            </p>
+            <strong>Final Scores:</strong>
+            <ul style={{ listStyle: "none", padding: 0, margin: "0.5rem 0" }}>
+              {sortedPlayers.map(p =>
+                <li key={p}>{p}: <b>{scores[p]}</b></li>
+              )}
+            </ul>
+          </div>
+        );
+      })()}
 
 
       <div style={{
@@ -369,33 +383,33 @@ export default function Game2({
 
       </div>
 
-{playerName === "Raul" && (
- <button
-    style={{
-      background: "#f44",
-      color: "white",
-      fontWeight: "bold",
-      borderRadius: "8px",
-      border: "none",
-      padding: "0.6rem 1.2rem",
-      margin: "1rem auto",
-      display: "block",
-      fontSize: "1.15rem",
-      cursor: "pointer"
-    }}
-    onClick={async () => {
-      if (!window.confirm("Are you sure you want to reset the Derby? This will delete ALL current challenges!")) return;
-      const q = collection(db, "game2Challenges");
-      const docs = await getDocs(q);
-      for (const docSnap of docs.docs) {
-        await deleteDoc(docSnap.ref); // CORRECT WAY
-      }
-      alert("Derby has been reset.");
-    }}
-  >
-    Reset Derby (Danger!)
-  </button>
-)}
+      {playerName === "Raul" && (
+        <button
+          style={{
+            background: "#f44",
+            color: "white",
+            fontWeight: "bold",
+            borderRadius: "8px",
+            border: "none",
+            padding: "0.6rem 1.2rem",
+            margin: "1rem auto",
+            display: "block",
+            fontSize: "1.15rem",
+            cursor: "pointer"
+          }}
+          onClick={async () => {
+            if (!window.confirm("Are you sure you want to reset the Derby? This will delete ALL current challenges!")) return;
+            const q = collection(db, "game2Challenges");
+            const docs = await getDocs(q);
+            for (const docSnap of docs.docs) {
+              await deleteDoc(docSnap.ref); // CORRECT WAY
+            }
+            alert("Derby has been reset.");
+          }}
+        >
+          Reset Derby (Danger!)
+        </button>
+      )}
 
 
       {showScores && (
@@ -455,24 +469,72 @@ export default function Game2({
                   <option key={p} value={p}>{p}</option>
                 )}
               </select>
-              <button
-                style={{ marginLeft: "0rem" }}
-                onClick={handleCreateChallenge}
-                disabled={!challengeDesc || !selectedOpponent || gameEnded}
-              >
-                SEND IT!
-              </button>
-              <button
-                style={{
-                  background: "#eee",
-                  color: "#333",
-                  borderRadius: "8px",
-                  padding: "0.32rem 0.75rem"
-                }}
-                onClick={() => setShowNewChallenge(false)}
-              >
-                Cancel
-              </button>
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", justifyContent: "center" }}>
+  <button
+    className="img-button"
+    style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 0,
+    margin: 0,
+    border: "none",
+    background: "none",
+    width: "120px",         // or whatever (should be >= image width)
+    height: "60px",
+    outline: "none",
+    boxShadow: "none",
+    cursor: "pointer",
+  }}
+    onClick={handleCreateChallenge}
+     disabled={sending || !challengeDesc || !selectedOpponent || gameEnded}
+  >
+    <img
+      src="/send-button.png"
+      alt="Send button"
+      style={{
+        height: "auto",
+        width: "140px",
+        display: "block",
+        pointerEvents: "none",
+        userSelect: "none"
+      }}
+      draggable="false"
+    />
+  </button>
+  <button
+    className="img-button"
+    style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 0,
+    margin: 0,
+    border: "none",
+    background: "none",
+    width: "120px",         // or whatever (should be >= image width)
+    height: "60px",
+    outline: "none",
+    boxShadow: "none",
+    cursor: "pointer",
+  }}
+    onClick={() => setShowNewChallenge(false)}
+  >
+    <img
+      src="/derby-cancel.png"
+      alt="Cancel button"
+      style={{
+        height: "auto",
+        width: "140px",
+        display: "block",
+        pointerEvents: "none",
+        userSelect: "none"
+      }}
+      draggable="false"
+    />
+  </button>
+</div>
+
             </div>
           )}
 
@@ -489,159 +551,160 @@ export default function Game2({
 
         {challenges.length === 0 && <p>No challenges created yet.</p>}
         {challenges.map(challenge => (
-  <div
-    key={challenge.id} // <-- Move key here!
-    style={{ display: "flex", justifyContent: "center", width: "100%" }}
-  >
-    <div className="challenge-info-block">
-            {/* Header row: description and chevron in flex, clicking toggles */}
-            <div 
-              style={{
-                fontFamily: "Patrick Hand",
-                fontSize: "1.4rem",
-                display: "flex",
-                alignItems: "center",
-                
-                color: "white",
-                marginBottom: "0.1rem",
-                cursor: "pointer"
-              }}
-              onClick={() =>
-                setOpenInstances((prev) => ({
-                  ...prev,
-                  [challenge.id]: !prev[challenge.id],
-                }))
-              }
-            >
-              <span>{challenge.description}</span>
-              <span style={{ marginLeft: "1rem", color: openInstances[challenge.id] ? "#25919d" : "#25919d" }}>
-                {openInstances[challenge.id] ? "▲" : "▼"}
-              </span>
-            </div>
+          <div
+            key={challenge.id} // <-- Move key here!
+            style={{ display: "flex", justifyContent: "center", width: "100%" }}
+          >
+            <div className="challenge-info-block">
+              {/* Header row: description and chevron in flex, clicking toggles */}
+              <div
+                style={{
+                  fontFamily: "Patrick Hand",
+                  fontSize: "1.4rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  color: "white",
+                  marginBottom: "0.1rem",
+                  cursor: "pointer",
+                  width: "100%"
+                }}
+                onClick={() =>
+                  setOpenInstances((prev) => ({
+                    ...prev,
+                    [challenge.id]: !prev[challenge.id],
+                  }))
+                }
+              >
+                <span>{challenge.description}</span>
+                <span style={{ marginLeft: "1rem", color: openInstances[challenge.id] ? "#25919d" : "#25919d" }}>
+                  {openInstances[challenge.id] ? "▲" : "▼"}
+                </span>
+              </div>
 
-            {/* Only show matchups if open */}
-            {openInstances[challenge.id] &&
-              challenge.instances.map((inst, i) => (
-                <div key={i} style={{ marginBottom: "0.1rem"}}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.08rem" }}>
-                    <span
-                      style={{
-                        color: "white",
-                        ...getWinnerStyle(inst.winner, inst.challenger),
-                        marginRight: "0.25rem"
-                      }}
-                    >
-                      {inst.challenger}
-                    </span>
-                    <span
-                      style={{
-                        color: "grey",
-                        fontWeight: "bold",
-                        margin: "0 0.15rem"
-                      }}
-                    >vs</span>
-                    <span
-                      style={{
-                        color: "white",
-                        ...getWinnerStyle(inst.winner, inst.challengee)
-                      }}
-                    >
-                      {inst.challengee}
-                    </span>
-                  </div>
-                  {/* BUTTONS BELOW */}
-                  {!inst.winner && (inst.challenger === playerName && !gameEnded) && (
-                    <div style={{
-
-                      display: "flex",
-                      gap: "0.5rem",
-                      marginTop: "0.25rem",
-                    }}>
-                      <button
-                        className="button-37"
-                        onClick={() => decideWinner(challenge, i, inst.challenger)}
-                      >{inst.challenger} wins</button>
-                      <button
-                        className="button-37"
-                        onClick={() => decideWinner(challenge, i, inst.challengee)}
-                      >{inst.challengee} wins</button>
-                    </div>
-                  )}
-                </div>
-              ))
-            }
-
-
-
-
-
-            {/* Join challenge (as challenger) */}
-            {(!gameEnded &&
-              (limits[playerName]?.challenger ?? 0) < CHALLENGE_LIMIT &&
-              challenge.instances.filter(inst => inst.challenger === playerName).length === 0) && (
-                <div>
-
-                  <div style={{ display: "flex", justifyContent: "center", margin: "0", padding: "0" }}>
-                    <button
-                      className="challenge-orange"
-                      onClick={() => setChallengeTarget(challenge.id)}
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        border: "none",
-                        background: "transparent",
-                        padding: "none"
-                      }}
-                    >
-                      <img
-                        src="/challenge-button.png"
-                        alt="Issue Challenge"
+              {/* Only show matchups if open */}
+              {openInstances[challenge.id] &&
+                challenge.instances.map((inst, i) => (
+                  <div key={i} style={{ marginBottom: "0.1rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.08rem" }}>
+                      <span
                         style={{
-                          width: "80px",
-                          height: "auto",                          
-                          display: "block",
-                          pointerEvents: "none",  // Ensures the button click still works
-                          userSelect: "none"
+                          color: "white",
+                          ...getWinnerStyle(inst.winner, inst.challenger),
+                          marginRight: "0.25rem"
                         }}
-                        draggable="false"
-                      />
-
-                    </button>
-                  </div>
-
-                  {challengeTarget === challenge.id && (
-                    <span style={{ marginLeft: "0.5rem" }}>
-                      <select
-                        value={selectedOpponent}
-                        onChange={e => setSelectedOpponent(e.target.value)}
                       >
-                        <option value="">Who's your bitch?</option>
-                        {GAME2_PLAYERS.filter(p =>
-                          p !== playerName &&
-                          (limits[p]?.challengee ?? 0) < CHALLENGE_LIMIT &&
-                          !challenge.instances.some(inst =>
-                            inst.challenger === playerName && inst.challengee === p
-                          )
-                        ).map(p =>
-                          <option key={p} value={p}>{p}</option>
-                        )}
-                      </select>
-                      <button
-                        onClick={() => {
-                          const ch = challenges.find(ch => ch.id === challenge.id);
-                          if (ch) handleJoinChallenge(ch);
+                        {inst.challenger}
+                      </span>
+                      <span
+                        style={{
+                          color: "grey",
+                          fontWeight: "bold",
+                          margin: "0 0.15rem"
                         }}
-                        disabled={!selectedOpponent}
-                        className="small-button"
-                      >Go</button>
-                      <button className="small-button-red" onClick={() => { setChallengeTarget(null); setSelectedOpponent(""); }}>Cancel</button>
-                    </span>
-                  )}
-                </div>
-              )}
+                      >vs</span>
+                      <span
+                        style={{
+                          color: "white",
+                          ...getWinnerStyle(inst.winner, inst.challengee)
+                        }}
+                      >
+                        {inst.challengee}
+                      </span>
+                    </div>
+                    {/* BUTTONS BELOW */}
+                    {!inst.winner && (inst.challenger === playerName && !gameEnded) && (
+                      <div style={{
+
+                        display: "flex",
+                        gap: "0.5rem",
+                        marginTop: "0.25rem",
+                      }}>
+                        <button
+                          className="button-37"
+                          onClick={() => decideWinner(challenge, i, inst.challenger)}
+                        >{inst.challenger} wins</button>
+                        <button
+                          className="button-37"
+                          onClick={() => decideWinner(challenge, i, inst.challengee)}
+                        >{inst.challengee} wins</button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              }
+
+
+
+
+
+              {/* Join challenge (as challenger) */}
+              {(!gameEnded &&
+                (limits[playerName]?.challenger ?? 0) < CHALLENGE_LIMIT &&
+                challenge.instances.filter(inst => inst.challenger === playerName).length === 0) && (
+                  <div>
+
+                    <div style={{ display: "flex", justifyContent: "center", margin: "0", padding: "0" }}>
+                      <button
+                        className="challenge-orange"
+                        onClick={() => setChallengeTarget(challenge.id)}
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          border: "none",
+                          background: "transparent",
+                          padding: "none"
+                        }}
+                      >
+                        <img
+                          src="/challenge-button.png"
+                          alt="Issue Challenge"
+                          style={{
+                            width: "80px",
+                            height: "auto",
+                            display: "block",
+                            pointerEvents: "none",  // Ensures the button click still works
+                            userSelect: "none"
+                          }}
+                          draggable="false"
+                        />
+
+                      </button>
+                    </div>
+
+                    {challengeTarget === challenge.id && (
+                      <span style={{ marginLeft: "0.5rem" }}>
+                        <select
+                          value={selectedOpponent}
+                          onChange={e => setSelectedOpponent(e.target.value)}
+                        >
+                          <option value="">Who's your bitch?</option>
+                          {GAME2_PLAYERS.filter(p =>
+                            p !== playerName &&
+                            (limits[p]?.challengee ?? 0) < CHALLENGE_LIMIT &&
+                            !challenge.instances.some(inst =>
+                              inst.challenger === playerName && inst.challengee === p
+                            )
+                          ).map(p =>
+                            <option key={p} value={p}>{p}</option>
+                          )}
+                        </select>
+                        <button
+                          onClick={() => {
+                            const ch = challenges.find(ch => ch.id === challenge.id);
+                            if (ch) handleJoinChallenge(ch);
+                          }}
+                          disabled={!selectedOpponent}
+                          className="small-button"
+                        >Go</button>
+                        <button className="small-button-red" onClick={() => { setChallengeTarget(null); setSelectedOpponent(""); }}>Cancel</button>
+                      </span>
+                    )}
+                  </div>
+                )}
+            </div>
           </div>
-</div>
 
         ))}
       </div>

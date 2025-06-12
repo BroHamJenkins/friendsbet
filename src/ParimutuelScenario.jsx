@@ -114,7 +114,7 @@ function ParimutuelScenario({
         )}
 
         {scenario.creator === playerName && !scenario.launched && (
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "1rem", width: "90%" }}>
             <input
               placeholder="New outcome"
               value={outcomeInputs[scenario.id] || ""}

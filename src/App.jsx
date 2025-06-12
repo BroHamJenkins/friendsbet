@@ -940,26 +940,26 @@ function App() {
               <button onClick={createRoom}>Create Room</button>
             </>
           )}
-<div style={{ justifyContent: "center", display: "flex", marginBottom: "0.5rem" }}>
-          <button                  //takes user back to Home page (aka Select a game page)
-            className="img-button"
-            onClick={() => setGameSelected("")}
-          >
-           <img
-                  src="/NewBetExit.png"
-                  alt="NewBet Exit button"
-                  style={{
-                    height: "auto",
-                    width: "90px",
-                    display: "block",
-                    pointerEvents: "none",
-                    userSelect: "none"
-                  }}
-                  draggable="false"
-                />
+          <div style={{ justifyContent: "center", display: "flex", marginBottom: "0.5rem" }}>
+            <button                  //takes user back to Home page (aka Select a game page)
+              className="img-button"
+              onClick={() => setGameSelected("")}
+            >
+              <img
+                src="/NewBetExit.png"
+                alt="NewBet Exit button"
+                style={{
+                  height: "auto",
+                  width: "90px",
+                  display: "block",
+                  pointerEvents: "none",
+                  userSelect: "none"
+                }}
+                draggable="false"
+              />
 
-          </button>
-</div>
+            </button>
+          </div>
           <h3 style={{ textAlign: "center" }}>Where to, Boss?</h3>
 
           <ul>
@@ -1043,7 +1043,7 @@ function App() {
 
 
           {!showScenarioForm ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "0.5rem",justifyContent: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "0.5rem", justifyContent: "center" }}>
               <button
                 className="img-button"
                 onClick={() => setShowScenarioForm(true)}
@@ -1102,55 +1102,93 @@ function App() {
             </>
           ) : (
             <div style={{ marginBottom: "0rem" }}>
+              <div style={{ width: "90%" }}>
               <input
                 placeholder="New Prop Bet"
                 value={newScenario}
                 onChange={(e) => setNewScenario(e.target.value)}
               />
+              </div>
               <div style={{ display: "flex", alignItems: "center", gap: "0rem", flexWrap: "wrap" }}>
                 <input
                   type="number"
                   placeholder="Min Bet"
                   value={betAmount}
                   onChange={(e) => setBetAmount(Number(e.target.value))}
-                  style={{ width: "33%" }}
+                  style={{ width: "20%" }}
                 />
                 <input
                   type="number"
                   placeholder="Max Bet"
                   value={maxBetAmount}
                   onChange={(e) => setMaxBetAmount(Number(e.target.value))}
-                  style={{ width: "33%" }}
+                  style={{ width: "20%", marginRight: "2rem" }}
                 />
                 <button
+                  className="img-button"
                   onClick={() => setScenarioMode((prev) => prev === "house" ? "" : "house")}
                   style={{
-                    width: "40%",
-                    padding: "0.4rem 0.75rem",
-                    fontSize: "0.9rem",
-                    borderRadius: "8px",
-                    background: scenarioMode === "house" ? "#640f21" : "#444",
-                    color: "#fff",
-                    fontWeight: "bold",
-                    border: "2px solid #999",
-                    boxShadow: scenarioMode === "house"
-                      ? "0 0 6px #ff3c3c"
-                      : "0 2px 4px rgba(0,0,0,0.3)",
-                    transition: "0.2s ease",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap"
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    margin: 0,
+                    cursor: "pointer"
                   }}
                 >
-                  {scenarioMode === "house" ? "Cancel Boss Mode" : "Boss Mode"}
+                  <img
+                    src="/HouseBetButton.png"
+                    alt="House Bet button"
+                    style={{
+                      height: "auto",
+                      width: "80px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
+                </button>
+                
+                
+
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "0.2rem", marginBottom: "1rem" }}>
+                <button
+                  className="img-button"
+                  onClick={addScenario}>
+                  <img
+                    src="/CreateOptions.png"
+                    alt="Create options button"
+                    style={{
+                      height: "auto",
+                      width: "90px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
+                </button>
+                <button
+                  className="img-button"
+                  onClick={() => {
+                    setShowScenarioForm(false);
+                    setScenarioMode("");
+                  }} style={{ marginLeft: "0rem" }}>
+                  <img
+                    src="/CasinoCancel.png"
+                    alt="cancel Create options button"
+                    style={{
+                      height: "auto",
+                      width: "90px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
                 </button>
               </div>
-              <button onClick={addScenario}>Create Choices</button>
-              <button onClick={() => {
-                setShowScenarioForm(false);
-                setScenarioMode("");
-              }} style={{ marginLeft: "0rem" }}>
-                Cancel
-              </button>
             </div>
           )}
 
@@ -1275,8 +1313,9 @@ function App() {
                       })}
 
                       {sc.creator === playerName && !sc.launched && (
-                        <div>
+                        <div >
                           <input
+                          style= {{ width: "90%", marginRight: "0.5rem" }}
                             placeholder="New outcome"
                             value={outcomeInputs[sc.id] || ""}
                             onChange={(e) =>
@@ -1297,7 +1336,7 @@ function App() {
                         !sc.winner && (
                           <div>
                             {!showDeclareButtons[sc.id] ? (
-                              <button onClick={() => toggleDeclareButtons(sc.id)}>End All Bets</button>
+                              <button onClick={() => toggleDeclareButtons(sc.id)}>Declare Winner</button>
                             ) : (
                               <>
                                 <p>Declare Winner:</p>

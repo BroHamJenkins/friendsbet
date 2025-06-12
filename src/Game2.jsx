@@ -495,11 +495,13 @@ export default function Game2({
   >
     <div className="challenge-info-block">
             {/* Header row: description and chevron in flex, clicking toggles */}
-            <div
+            <div 
               style={{
+                fontFamily: "Patrick Hand",
+                fontSize: "1.4rem",
                 display: "flex",
                 alignItems: "center",
-                fontWeight: "bold",
+                
                 color: "white",
                 marginBottom: "0.1rem",
                 cursor: "pointer"
@@ -512,7 +514,7 @@ export default function Game2({
               }
             >
               <span>{challenge.description}</span>
-              <span style={{ marginLeft: "1rem", color: openInstances[challenge.id] ? "#ffeb9c" : "#ccc" }}>
+              <span style={{ marginLeft: "1rem", color: openInstances[challenge.id] ? "#25919d" : "#25919d" }}>
                 {openInstances[challenge.id] ? "▲" : "▼"}
               </span>
             </div>

@@ -122,6 +122,24 @@ function App() {
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(100);
+  const [loanBalance, setLoanBalance] = useState(0);
+  const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Net
+  const getBalanceDisplay = () => {
+    switch (balanceMode) {
+      case 0:
+        return `Balance: $${Number(tokenBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      case 1:
+        return `Loan: $${Number(loanBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      case 2:
+        return `Net: $${Number(tokenBalance - loanBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      default:
+        return "";
+    }
+  };
+
+
+
+
   const adjustTokens = async (amount) => {
     const newBalance = tokenBalance + amount;
     setTokenBalance(newBalance);
@@ -362,6 +380,8 @@ function App() {
 
 
     setNewScenario("");
+    setShowScenarioForm(false); // <--- ADDED
+  setScenarioMode("");        // <--- Optional: reset mode as with house
   };
 
   const addOutcome = async (scenarioId) => {
@@ -517,101 +537,101 @@ function App() {
 
 
   const distributeWinnings = async (scenarioId) => {
-  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-  const snap = await getDoc(scenarioRef);
-  const data = snap.data();
+    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+    const snap = await getDoc(scenarioRef);
+    const data = snap.data();
 
-  if (data.mode === "house") {
-    await resolveHouseScenario(data, scenarioId);
-    return;
-  }
+    if (data.mode === "house") {
+      await resolveHouseScenario(data, scenarioId);
+      return;
+    }
 
-  if (!data.winner || !data.votes) return;
+    if (!data.winner || !data.votes) return;
 
-  // FLAT MODE -- as before
-  if (data.mode === "flat") {
-    const votes = data.votes;
-    const winnerKey = data.winner;
-    const winningVoters = Object.entries(votes)
-      .filter(([, choice]) =>
-        Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
-      )
-      .map(([player]) => player);
+    // FLAT MODE -- as before
+    if (data.mode === "flat") {
+      const votes = data.votes;
+      const winnerKey = data.winner;
+      const winningVoters = Object.entries(votes)
+        .filter(([, choice]) =>
+          Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
+        )
+        .map(([player]) => player);
 
-    const betAmount = data.betAmount ?? 1;
-    const totalPot = Object.keys(votes).length * betAmount;
-    const payout = winningVoters.length > 0 ? (totalPot / winningVoters.length) : 0;
+      const betAmount = data.betAmount ?? 1;
+      const totalPot = Object.keys(votes).length * betAmount;
+      const payout = winningVoters.length > 0 ? (totalPot / winningVoters.length) : 0;
 
-    if (winningVoters.length > 0) {
-      if (winningVoters.includes(playerName)) {
-        adjustTokens(payout);
-        await addDoc(collection(db, "players", playerName, "transactions"), {
+      if (winningVoters.length > 0) {
+        if (winningVoters.includes(playerName)) {
+          adjustTokens(payout);
+          await addDoc(collection(db, "players", playerName, "transactions"), {
+            type: "payout",
+            amount: payout,
+            scenarioId,
+            scenarioText: data.description,
+            timestamp: serverTimestamp()
+          });
+
+          console.log(`Awarded ${payout} tokens to ${playerName}`);
+        }
+      } else {
+        // Refund all players
+        if (Object.keys(votes).includes(playerName)) {
+          const vote = votes[playerName];
+          const refund = data.mode === "pari"
+            ? vote?.amount || 0
+            : data.betAmount ?? 1;
+
+          adjustTokens(refund);
+          await addDoc(collection(db, "players", playerName, "transactions"), {
+            type: "refund",
+            amount: refund,
+            scenarioId,
+            scenarioText: data.description,
+            timestamp: serverTimestamp()
+          });
+        }
+      }
+      return; // STOP here for flat mode
+    }
+
+    // ===== PARIMUTUEL ("pari") MODE: True parimutuel payout logic =====
+    if (data.mode === "pari") {
+      // votes: {player: {choice, amount}}
+      const votes = data.votes || {};
+      const winnerKey = data.winner;
+
+      // Winners: [{player, amount}]
+      const winningVoters = Object.entries(votes)
+        .filter(([, v]) => v.choice === winnerKey)
+        .map(([player, v]) => ({ player, amount: v.amount }));
+
+      // Losers: [{player, amount}]
+      const losingVoters = Object.entries(votes)
+        .filter(([, v]) => v.choice !== winnerKey)
+        .map(([player, v]) => ({ player, amount: v.amount }));
+
+      const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+      const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+
+      for (const { player, amount } of winningVoters) {
+        // Parimutuel payout = original bet + proportional share of losing pot
+        const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
+
+        await adjustTokens(payout); // or adjustTokens(player, payout) if needed
+        await addDoc(collection(db, "players", player, "transactions"), {
           type: "payout",
-          amount: payout,
+          amount: (payout),
           scenarioId,
           scenarioText: data.description,
-          timestamp: serverTimestamp()
-        });
-
-        console.log(`Awarded ${payout} tokens to ${playerName}`);
-      }
-    } else {
-      // Refund all players
-      if (Object.keys(votes).includes(playerName)) {
-        const vote = votes[playerName];
-        const refund = data.mode === "pari"
-          ? vote?.amount || 0
-          : data.betAmount ?? 1;
-
-        adjustTokens(refund);
-        await addDoc(collection(db, "players", playerName, "transactions"), {
-          type: "refund",
-          amount: refund,
-          scenarioId,
-          scenarioText: data.description,
-          timestamp: serverTimestamp()
+          timestamp: serverTimestamp(),
         });
       }
+      // Losers get nothing (their bets are lost)
+      return;
     }
-    return; // STOP here for flat mode
-  }
-
-  // ===== PARIMUTUEL ("pari") MODE: True parimutuel payout logic =====
-  if (data.mode === "pari") {
-    // votes: {player: {choice, amount}}
-    const votes = data.votes || {};
-    const winnerKey = data.winner;
-
-    // Winners: [{player, amount}]
-    const winningVoters = Object.entries(votes)
-      .filter(([, v]) => v.choice === winnerKey)
-      .map(([player, v]) => ({ player, amount: v.amount }));
-
-    // Losers: [{player, amount}]
-    const losingVoters = Object.entries(votes)
-      .filter(([, v]) => v.choice !== winnerKey)
-      .map(([player, v]) => ({ player, amount: v.amount }));
-
-    const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
-    const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
-
-    for (const { player, amount } of winningVoters) {
-      // Parimutuel payout = original bet + proportional share of losing pot
-      const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
-
-      await adjustTokens(payout); // or adjustTokens(player, payout) if needed
-      await addDoc(collection(db, "players", player, "transactions"), {
-        type: "payout",
-        amount: (payout),
-        scenarioId,
-        scenarioText: data.description,
-        timestamp: serverTimestamp(),
-      });
-    }
-    // Losers get nothing (their bets are lost)
-    return;
-  }
-};
+  };
 
 
 
@@ -752,12 +772,12 @@ function App() {
       {!hasEnteredName ? (
         <div style={{ textAlign: "center", position: "relative", minHeight: "80vh" }}>
           <h2>WELCOME</h2>
-          <div style={{width: "93%"}}>
-          <input
-            placeholder="Your name"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-          />
+          <div style={{ width: "93%" }}>
+            <input
+              placeholder="Your name"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
           </div>
           <button
             onClick={() => {
@@ -895,27 +915,34 @@ function App() {
             </button>
 
             <div style={{
-              backgroundColor: "#111",
-              padding: "0.5rem 0.5rem",
-              borderRadius: "12px",
-              marginTop: "0.5rem",
-              marginBottom: "0.5rem",
-              textAlign: "center",
-              color: "#00ff88",  // bright mint green
-              fontSize: "2rem",
-              fontFamily: "'Orbitron', sans-serif",
-              boxShadow: "0 0 10px rgba(0, 255, 136, 0.5), inset 0 0 5px rgba(0, 255, 136, 0.3)"
-            }}>
-              Balance: ${tokenBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+  backgroundColor: "#111",
+  padding: "0.5rem 0.5rem",
+  borderRadius: "12px",
+  marginTop: "0.5rem",
+  marginBottom: "0.5rem",
+  textAlign: "center",
+  color: "#00ff88",  // bright mint green
+  fontSize: "2rem",
+  fontFamily: "'Orbitron', sans-serif",
+  boxShadow: "0 0 10px rgba(0, 255, 136, 0.5), inset 0 0 5px rgba(0, 255, 136, 0.3)",
+  cursor: "pointer"
+}}
+title="Click to switch: Balance / Loan / Net"
+onClick={() => setBalanceMode((balanceMode + 1) % 3)}
+>
+  {getBalanceDisplay()}
+</div>
 
-            </div>
 
 
             <Bank
               playerName={playerName}
               tokenBalance={tokenBalance}
               setTokenBalance={setTokenBalance}
+              loanBalance={loanBalance}
+              setLoanBalance={setLoanBalance}
             />
+
 
 
           </div>
@@ -1138,14 +1165,14 @@ function App() {
                 }}
                 roomId={selectedRoom.id}
               />
-              <span style= {{display: "flex", justifyContent: "center"}}>
-              <button 
-              className="img-button"
-              onClick={() => {
-                setShowScenarioForm(false);
-                setScenarioMode("");
-              }} style={{ marginTop: "0.5rem" }}>
-                <img
+              <span style={{ display: "flex", justifyContent: "center" }}>
+                <button
+                  className="img-button"
+                  onClick={() => {
+                    setShowScenarioForm(false);
+                    setScenarioMode("");
+                  }} style={{ marginTop: "0.5rem" }}>
+                  <img
                     src="/CasinoCancel.png"
                     alt="cancel Create options button"
                     style={{
@@ -1157,17 +1184,17 @@ function App() {
                     }}
                     draggable="false"
                   />
-              </button>
+                </button>
               </span>
             </>
           ) : (
             <div style={{ marginBottom: "0rem" }}>
               <div style={{ width: "90%" }}>
-              <input
-                placeholder="New Prop Bet"
-                value={newScenario}
-                onChange={(e) => setNewScenario(e.target.value)}
-              />
+                <input
+                  placeholder="New Prop Bet"
+                  value={newScenario}
+                  onChange={(e) => setNewScenario(e.target.value)}
+                />
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "0rem", flexWrap: "wrap" }}>
                 <input
@@ -1208,8 +1235,8 @@ function App() {
                     draggable="false"
                   />
                 </button>
-                
-                
+
+
 
               </div>
               <div style={{ display: "flex", justifyContent: "center", marginTop: "0.2rem", marginBottom: "1rem" }}>
@@ -1375,14 +1402,14 @@ function App() {
                       {sc.creator === playerName && !sc.launched && (
                         <div >
                           <input
-                          style= {{ width: "90%", marginRight: "0.5rem" }}
-                            placeholder="New outcome"
+                            style={{ width: "90%", marginRight: "0.5rem" }}
+                            placeholder="New option"
                             value={outcomeInputs[sc.id] || ""}
                             onChange={(e) =>
                               setOutcomeInputs({ ...outcomeInputs, [sc.id]: e.target.value })
                             }
                           />
-                          <button onClick={() => addOutcome(sc.id)}>Add Outcome</button>
+                          <button onClick={() => addOutcome(sc.id)}>Accept Option</button>
                         </div>
                       )}
 

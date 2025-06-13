@@ -116,13 +116,13 @@ function ParimutuelScenario({
         {scenario.creator === playerName && !scenario.launched && (
           <div style={{ marginTop: "1rem", width: "90%" }}>
             <input
-              placeholder="New outcome"
+              placeholder="New option"
               value={outcomeInputs[scenario.id] || ""}
               onChange={(e) =>
                 setOutcomeInputs({ ...outcomeInputs, [scenario.id]: e.target.value })
               }
             />
-            <button onClick={() => addOutcome(scenario.id)}>Add Outcome</button>
+            <button onClick={() => addOutcome(scenario.id)}>Accept Option</button>
             <button onClick={() => launchScenario(scenario.id)} style={{ marginLeft: "0.5rem" }}>
               Ready, set, BET!
             </button>

@@ -128,7 +128,7 @@ if (scenario.winner) {
         display: "flex",
         alignItems: "center",
         cursor: "pointer",
-        padding: "0.5rem 0.5rem 0.5rem 1rem",
+        padding: "0.5rem 0.5rem 0.5rem 0.5rem",
         fontWeight: "bold"
       }}
       onClick={() => setExpanded(e => !e)}
@@ -145,13 +145,23 @@ if (scenario.winner) {
       </span>
       
     </div>
+{/* Always show min/max under description, like pari */}
+<div style={{
+  fontStyle: "italic",
+  color: "#222",
+  marginBottom: "0.2rem",
+  marginLeft: "0.5rem",
+  fontSize: "1rem"
+}}>
+  Bet ${scenario.minBet} — ${scenario.maxBet}
+</div>
 
     {/* EXPANDABLE CONTENT IS SEPARATE, NOT NESTED INSIDE HEADER */}
     {expanded && (
       <>
 <span
         style={{
-          marginLeft: "1rem",
+          
           fontWeight: 400,
           color: "#333"
         }}

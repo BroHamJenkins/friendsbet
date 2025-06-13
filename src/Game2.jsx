@@ -20,7 +20,7 @@ const GAME2_PLAYERS = [
   "Bob", "Christian", "Danny", "David", "Jake", "Luke", "Ryan", "Will",
 ];
 
-const CHALLENGE_LIMIT = 2;  // sets a limit on challenges issued and received per player
+const CHALLENGE_LIMIT = 5;  // sets a limit on challenges issued and received per player
 
 function getChallengeLimit(instances, player, role) {
   return instances.filter(
@@ -246,7 +246,7 @@ export default function Game2({
 
   // UI
   return (
-    <div style={{ margin: "0 auto", padding: "0.5rem" }}>
+    <div style={{ margin: "0 auto", padding: "0.1rem" }}>
       <div className="derby-logo-wrapper">
         <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
         <img
@@ -478,7 +478,7 @@ export default function Game2({
                     justifyContent: "center",
                     alignItems: "center",
                     padding: 0,
-                   
+
                     border: "none",
                     background: "none",
                     width: "130px",         // or whatever (should be >= image width)
@@ -676,7 +676,7 @@ export default function Game2({
 
                     {challengeTarget === challenge.id && (
                       <span style={{ marginLeft: "0.5rem" }}>
-                        
+
                         <select style={{ width: "75%" }}
                           value={selectedOpponent}
                           onChange={e => setSelectedOpponent(e.target.value)}

@@ -65,7 +65,7 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
         <div style={{ display: "flex", alignItems: "center", gap: "0rem", flexWrap: "wrap" }}>
         
         <input
-  style={{ width: "33%" }}
+  style={{ width: "27%" }}
   type="number"
   value={minBet}
   placeholder="Min Bet"
@@ -73,7 +73,7 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
 />
 
 <input
-  style={{ width: "33%" }}
+  style={{ width: "27%" }}
   type="number"
   value={maxBet}
   placeholder="Max Bet"
@@ -81,11 +81,24 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
 />
 
       
-
-      <button onClick={() => setShowConfirm(true)} disabled={!userInput}>
-  Create House Bet
+<span style= {{display: "flex", justifyContent: "center"}}>
+      <button 
+      className="img-button"
+      onClick={() => setShowConfirm(true)} disabled={!userInput}>
+  <img
+                    src="/CreateBetButton.png"
+                    alt="create bet button"
+                    style={{
+                      height: "auto",
+                      width: "100px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
 </button>
-
+</span>
       </div>
       {showConfirm && (
   <div style={{

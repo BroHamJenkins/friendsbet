@@ -163,29 +163,47 @@ function ParimutuelScenario({
         )}
 
         {scenario.winner && (
-          <div>
-            {Object.keys(scenario.outcomes).map((key) => {
-              const val = scenario.outcomes[key];
-              const voters = Object.entries(scenario.votes || {})
-                .filter(([, vote]) => vote?.choice === key)
-                .map(([voter]) => voter);
-              const isWinner = Array.isArray(scenario.winner)
-                ? scenario.winner.includes(key)
-                : scenario.winner === key;
+  <div>
+    {Object.keys(scenario.outcomes).map((key) => {
+      const val = scenario.outcomes[key];
+      const winningVoters = Object.entries(scenario.votes || {})
+        .filter(([, v]) => v.choice === key)
+        .map(([player, v]) => ({ player, amount: v.amount }));
 
-              return (
-                <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                  {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
-                  {isWinner && voters.length === 0
-                    ? "(Push - All Bets Returned)"
-                    : isWinner
-                    ? "(Winner)"
-                    : ""}
-                </div>
-              );
-            })}
-          </div>
-        )}
+      const losingVoters = Object.entries(scenario.votes || {})
+        .filter(([, v]) => v.choice !== key)
+        .map(([player, v]) => ({ player, amount: v.amount }));
+
+      const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+      const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+
+      const isWinner = Array.isArray(scenario.winner)
+        ? scenario.winner.includes(key)
+        : scenario.winner === key;
+
+      return (
+        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+          {val}:{" "}
+          {isWinner && winningVoters.length > 0
+            ? winningVoters
+                .map(({ player, amount }) => {
+                  const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
+                  return `${player} ($${payout.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+
+                })
+                .join(", ")
+            : winningVoters.map(({ player }) => player).join(", ") || "No Bets"}
+          {isWinner && winningVoters.length === 0
+            ? " (Push - All Bets Returned)"
+            : isWinner
+            ? " (Winner)"
+            : ""}
+        </div>
+      );
+    })}
+  </div>
+)}
+
       </>
     )}
   </div>

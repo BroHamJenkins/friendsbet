@@ -284,7 +284,8 @@ function Bank({ playerName, tokenBalance, setTokenBalance }) {
                       )}
                     </td>
                     <td style={{ textAlign: "right", padding: "0.5rem", color: amount < 0 ? "#f88" : "#8f8" }}>
-                      {amount > 0 ? "+" : ""}{amount}
+                      {amount > 0 ? "+" : ""}{Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
                     </td>
                     <td style={{ textAlign: "right", padding: "0.5rem", fontSize: "0.85rem", color: "#aaa" }}>{timestamp}</td>
                   </tr>

@@ -517,17 +517,19 @@ function App() {
 
 
   const distributeWinnings = async (scenarioId) => {
-    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-    const snap = await getDoc(scenarioRef);
-    const data = snap.data();
+  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  const snap = await getDoc(scenarioRef);
+  const data = snap.data();
 
-    if (data.mode === "house") {
-      await resolveHouseScenario(data, scenarioId);
-      return;
-    }
+  if (data.mode === "house") {
+    await resolveHouseScenario(data, scenarioId);
+    return;
+  }
 
-    if (!data.winner || !data.votes) return;
+  if (!data.winner || !data.votes) return;
 
+  // FLAT MODE -- as before
+  if (data.mode === "flat") {
     const votes = data.votes;
     const winnerKey = data.winner;
     const winningVoters = Object.entries(votes)
@@ -538,7 +540,7 @@ function App() {
 
     const betAmount = data.betAmount ?? 1;
     const totalPot = Object.keys(votes).length * betAmount;
-    const payout = winningVoters.length > 0 ? Math.floor(totalPot / winningVoters.length) : 0;
+    const payout = winningVoters.length > 0 ? (totalPot / winningVoters.length) : 0;
 
     if (winningVoters.length > 0) {
       if (winningVoters.includes(playerName)) {
@@ -571,7 +573,46 @@ function App() {
         });
       }
     }
-  };
+    return; // STOP here for flat mode
+  }
+
+  // ===== PARIMUTUEL ("pari") MODE: True parimutuel payout logic =====
+  if (data.mode === "pari") {
+    // votes: {player: {choice, amount}}
+    const votes = data.votes || {};
+    const winnerKey = data.winner;
+
+    // Winners: [{player, amount}]
+    const winningVoters = Object.entries(votes)
+      .filter(([, v]) => v.choice === winnerKey)
+      .map(([player, v]) => ({ player, amount: v.amount }));
+
+    // Losers: [{player, amount}]
+    const losingVoters = Object.entries(votes)
+      .filter(([, v]) => v.choice !== winnerKey)
+      .map(([player, v]) => ({ player, amount: v.amount }));
+
+    const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+    const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+
+    for (const { player, amount } of winningVoters) {
+      // Parimutuel payout = original bet + proportional share of losing pot
+      const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
+
+      await adjustTokens(payout); // or adjustTokens(player, payout) if needed
+      await addDoc(collection(db, "players", player, "transactions"), {
+        type: "payout",
+        amount: (payout),
+        scenarioId,
+        scenarioText: data.description,
+        timestamp: serverTimestamp(),
+      });
+    }
+    // Losers get nothing (their bets are lost)
+    return;
+  }
+};
+
 
 
   const launchScenario = async (scenarioId) => {
@@ -666,7 +707,8 @@ function App() {
     `
               }}
             >
-              ${tokenBalance}
+              ${Math.round(tokenBalance)}
+
             </div>
 
 
@@ -864,7 +906,8 @@ function App() {
               fontFamily: "'Orbitron', sans-serif",
               boxShadow: "0 0 10px rgba(0, 255, 136, 0.5), inset 0 0 5px rgba(0, 255, 136, 0.3)"
             }}>
-              Balance: ${tokenBalance.toLocaleString()}
+              Balance: ${tokenBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
             </div>
 
 
@@ -1095,12 +1138,27 @@ function App() {
                 }}
                 roomId={selectedRoom.id}
               />
-              <button onClick={() => {
+              <span style= {{display: "flex", justifyContent: "center"}}>
+              <button 
+              className="img-button"
+              onClick={() => {
                 setShowScenarioForm(false);
                 setScenarioMode("");
               }} style={{ marginTop: "0.5rem" }}>
-                Cancel
+                <img
+                    src="/CasinoCancel.png"
+                    alt="cancel Create options button"
+                    style={{
+                      height: "auto",
+                      width: "100px",
+                      display: "block",
+                      pointerEvents: "none",
+                      userSelect: "none"
+                    }}
+                    draggable="false"
+                  />
               </button>
+              </span>
             </>
           ) : (
             <div style={{ marginBottom: "0rem" }}>

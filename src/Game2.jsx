@@ -416,22 +416,23 @@ export default function Game2({
         <div>
           {/* SHOW LIMITS */}
           <div style={{
-            display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0", alignItems: "center", justifyContent: "center", background: "", padding: "0.5rem", borderRadius: "10px"
+            display: "flex", flexWrap: "wrap", gap: "0.3rem", margin: "0", alignItems: "center", justifyContent: "center", background: "", padding: "0.5rem", borderRadius: "10px"
           }}>
             {GAME2_PLAYERS.map(p => (
               <div key={p} style={{
                 padding: "0.5rem 0.3rem",
                 background: p === playerName ? "#fffae0" : "#fffaaa",
-                borderRadius: "7px",
+                borderRadius: "15px",
+                boxShadow: "0 2px 18px #ffdd82, 0 0 0 4px #222 inset",
                 minWidth: 90,
                 textAlign: "center"
               }}>
                 <div style={{ fontWeight: "bold" }}>{p}</div>
-                <div style={{ fontSize: "0.9rem" }}>
+                <div style={{ fontSize: "0.7rem" }}>
                   <span title="Times as Challenger">Sent:</span> {limits[p]?.challenger ?? 0} / {CHALLENGE_LIMIT}<br />
                   <span title="Times as Challengee">Rec'v:</span> {limits[p]?.challengee ?? 0} / {CHALLENGE_LIMIT}
                 </div>
-                <div style={{ fontSize: "0.9rem", color: "red" }}>Score: {scores[p]}</div>
+                <div style={{ fontSize: "0.9rem", color: "red", fontWeight: "bold" }}>★Score: {scores[p]}★</div>
               </div>
             ))}
           </div>

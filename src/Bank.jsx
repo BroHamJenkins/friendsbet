@@ -9,7 +9,8 @@ const approvedUsers = [
   "Sleepy", "Doc", "Bashful", "Dopey", "Grumpy", "Sneezy", "Happy"
 ];
 
-function Bank({ playerName, tokenBalance, setTokenBalance }) {
+function Bank({ playerName, tokenBalance, setTokenBalance, loanBalance, setLoanBalance }) {
+
   const [showTransferForm, setShowTransferForm] = useState(false);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState(0);
@@ -19,9 +20,10 @@ function Bank({ playerName, tokenBalance, setTokenBalance }) {
   const [showLedger, setShowLedger] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
-  const [loanBalance, setLoanBalance] = useState(0);
+  
   const [loanMsg, setLoanMsg] = useState("");
   const [showLoanForm, setShowLoanForm] = useState(false);
+const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Net
 
 
 
@@ -37,12 +39,11 @@ function Bank({ playerName, tokenBalance, setTokenBalance }) {
 
     // Fetch loan balance
     const playerRef = doc(db, "players", playerName);
-    getDoc(playerRef).then((snap) => {
-      setLoanBalance(snap.data()?.loan || 0);
-    });
-
-    return () => unsubscribeTx();
-  }, [playerName]);
+  getDoc(playerRef).then((snap) => {
+    setLoanBalance(snap.data()?.loan || 0);
+  });
+  // ...
+}, [playerName, setLoanBalance]);
 
 
   const handleTransfer = async () => {

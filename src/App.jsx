@@ -361,20 +361,31 @@ function App() {
 
     const mode = min === max ? "flat" : "pari";
 
-    await addDoc(collection(db, "rooms", selectedRoom.id, "scenarios"), {
-      description: newScenario,
-      createdAt: serverTimestamp(),
-      creator: playerName,
-      outcomes: {},
-      votes: {},
-      winner: null,
-      launched: false,
-      order: [],
-      betAmount: min,
-      minBet: min,
-      maxBet: max,
-      mode
-    });
+    const docRef = await addDoc(collection(db, "rooms", selectedRoom.id, "scenarios"), {
+  description: newScenario,
+  createdAt: serverTimestamp(),
+  creator: playerName,
+  outcomes: {},
+  votes: {},
+  winner: null,
+  launched: false,
+  order: [],
+  betAmount: min,
+  minBet: min,
+  maxBet: max,
+  mode
+});
+
+// Immediately expand the new scenario by its ID
+setExpandedScenarioIds(prev => ({
+  ...prev,
+  [docRef.id]: true,
+}));
+
+setNewScenario("");
+setShowScenarioForm(false);
+setScenarioMode("");
+
 
 
 
@@ -1127,7 +1138,7 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                   style={{
                     justifyContent: "center",
                     height: "auto",
-                    width: "100px",
+                    width: "120px",
                     display: "block",
                     pointerEvents: "none",
                     userSelect: "none"
@@ -1145,7 +1156,7 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                   alt="NewBet Exit button"
                   style={{
                     height: "auto",
-                    width: "90px",
+                    width: "115px",
                     display: "block",
                     pointerEvents: "none",
                     userSelect: "none"
@@ -1174,7 +1185,7 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                   }} style={{ marginTop: "0.5rem" }}>
                   <img
                     src="/CasinoCancel.png"
-                    alt="cancel Create options button"
+                    alt="cancel options button"
                     style={{
                       height: "auto",
                       width: "100px",
@@ -1248,7 +1259,7 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                     alt="Create options button"
                     style={{
                       height: "auto",
-                      width: "100px",
+                      width: "120px",
                       display: "block",
                       pointerEvents: "none",
                       userSelect: "none"
@@ -1264,10 +1275,10 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                   }} style={{ marginLeft: "0rem" }}>
                   <img
                     src="/CasinoCancel.png"
-                    alt="cancel Create options button"
+                    alt="cancel  options button"
                     style={{
                       height: "auto",
-                      width: "100px",
+                      width: "118px",
                       display: "block",
                       pointerEvents: "none",
                       userSelect: "none"

@@ -710,11 +710,13 @@ function App() {
       {!hasEnteredName ? (
         <div style={{ textAlign: "center", position: "relative", minHeight: "80vh" }}>
           <h2>WELCOME</h2>
+          <div style={{width: "93%"}}>
           <input
             placeholder="Your name"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
           />
+          </div>
           <button
             onClick={() => {
               const matchedName = findApprovedName(playerName);
@@ -1161,7 +1163,7 @@ function App() {
                     alt="Create options button"
                     style={{
                       height: "auto",
-                      width: "90px",
+                      width: "100px",
                       display: "block",
                       pointerEvents: "none",
                       userSelect: "none"
@@ -1180,7 +1182,7 @@ function App() {
                     alt="cancel Create options button"
                     style={{
                       height: "auto",
-                      width: "90px",
+                      width: "100px",
                       display: "block",
                       pointerEvents: "none",
                       userSelect: "none"

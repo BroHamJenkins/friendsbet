@@ -54,13 +54,13 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
 
   return (
     <div className="house-scenario">
-      <h2>Create House Bet</h2>
+      <div style={{display: "flex", width: "90%"}}>
       <input
   type="text"
   value={userInput}
   onChange={(e) => setUserInput(e.target.value)}
 />
-
+</div>
       
         <div style={{ display: "flex", alignItems: "center", gap: "0rem", flexWrap: "wrap" }}>
         

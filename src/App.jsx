@@ -647,6 +647,23 @@ setScenarioMode("");
         .filter(([, v]) => v.choice !== winnerKey)
         .map(([player, v]) => ({ player, amount: v.amount }));
 
+if (winningVoters.length === 0) {
+  // Push: return everyone's bet
+  for (const [player, vote] of Object.entries(votes)) {
+    const refund = vote?.amount || 0;
+    await adjustTokens(refund);
+    await addDoc(collection(db, "players", player, "transactions"), {
+      type: "refund",
+      amount: refund,
+      scenarioId,
+      scenarioText: data.description,
+      timestamp: serverTimestamp(),
+    });
+  }
+  return;
+}
+
+
       const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
       const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
 
@@ -990,7 +1007,7 @@ setScenarioMode("");
   {showOddsWidget ? "Hide Odds" : "SportsOdds"}
 </button>
 )}
-<div>{showOddsWidget && <OddsWidget />}</div>   {/* take this with the button           */} */
+<div>{showOddsWidget && <OddsWidget />}</div>   {/* take this with the button           */} 
 
 
               {/*/<button

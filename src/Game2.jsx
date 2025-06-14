@@ -320,7 +320,15 @@ export default function Game2({
       >
         <button
           className="img-button"
-          onClick={() => setShowScores((s) => !s)}
+          onClick={() => {
+    // Only play the sound if scores are currently hidden (i.e., we're about to open them)
+    if (!showScores) {
+      const audio = new Audio("/RalphDanger.mp3");
+      audio.play().catch(() => {});
+    }
+    setShowScores((s) => !s);
+  }}
+          
           style={{
             background: "transparent",    // Or use your class styling
             border: "none",
@@ -499,12 +507,17 @@ export default function Game2({
                     boxShadow: "none",
                     cursor: "pointer",
                   }}
-                  onClick={handleCreateChallenge}
+                  onClick={() => {
+  const audio = new Audio("/gong.mp3");
+  audio.play().catch(() => {});
+  handleCreateChallenge();
+}}
+
                   disabled={sending || !challengeDesc || !selectedOpponent || gameEnded}
                 >
                   <img
                     src="/send-button.png"
-                    alt="Send button"
+                    alt="Send it button"
                     style={{
                       height: "auto",
                       width: "130px",
@@ -617,7 +630,7 @@ export default function Game2({
                         }}
                       >vs</span>
                       <span
-                        style={{
+                        style={{marginLeft: "0.25rem",
                           color: "white",
                           ...getWinnerStyle(inst.winner, inst.challengee)
                         }}
@@ -707,9 +720,13 @@ export default function Game2({
 
                         <button
                           onClick={() => {
-                            const ch = challenges.find(ch => ch.id === challenge.id);
-                            if (ch) handleJoinChallenge(ch);
-                          }}
+    const ch = challenges.find(ch => ch.id === challenge.id);
+    if (ch) {
+      const audio = new Audio("/gong.mp3");
+      audio.play().catch(() => {});
+      handleJoinChallenge(ch);
+    }
+  }}
                           disabled={!selectedOpponent}
                           className="small-button"
                         >Go</button>

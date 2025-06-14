@@ -23,7 +23,7 @@ import HouseScenario from "./HouseScenario";
 import HouseBetScenario from "./HouseBetScenario";
 import Game2 from "./Game2";
 import PokerTracker from "./PokerTracker";
-
+import OddsWidget from "./OddsWidget";
 
 function distributeWinningsForHouseScenario(scenario, votes, adjustTokens) {
   if (!scenario || !votes || !adjustTokens) {
@@ -117,6 +117,10 @@ function App() {
   const [showScenarioForm, setShowScenarioForm] = useState(false);
   const [editableRoomName, setEditableRoomName] = useState("");
   const [roomName, setRoomName] = useState("");
+
+  const [showOdds, setShowOdds] = useState(false);
+const [showOddsWidget, setShowOddsWidget] = useState(false);
+
 
   const [roomList, setRoomList] = useState([]);
   const [betAmount, setBetAmount] = useState("");
@@ -257,6 +261,8 @@ useEffect(() => {
 
     return () => clearInterval(interval); // cleanup
   }, []);
+
+{showOdds && <OddsWidget />}
 
 
   useEffect(() => {
@@ -819,7 +825,7 @@ setScenarioMode("");
                 setTimeout(() => setHasEnteredName(true), 500); // allow animation to complete
               }
               else {
-                alert("Are you so drunk that you've forgotten how to spell your own name? Or are you up to some funny business? Either way, get your shit together.");
+                alert("Are you so drunk that you've forgotten how to spell your own name? Or are you up to some funny business? Either way, get your shit together and use your real name or this won't work.");
               }
             }}
           >
@@ -928,13 +934,13 @@ setScenarioMode("");
 
 
 
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
               <button
                 className="button"
                 onClick={() => setGameSelected("Casino")}
                 style={{
                   marginBottom: "0.25rem",
-                  marginTop: "0rem",
+                  marginTop: "0.25rem",
                 }}
               >
                 Casino
@@ -976,6 +982,15 @@ setScenarioMode("");
 }}>DeleteMeLater!!</button>
 
 
+{playerName === "Raul" && (
+<button                                     // toggles the OddsWidget
+  className="deleteMe-button"
+  onClick={() => setShowOddsWidget(prev => !prev)}
+>
+  {showOddsWidget ? "Hide Odds" : "SportsOdds"}
+</button>
+)}
+<div>{showOddsWidget && <OddsWidget />}</div>   {/* take this with the button           */} */
 
 
               {/*/<button
@@ -1139,10 +1154,14 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
 
           <ul>
             {propRooms.map((room) => (
-              <li key={room.id}>
-                <button onClick={() => joinRoom(room)}>{room.name}</button>
+              <li key={room.id} >
+              
+                <button 
+                onClick={() => joinRoom(room)}>{room.name}</button>
                 {playerName === "Raul" && (
-                  <button onClick={() => deleteRoom(room.id)} style={{ marginLeft: "1rem" }}>Delete</button>
+                  <button 
+                  className= "button-burgundy"
+                  onClick={() => deleteRoom(room.id)} >Delete</button>
                 )}
               </li>
             ))}

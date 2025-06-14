@@ -182,24 +182,34 @@ function ParimutuelScenario({
         : scenario.winner === key;
 
       return (
-        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-          {val}:{" "}
-          {isWinner && winningVoters.length > 0
-            ? winningVoters
-                .map(({ player, amount }) => {
-                  const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
-                  return `${player} ($${payout.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+  <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+    {val}:{" "}
+    {isWinner && winningVoters.length > 0 ? (
+      <strong>
+        {winningVoters
+          .map(({ player, amount }) => {
+            const payout =
+              amount +
+              (totalWinningBet > 0
+                ? (amount / totalWinningBet) * totalLosingBet
+                : 0);
+            return `${player} ($${payout.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })})`;
+          })
+          .join(", ")}
+        {" (Winner)"}
+      </strong>
+    ) : (
+      winningVoters.map(({ player }) => player).join(", ") || "No Bets"
+    )}
+    {isWinner && winningVoters.length === 0 && (
+      <strong> (Push - All Bets Returned)</strong>
+    )}
+  </div>
+);
 
-                })
-                .join(", ")
-            : winningVoters.map(({ player }) => player).join(", ") || "No Bets"}
-          {isWinner && winningVoters.length === 0
-            ? " (Push - All Bets Returned)"
-            : isWinner
-            ? " (Winner)"
-            : ""}
-        </div>
-      );
     })}
   </div>
 )}

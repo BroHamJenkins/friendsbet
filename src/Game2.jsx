@@ -319,7 +319,7 @@ export default function Game2({
       }}
       >
         <button
-          className="button-score"
+          className="img-button"
           onClick={() => setShowScores((s) => !s)}
           style={{
             background: "transparent",    // Or use your class styling
@@ -344,7 +344,7 @@ export default function Game2({
         </button>
 
         <button
-          className="button-newchallenge"
+          className="img-button"
           onClick={() => setShowNewChallenge(s => !s)}
           style={{
             background: "transparent",
@@ -370,7 +370,7 @@ export default function Game2({
 
         <button
           onClick={() => setGameSelected("")}
-          className="button-score"
+          className="img-button"
           style={{
             background: "transparent",    // Or use your class styling
             border: "none",

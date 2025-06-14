@@ -1518,7 +1518,31 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                       )}
 
                       {sc.creator === playerName && !sc.launched && (
-                        <button onClick={() => launchScenario(sc.id)}>Ready, set, BET!</button>
+                        <button
+  onClick={() => {
+    const numOptions = Object.keys(sc.outcomes || {}).length;
+    const hasUnsubmittedInput =
+      (outcomeInputs[sc.id] || "").trim().length > 0;
+
+    if (hasUnsubmittedInput) {
+      alert("You have a filled-in option that hasn't been accepted.");
+      return;
+    }
+
+    if (numOptions < 2) {
+      alert("You need at least two outcome options.");
+      return;
+    }
+
+    launchScenario(sc.id);
+  }}
+  style={{ marginLeft: "0.5rem" }}
+>
+  Ready, set, BET!
+</button>
+
+
+
                       )}
 
                       {selectedRoom.type === "prop" &&

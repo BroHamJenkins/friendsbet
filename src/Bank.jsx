@@ -108,7 +108,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
     setResetMessage("Running reset...");
     const playerSnap = await getDocs(collection(db, "players"));
     for (const playerDoc of playerSnap.docs) {
-      await updateDoc(doc(db, "players", playerDoc.id), { tokens: 0 });
+      await updateDoc(doc(db, "players", playerDoc.id), { tokens: 0, loan: 0 });
       const txSnap = await getDocs(collection(db, "players", playerDoc.id, "transactions"));
       for (const tx of txSnap.docs) {
         await deleteDoc(doc(db, "players", playerDoc.id, "transactions", tx.id));
@@ -174,7 +174,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
             className="golden-button"
             onClick={async () => {
               if (loanAmount <= 0) { setLoanMsg("Enter a valid amount."); return; }
-              if (loanAmount + loanBalance > 500) { setLoanMsg("Loan limit is 500 tokens."); return; }
+              if (loanAmount + loanBalance > 500) { setLoanMsg("Loan limit is 500 smackers."); return; }
 
               // Update balances in Firestore
               const playerRef = doc(db, "players", playerName);
@@ -264,7 +264,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
       {message && <p>{message}</p>}
       {showLedger && (
         <div style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", padding: "1rem", borderRadius: "8px", color: "#fff", marginTop: "1rem" }}>
-          <h3 style={{ borderBottom: "1px solid #ccc", paddingBottom: "0.5rem" }}>Transaction History</h3>
+          <h3 style={{ textAlign: "center", borderBottom: "1px solid #ccc", paddingBottom: "0.5rem" }}>Transaction History</h3>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>

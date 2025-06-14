@@ -22,7 +22,7 @@ import ParimutuelScenario from "./ParimutuelScenario";
 import HouseScenario from "./HouseScenario";
 import HouseBetScenario from "./HouseBetScenario";
 import Game2 from "./Game2";
-
+import PokerTracker from "./PokerTracker";
 
 
 function distributeWinningsForHouseScenario(scenario, votes, adjustTokens) {
@@ -45,6 +45,7 @@ function distributeWinningsForHouseScenario(scenario, votes, adjustTokens) {
   }
 }
 
+const adminUsers = ["Raul", "Christian", "David"];
 
 const clearRoomData = async () => {
   if (!selectedRoom?.id) {
@@ -86,6 +87,7 @@ const findApprovedName = (inputName) => {
 
 
 function App() {
+
   const handleLogoClick = () => {
     if (isPlaying) return;
 
@@ -235,6 +237,15 @@ function App() {
 
   const [headerIndex, setHeaderIndex] = useState(0);
 
+useEffect(() => {
+  const storedName = localStorage.getItem("playerName");
+  if (storedName && !hasEnteredName) {
+    setPlayerName(storedName);
+    setHasEnteredName(true);
+  }
+}, [hasEnteredName]);
+
+
   useEffect(() => {
     const interval = setInterval(() => {
       setHeaderIndex((prev) => (prev + 1) % casinoMessages.length);
@@ -302,10 +313,17 @@ function App() {
         })
       );
       fetchedScenarios.sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA; // newest first
-      });
+  const isAResolved = !!a.winner;
+  const isBResolved = !!b.winner;
+
+  if (isAResolved && !isBResolved) return 1;  // move A down
+  if (!isAResolved && isBResolved) return -1; // move B down
+
+  const timeA = a.createdAt?.seconds || 0;
+  const timeB = b.createdAt?.seconds || 0;
+  return timeB - timeA;
+});
+
 
       setScenarios(fetchedScenarios);
     });
@@ -780,6 +798,7 @@ setScenarioMode("");
 
 
 
+
       {!hasEnteredName ? (
         <div style={{ textAlign: "center", position: "relative", minHeight: "80vh" }}>
           <h2>WELCOME</h2>
@@ -795,6 +814,7 @@ setScenarioMode("");
               const matchedName = findApprovedName(playerName);
               if (matchedName) {
                 setPlayerName(matchedName);
+                localStorage.setItem("playerName", matchedName);
                 setTriggerMainAnim(true);
                 setTimeout(() => setHasEnteredName(true), 500); // allow animation to complete
               }
@@ -825,7 +845,42 @@ setScenarioMode("");
 
       ) : !gameSelected ? (
 
+
+
+        
         <div className="main-screen">
+
+{["Raul", "Christian", "David"].includes(playerName) && (
+  <div
+    style={{
+      position: "fixed",
+      top: "16px",
+      left: "16px",
+      zIndex: 1001,
+      cursor: "pointer"
+    }}
+    onClick={() => {
+      localStorage.removeItem("playerName");
+      setHasEnteredName(false);
+      setPlayerName("");
+    }}
+    title="Sign Out"
+  >
+    <img
+      src="/SignOutX.png"
+      alt="Sign Out x"
+      style={{
+        width: "30px",
+        height: "30px",
+        display: "block",
+        //filter: "drop-shadow(0 2px 6px #aa1155)"
+      }}
+      draggable="false"
+    />
+  </div>
+)}
+
+
           <div className="home-logo-container">
 
             <img
@@ -861,7 +916,10 @@ setScenarioMode("");
                     color: "#fff",
                   }}
                 >
-                  {playerName.toUpperCase()}
+                  {playerName.trim().toLowerCase() === "bob"
+  ? "BLACK BOB"
+  : playerName.toUpperCase()}
+
                 </p>
               </div>
             </div>
@@ -894,6 +952,31 @@ setScenarioMode("");
               >
                 Bank
               </button>
+
+{playerName === "Raul" && (
+                  <button
+  className="button-goldenrod"
+  onClick={() => setGameSelected("PokerTracker")}
+>
+  Poker Tracker
+</button>
+                )}
+
+
+
+
+
+
+              <button 
+              className= "deleteMe-button"
+              onClick={() => {
+  localStorage.removeItem("playerName");
+  setHasEnteredName(false);
+  setPlayerName("");
+}}>DeleteMeLater!!</button>
+
+
+
 
               {/*/<button
                 className="button-53"
@@ -959,11 +1042,17 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
           </div>
         </>
 
-      ) : gameSelected === "Degenerate Derby" ? (
-        <DegenerateDerby
-          playerName={playerName}
-          setGameSelected={setGameSelected}
-        />
+
+
+
+     ) : gameSelected === "Degenerate Derby" ? (
+  <DegenerateDerby
+    playerName={playerName}
+    setGameSelected={setGameSelected}
+  />
+) : gameSelected === "PokerTracker" ? (
+  <PokerTracker playerName={playerName} />
+
 
 
 
@@ -1044,6 +1133,9 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
             </button>
           </div>
           <h3 style={{ textAlign: "center" }}>Where to, Boss?</h3>
+
+          
+
 
           <ul>
             {propRooms.map((room) => (
@@ -1293,7 +1385,8 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
 
 
           {scenarios.map((sc) => (
-            <div key={sc.id} className="scenario-box">
+            <div key={sc.id} className={`scenario-box ${sc.winner ? "resolved-scenario" : ""}`}>
+
               {sc.mode === "house" ? (
                 <HouseBetScenario
                   scenario={{ ...sc, roomId: selectedRoom.id }}
@@ -1456,28 +1549,37 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                         )}
 
                       {sc.winner && (
-                        <div>
-                          {(sc.order || Object.keys(sc.outcomes)).map((key) => {
-                            const val = sc.outcomes[key];
-                            const voters = Object.entries(sc.votes || {})
-                              .filter(([, vote]) => vote === key)
-                              .map(([voter]) => voter);
-                            const isWinner = Array.isArray(sc.winner)
-                              ? sc.winner.includes(key)
-                              : sc.winner === key;
-                            return (
-                              <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
-                                {val}: {voters.length > 0 ? voters.join(", ") : "No Bets"}{" "}
-                                {isWinner && voters.length === 0
-                                  ? "(Push - All Bets Returned)"
-                                  : isWinner
-                                    ? "(Winner)"
-                                    : ""}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+  <div>
+    {(sc.order || Object.keys(sc.outcomes)).map((key) => {
+      const val = sc.outcomes[key];
+      const voters = Object.entries(sc.votes || {})
+        .filter(([, vote]) => vote === key)
+        .map(([voter]) => voter);
+      const isWinner = Array.isArray(sc.winner)
+        ? sc.winner.includes(key)
+        : sc.winner === key;
+
+      return (
+        <div key={key} style={{ color: isWinner ? "green" : "inherit" }}>
+          {val}:
+          {" "}
+          {voters.length > 0 ? (
+            isWinner ? (
+              <strong>{voters.join(", ")} (Winner)</strong>
+            ) : (
+              voters.join(", ")
+            )
+          ) : (
+            isWinner ? <strong>No Bets (Winner)</strong> : "No Bets"
+          )}
+          {isWinner && voters.length === 0 && " (Push - All Bets Returned)"}
+        </div>
+      );
+    })}
+  </div>
+)}
+
+                      
                     </div>
                   )}
                 </>

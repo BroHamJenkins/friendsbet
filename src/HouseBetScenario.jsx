@@ -99,15 +99,14 @@ if (scenario.winner) {
     // House wins, collects all losing bets
     const total = bettors.reduce((sum, [player, v]) => sum + (v.amount || 0), 0);
     resultsDisplay = (
-      <div style={{ fontWeight: 600, color: "black", margin: "0.5rem 0" }}>
-        HOUSE ({scenario.housePlayer}) WINS<br />
-        Wins: ${total}
+      <div style={{ fontWeight: 600, color: "green", margin: "0.5rem 0" }}>
+        HOUSE ({scenario.housePlayer}) WINS ${total}
       </div>
     );
   } else {
     // Bettors win, each gets 2x their bet
     resultsDisplay = (
-      <div style={{ fontWeight: 600, color: "black", margin: "0.5rem 0" }}>
+      <div style={{ fontWeight: 600, color: "green", margin: "0.5rem 0" }}>
         BETTORS WIN!<br />
         {bettors.map(([player, v]) => (
           <div key={player}>
@@ -199,7 +198,7 @@ if (scenario.winner) {
         {isHouse && <p className="info-text">You are the house.</p>}
         {hasVoted && (
           <p className="info-text">
-            You&apos;ve bet $
+            You bet $
             {scenario.votes && scenario.votes[playerName] && scenario.votes[playerName].amount
               ? scenario.votes[playerName].amount
               : "?"}

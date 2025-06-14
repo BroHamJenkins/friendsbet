@@ -246,9 +246,21 @@ export default function Game2({
 
   // UI
   return (
+
+    
     <div style={{ margin: "0 auto", padding: "0.1rem" }}>
       <div className="derby-logo-wrapper">
-        <img src="/Derby-Logo.png" alt="Derby Logo" className="derby-logo" />
+        <img
+  src="/Derby-Logo.png"
+  alt="Derby Logo"
+  className="derby-logo"
+  style={{ cursor: "pointer" }}
+  onClick={() => {
+    const audio = new Audio("/RalphDanger.mp3");
+    audio.play().catch(() => {}); // Prevent unhandled promise if user has not interacted yet
+  }}
+/>
+
         <img
           src="/derby-sticker.png"
           alt="17% more alliteration"

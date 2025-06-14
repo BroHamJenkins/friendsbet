@@ -123,9 +123,30 @@ function ParimutuelScenario({
               }
             />
             <button onClick={() => addOutcome(scenario.id)}>Accept Option</button>
-            <button onClick={() => launchScenario(scenario.id)} style={{ marginLeft: "0.5rem" }}>
-              Ready, set, BET!
-            </button>
+            <button
+  onClick={() => {
+    const numOptions = Object.keys(scenario.outcomes || {}).length;
+    const hasUnsubmittedInput =
+      (outcomeInputs[scenario.id] || "").trim().length > 0;
+
+    if (hasUnsubmittedInput) {
+      alert("You have a filled-in option that hasn't been accepted.");
+      return;
+    }
+
+    if (numOptions < 2) {
+      alert("You need at least two outcome options.");
+      return;
+    }
+
+    launchScenario(scenario.id);
+  }}
+  style={{ marginLeft: "0.5rem" }}
+>
+  Ready, set, BET!
+</button>
+
+
           </div>
         )}
 

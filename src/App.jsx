@@ -25,6 +25,31 @@ import Game2 from "./Game2";
 import PokerTracker from "./PokerTracker";
 import OddsWidget from "./OddsWidget";
 
+async function distributeParimutuelWinnings(scenario, db) {
+  const { votes, winner } = scenario;
+  if (!votes || !winner) return;
+
+  const winningKey = winner;
+  const winningVoters = Object.entries(votes).filter(([, v]) => v.choice === winningKey);
+  const losingVoters = Object.entries(votes).filter(([, v]) => v.choice !== winningKey);
+
+  const totalWinningBet = winningVoters.reduce((sum, [, v]) => sum + (v.amount || 0), 0);
+  const totalLosingBet = losingVoters.reduce((sum, [, v]) => sum + (v.amount || 0), 0);
+
+  for (const [player, vote] of winningVoters) {
+    const payout =
+      vote.amount +
+      (totalWinningBet > 0 ? (vote.amount / totalWinningBet) * totalLosingBet : 0);
+
+    const userRef = doc(db, "tokens", player);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const current = userSnap.data().amount || 0;
+      await updateDoc(userRef, { amount: current + payout });
+    }
+  }
+}
+
 function distributeWinningsForHouseScenario(scenario, votes, adjustTokens) {
   if (!scenario || !votes || !adjustTokens) {
     console.error("Missing required arguments for house scenario payout.");
@@ -128,6 +153,23 @@ const [showOddsWidget, setShowOddsWidget] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(100);
+
+useEffect(() => {
+  if (!name) return;
+
+  const playerRef = doc(db, "players", name);
+  const unsubscribe = onSnapshot(playerRef, (docSnap) => {
+    const data = docSnap.data();
+    if (data?.tokens !== undefined) {
+      setTokenBalance(data.tokens);
+    }
+  });
+
+  return () => unsubscribe();
+}, [name]);
+
+
+  
   const [loanBalance, setLoanBalance] = useState(0);
   const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Net
   const getBalanceDisplay = () => {
@@ -241,6 +283,8 @@ const [showOddsWidget, setShowOddsWidget] = useState(false);
 
   const [headerIndex, setHeaderIndex] = useState(0);
 
+
+  
 useEffect(() => {
   const storedName = localStorage.getItem("playerName");
   if (storedName && !hasEnteredName) {
@@ -257,6 +301,71 @@ useEffect(() => {
 
 
 
+
+
+async function declareWinner(scenarioId, winningKey) {
+  const scenarioRef = doc(db, "scenarios", scenarioId);
+
+  let scenarioSnap;
+  try {
+    scenarioSnap = await getDoc(scenarioRef);
+  } catch (err) {
+    console.error("Failed to fetch scenario:", err);
+    return;
+  }
+
+  const scenario = scenarioSnap.data();
+  if (!scenario || scenario.winner) return;
+
+  const votes = scenario.votes || {};
+
+  // NEW: much simpler, always treat votes as objects!
+  const winningVoters = [];
+  const losingVoters = [];
+
+  for (const [player, vote] of Object.entries(votes)) {
+    // vote is always { choice, amount }
+    const choice = vote.choice;
+    const amount = Number(vote.amount);
+
+    if (typeof choice !== "string" || isNaN(amount)) continue;
+
+    if (choice === winningKey) {
+      winningVoters.push({ player, amount });
+    } else {
+      losingVoters.push({ player, amount });
+    }
+  }
+
+  const totalWinning = winningVoters.reduce((sum, v) => sum + v.amount, 0);
+  const totalLosing = losingVoters.reduce((sum, v) => sum + v.amount, 0);
+
+  for (const { player, amount } of winningVoters) {
+    const payout = amount + (totalWinning > 0 ? (amount / totalWinning) * totalLosing : 0);
+    if (!isNaN(payout) && isFinite(payout)) {
+      try {
+        await updateDoc(doc(db, "players", player), {
+          tokens: increment(payout)
+        });
+
+        // If this is the current user, update their UI balance (if needed)
+        if (player === userName) {
+          const playerSnap = await getDoc(doc(db, "players", player));
+          const newBalance = playerSnap.data()?.tokens ?? 0;
+          setTokenBalance(newBalance);
+        }
+      } catch (err) {
+        console.error(`Failed to update tokens for ${player}:`, err);
+      }
+    }
+  }
+
+  try {
+    await updateDoc(scenarioRef, { winner: winningKey });
+  } catch (err) {
+    console.error("Failed to update scenario winner:", err);
+  }
+}
 
 
     return () => clearInterval(interval); // cleanup
@@ -465,9 +574,8 @@ setScenarioMode("");
       return;
     }
 
-    votes[playerName] = isPari
-      ? { choice: outcomeKey, amount: betAmount }
-      : outcomeKey;
+    votes[playerName] = { choice: outcomeKey, amount: isPari ? betAmount : data.betAmount ?? 1 };
+
 
 
     await updateDoc(scenarioRef, { votes });
@@ -483,14 +591,44 @@ setScenarioMode("");
   };
 
 
-  const declareWinner = async (scenarioId, outcomeKey) => {
-    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-    const snap = await getDoc(scenarioRef);
-    const data = snap.data();
-    if (data.creator !== playerName || !data.launched) return;
-    await updateDoc(scenarioRef, { winner: outcomeKey });
-    await distributeWinnings(scenarioId);
-  };
+ const declareWinner = async (scenarioId, winningKey) => {
+  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  await updateDoc(scenarioRef, { winner: winningKey });
+
+  const snap = await getDoc(scenarioRef);
+  const data = snap.data();
+  const votes = data.votes || {};
+
+  const winners = Object.entries(votes).filter(
+    ([, v]) => v.choice === winningKey
+  );
+  const losers = Object.entries(votes).filter(
+    ([, v]) => v.choice !== winningKey
+  );
+
+  const totalWinning = winners.reduce((sum, [, v]) => sum + Number(v.amount || 0), 0);
+  const totalLosing = losers.reduce((sum, [, v]) => sum + Number(v.amount || 0), 0);
+
+  for (const [player, v] of winners) {
+    const base = Number(v.amount || 0);
+    const share = totalWinning > 0 ? (base / totalWinning) * totalLosing : 0;
+    const payout = base + share;
+
+    if (payout > 0) {
+      await updateDoc(doc(db, "players", player), {
+        tokens: increment(parseFloat(payout.toFixed(2)))
+      });
+
+      await addDoc(collection(db, "players", player, "transactions"), {
+        type: "payout",
+        amount: payout,
+        scenarioId,
+        scenarioText: data.description,
+        timestamp: serverTimestamp()
+      });
+    }
+  }
+};
   const closePoll = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
@@ -588,45 +726,54 @@ setScenarioMode("");
       const votes = data.votes;
       const winnerKey = data.winner;
       const winningVoters = Object.entries(votes)
-        .filter(([, choice]) =>
-          Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner
-        )
-        .map(([player]) => player);
+  .filter(([, vote]) => {
+    const choice = vote.choice;
+    return Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner;
+  })
+  .map(([player]) => player);
+
 
       const betAmount = data.betAmount ?? 1;
       const totalPot = Object.keys(votes).length * betAmount;
       const payout = winningVoters.length > 0 ? (totalPot / winningVoters.length) : 0;
 
       if (winningVoters.length > 0) {
-        if (winningVoters.includes(playerName)) {
-          adjustTokens(payout);
-          await addDoc(collection(db, "players", playerName, "transactions"), {
-            type: "payout",
-            amount: payout,
-            scenarioId,
-            scenarioText: data.description,
-            timestamp: serverTimestamp()
-          });
+        for (const winner of winningVoters) {
+  await updatePlayerBalance(winner, payout);
+  await addDoc(collection(db, "players", winner, "transactions"), {
+    type: "payout",
+    amount: payout,
+    scenarioId,
+    scenarioText: data.description,
+    timestamp: serverTimestamp()
+  });
 
-          console.log(`Awarded ${payout} tokens to ${playerName}`);
-        }
+  if (winner === playerName) {
+    adjustTokens(payout);  // update local balance only for this client
+  }
+}
+
       } else {
         // Refund all players
-        if (Object.keys(votes).includes(playerName)) {
-          const vote = votes[playerName];
-          const refund = data.mode === "pari"
-            ? vote?.amount || 0
-            : data.betAmount ?? 1;
+        // Refund all players (no winners)
+for (const player of Object.keys(votes)) {
+  const vote = votes[player];
+  const refund = vote.amount;
+  await updatePlayerBalance(player, refund); // backend for every player
 
-          adjustTokens(refund);
-          await addDoc(collection(db, "players", playerName, "transactions"), {
-            type: "refund",
-            amount: refund,
-            scenarioId,
-            scenarioText: data.description,
-            timestamp: serverTimestamp()
-          });
-        }
+  if (player === playerName) {
+    adjustTokens(refund); // UI for local user
+  }
+  await addDoc(collection(db, "players", player, "transactions"), {
+    type: "refund",
+    amount: refund,
+    scenarioId,
+    scenarioText: data.description,
+    timestamp: serverTimestamp()
+  });
+}
+
+
       }
       return; // STOP here for flat mode
     }
@@ -671,8 +818,11 @@ if (winningVoters.length === 0) {
         // Parimutuel payout = original bet + proportional share of losing pot
         const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
 
-        await adjustTokens(payout); // or adjustTokens(player, payout) if needed
-        await addDoc(collection(db, "players", player, "transactions"), {
+        await updatePlayerBalance(player, payout); // CORRECT: updates all winners
+  if (player === playerName) {
+    adjustTokens(payout); // keep local UI in sync for the current user
+  }
+  await addDoc(collection(db, "players", player, "transactions"), {
           type: "payout",
           amount: (payout),
           scenarioId,
@@ -695,6 +845,8 @@ if (winningVoters.length === 0) {
     await updateDoc(scenarioRef, { launched: true });
   };
 
+
+  
   const deleteRoom = async (roomId) => {
     if (playerName !== "Raul") return;
     await deleteDoc(doc(db, "rooms", roomId));
@@ -702,6 +854,15 @@ if (winningVoters.length === 0) {
   };
 
   const propRooms = roomList.filter(r => r.type !== "poll");
+
+async function updatePlayerBalance(player, amount) {
+  const playerRef = doc(db, "players", player);
+  await updateDoc(playerRef, {
+    tokens: increment(amount)  // <- CORRECT FIELD
+  });
+}
+
+
 
 
   return (
@@ -1497,8 +1658,10 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
                       {(sc.order || Object.keys(sc.outcomes)).map((key) => {
                         const val = sc.outcomes[key];
                         const voters = Object.entries(sc.votes || {})
-                          .filter(([, vote]) => vote === key)
-                          .map(([voter]) => voter);
+  .filter(([, vote]) => vote.choice === key)
+  .map(([voter]) => voter);
+
+
                         const isWinner = sc.winner === key;
                         const userVoted =
                           sc.mode === "pari"
@@ -1613,8 +1776,9 @@ onClick={() => setBalanceMode((balanceMode + 1) % 3)}
     {(sc.order || Object.keys(sc.outcomes)).map((key) => {
       const val = sc.outcomes[key];
       const voters = Object.entries(sc.votes || {})
-        .filter(([, vote]) => vote === key)
-        .map(([voter]) => voter);
+  .filter(([, vote]) => (typeof vote === "string" ? vote : vote.choice) === key)
+  .map(([voter]) => voter);
+
       const isWinner = Array.isArray(sc.winner)
         ? sc.winner.includes(key)
         : sc.winner === key;

@@ -118,8 +118,10 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
   };
 
   const shortenScenario = (text = "") => {
-    return text.length <= 8 ? text : text.slice(0, 4) + "..." + text.slice(-4);
-  };
+  const words = text.split(" ");
+  return words.length <= 5 ? text : words.slice(0, 4).join(" ") + " ...";
+};
+
 
   const renderTransaction = (tx) => {
     let label = "";
@@ -164,7 +166,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
           <input
             type="number"
             min={1}
-            max={500} // or whatever limit you want
+            max={500} 
             value={loanAmount}
             placeholder="Loan amount"
             onChange={e => setLoanAmount(parseInt(e.target.value) || 0)}
@@ -214,7 +216,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
         className="golden-button"
         onClick={() => setShowLoanForm((show) => !show)}
       >
-        {showLoanForm ? "Cancel Loan" : "Loan Application"}
+        {showLoanForm ? "Cancel" : "Loan Application"}
       </button>
 
 

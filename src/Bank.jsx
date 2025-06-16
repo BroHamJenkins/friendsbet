@@ -118,8 +118,10 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
   };
 
   const shortenScenario = (text = "") => {
-    return text.length <= 8 ? text : text.slice(0, 4) + "..." + text.slice(-4);
-  };
+  const words = text.split(" ");
+  return words.length <= 5 ? text : words.slice(0, 4).join(" ") + " ...";
+};
+
 
   const renderTransaction = (tx) => {
     let label = "";

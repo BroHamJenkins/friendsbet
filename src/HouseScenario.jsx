@@ -25,6 +25,24 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
   };
 
   const createScenario = async () => {
+  const min = parseInt(minBet);
+  const max = parseInt(maxBet);
+
+  if (isNaN(min) || isNaN(max)) {
+    alert("Please enter valid numbers for min and max bet.");
+    return;
+  }
+
+  if (min <= 0 || max <= 0) {
+    alert("Bet values must be greater than 0.");
+    return;
+  }
+
+  if (min > max) {
+    alert("Min bet cannot exceed max bet.");
+    return;
+  }
+
   const scenarioRef = doc(collection(db, "rooms", roomId, "scenarios"));
   const outcomes = {
     yes: "Yes",
@@ -39,11 +57,11 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
     housePlayer: playerName,
     houseOutcome: "yes",
     isHouseGame: true,
-    minBet,
-    maxBet,
+    minBet: min,   // ✅ numeric
+    maxBet: max,   // ✅ numeric
     launched: true,
     winner: null,
-    votes: {}, // House doesn't wager tokens
+    votes: {},
     createdAt: serverTimestamp(),
     creator: playerName
   });
@@ -67,6 +85,7 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
         <input
   style={{ width: "27%" }}
   type="number"
+  min="1"
   value={minBet}
   placeholder="Min Bet"
   onChange={e => setMinBet(e.target.value)}
@@ -75,6 +94,7 @@ const HouseScenario = ({ playerName, onScenarioCreated, roomId }) => {
 <input
   style={{ width: "27%" }}
   type="number"
+  min="1"
   value={maxBet}
   placeholder="Max Bet"
   onChange={e => setMaxBet(e.target.value)}

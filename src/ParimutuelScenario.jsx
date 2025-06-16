@@ -164,7 +164,8 @@ function ParimutuelScenario({
                     <button key={key} onClick={() => declareWinner(scenario.id, key)}>
                       {scenario.outcomes[key]}
                     </button>
-                  ))}
+                  ))
+                  }
                 </>
               )}
             </div>

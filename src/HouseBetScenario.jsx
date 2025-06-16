@@ -239,7 +239,7 @@ if (scenario.winner) {
                   House Wins
                 </button>
                 <button onClick={() => declareWin(otherOutcomeKey)}>
-                  Bettor Wins
+                  Bettors Wins
                 </button>
               </>
             )}

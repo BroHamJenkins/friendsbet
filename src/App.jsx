@@ -251,6 +251,16 @@ useEffect(() => {
         await updateDoc(houseRef, {
           tokens: increment(-amount),
         });
+        
+        await addDoc(collection(db, "players", housePlayer, "transactions"), {
+  type: "loss",
+  amount: -amount,
+  to: voter,
+  scenarioId,
+  scenarioText: scenario.description,
+  timestamp: serverTimestamp()
+});
+
       }
     }
   };
@@ -630,7 +640,7 @@ setScenarioMode("");
   };
 
   // payout for house mode
-  const resolveHouseScenario = async (data, scenarioId) => {
+ const resolveHouseScenario = async (data, scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
     const scenario = snap.data();
@@ -644,44 +654,82 @@ setScenarioMode("");
     let totalPayout = 0;
 
     for (const [player, vote] of Object.entries(votes)) {
-      const amount = vote.amount;
+        const amount = vote.amount;
 
-      if (winner !== houseOutcome) {
-        // House lost → pay each bettor 2x
-        const payout = amount * 2;
-        totalPayout += payout;
+        // Inside resolveHouseScenario, in the if (winner !== houseOutcome) block:
 
-        await updateDoc(doc(db, "players", player), {
-          tokens: increment(payout),
-        });
+if (winner !== houseOutcome) {
+    // House lost → pay each bettor 2x
+    const payout = amount * 2;
+    totalPayout += payout;
 
-        await addDoc(collection(db, "players", player, "transactions"), {
-          type: "win",
-          amount: payout,
-          scenarioId,
-          scenarioText: scenario.description,
-          timestamp: serverTimestamp(),
-        });
-      } else {
-        // House won → collects the player's bet
-        totalCollected += amount;
-      }
+    // Update bettor's balance and create win transaction
+    await updateDoc(doc(db, "players", player), {
+        tokens: increment(payout),
+    });
+
+    // Record bettor's win
+    await addDoc(collection(db, "players", player, "transactions"), {
+        type: "win",
+        amount: payout,
+        scenarioId,
+        scenarioText: scenario.description,
+        timestamp: serverTimestamp(),
+    });
+
+    // Record house's loss - ADD THIS PART
+    await addDoc(collection(db, "players", house, "transactions"), {
+        type: "loss",
+        amount: -payout,  // Negative amount to show it's a payout
+        to: player,       // Who the house paid
+        scenarioId,
+        scenarioText: scenario.description,
+        timestamp: serverTimestamp(),
+    });
+
+        } else {
+            // House won → collects the player's bet
+            totalCollected += amount;
+        }
     }
 
+            // Update house's balance
     const netChange = totalCollected - totalPayout;
-
     await updateDoc(doc(db, "players", house), {
-      tokens: increment(netChange),
+        tokens: increment(netChange),
     });
 
-    await addDoc(collection(db, "players", house, "transactions"), {
-      type: winner === houseOutcome ? "win" : "loss",
-      amount: netChange,
-      scenarioId,
-      scenarioText: scenario.description,
-      timestamp: serverTimestamp(),
-    });
-  };
+    // Create the house's transaction record
+    if (winner === houseOutcome) {
+        // House won - record individual wins
+        for (const [player, vote] of Object.entries(votes)) {
+            const amount = vote.amount;
+            await addDoc(collection(db, "players", house, "transactions"), {
+                type: "win",
+                amount: amount,
+                from: player,
+                scenarioId,
+                scenarioText: scenario.description,
+                timestamp: serverTimestamp(),
+            });
+        }
+    } else {
+        // House lost - record individual losses
+        for (const [player, vote] of Object.entries(votes)) {
+            const amount = vote.amount * 2; // House pays double on losses
+            await addDoc(collection(db, "players", house, "transactions"), {
+                type: "loss",
+                amount: -amount, // Negative amount to show it's a loss
+                from: player,
+                scenarioId,
+                scenarioText: scenario.description,
+                timestamp: serverTimestamp(),
+            });
+        }
+    }
+};
+
+
 
 
 

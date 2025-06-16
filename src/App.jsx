@@ -58,9 +58,16 @@ function distributeWinningsForHouseScenario(scenario, votes, adjustTokens) {
 
   const creator = scenario.creator;
 
-  const winners = Object.entries(votes)
-    .filter(([, vote]) => vote.choice === "no")
-    .map(([voter, vote]) => ({ voter, amount: vote.amount }));
+const winners = Object.entries(votes)
+  .filter(([, vote]) => {
+    const choice = typeof vote === "object" && vote !== null ? vote.choice : vote;
+    return choice === "no";
+  })
+  .map(([voter, vote]) => ({
+    voter,
+    amount: typeof vote === "object" && vote !== null ? vote.amount : (data.betAmount ?? 1)
+  }));
+
 
   for (const { voter, amount } of winners) {
     // Payout: bettor gets their bet back + equal amount from house
@@ -136,7 +143,7 @@ function App() {
   };
 
   const [triggerMainAnim, setTriggerMainAnim] = useState(false);
-  const [scenarioMode, setScenarioMode] = useState("flat");
+  const [scenarioMode, setScenarioMode] = useState("pari");
   const [maxBetAmount, setMaxBetAmount] = useState("");
   const [voteAmounts, setVoteAmounts] = useState({});
   const [showScenarioForm, setShowScenarioForm] = useState(false);
@@ -492,7 +499,8 @@ async function declareWinner(scenarioId, winningKey) {
       return;
     }
 
-    const mode = min === max ? "flat" : "pari";
+    const mode = "pari";
+
 
     const docRef = await addDoc(collection(db, "rooms", selectedRoom.id, "scenarios"), {
   description: newScenario,
@@ -594,41 +602,10 @@ setScenarioMode("");
  const declareWinner = async (scenarioId, winningKey) => {
   const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
   await updateDoc(scenarioRef, { winner: winningKey });
-
-  const snap = await getDoc(scenarioRef);
-  const data = snap.data();
-  const votes = data.votes || {};
-
-  const winners = Object.entries(votes).filter(
-    ([, v]) => v.choice === winningKey
-  );
-  const losers = Object.entries(votes).filter(
-    ([, v]) => v.choice !== winningKey
-  );
-
-  const totalWinning = winners.reduce((sum, [, v]) => sum + Number(v.amount || 0), 0);
-  const totalLosing = losers.reduce((sum, [, v]) => sum + Number(v.amount || 0), 0);
-
-  for (const [player, v] of winners) {
-    const base = Number(v.amount || 0);
-    const share = totalWinning > 0 ? (base / totalWinning) * totalLosing : 0;
-    const payout = base + share;
-
-    if (payout > 0) {
-      await updateDoc(doc(db, "players", player), {
-        tokens: increment(parseFloat(payout.toFixed(2)))
-      });
-
-      await addDoc(collection(db, "players", player, "transactions"), {
-        type: "payout",
-        amount: payout,
-        scenarioId,
-        scenarioText: data.description,
-        timestamp: serverTimestamp()
-      });
-    }
-  }
+ console.log("Calling distributeWinnings with scenarioId:", scenarioId);
+    await distributeWinnings(scenarioId);
 };
+
   const closePoll = async (scenarioId) => {
     const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
     const snap = await getDoc(scenarioRef);
@@ -710,130 +687,128 @@ setScenarioMode("");
 
 
   const distributeWinnings = async (scenarioId) => {
-    const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
-    const snap = await getDoc(scenarioRef);
-    const data = snap.data();
+  console.log("!!! DISTRIBUTEWINNINGS ENTERED !!!", scenarioId);
 
-    if (data.mode === "house") {
-      await resolveHouseScenario(data, scenarioId);
-      return;
-    }
-
-    if (!data.winner || !data.votes) return;
-
-    // FLAT MODE -- as before
-    if (data.mode === "flat") {
-      const votes = data.votes;
-      const winnerKey = data.winner;
-      const winningVoters = Object.entries(votes)
-  .filter(([, vote]) => {
-    const choice = vote.choice;
-    return Array.isArray(data.winner) ? data.winner.includes(choice) : choice === data.winner;
-  })
-  .map(([player]) => player);
-
-
-      const betAmount = data.betAmount ?? 1;
-      const totalPot = Object.keys(votes).length * betAmount;
-      const payout = winningVoters.length > 0 ? (totalPot / winningVoters.length) : 0;
-
-      if (winningVoters.length > 0) {
-        for (const winner of winningVoters) {
-  await updatePlayerBalance(winner, payout);
-  await addDoc(collection(db, "players", winner, "transactions"), {
-    type: "payout",
-    amount: payout,
-    scenarioId,
-    scenarioText: data.description,
-    timestamp: serverTimestamp()
-  });
-
-  if (winner === playerName) {
-    adjustTokens(payout);  // update local balance only for this client
+  const scenarioRef = doc(db, "rooms", selectedRoom.id, "scenarios", scenarioId);
+  let snap;
+  try {
+    snap = await getDoc(scenarioRef);
+    console.log("scenarioSnap after getDoc:", snap);
+  } catch (err) {
+    console.error("Error fetching scenario:", err);
+    return;
   }
-}
+  const data = snap.data();
+  console.log("snap.data() value:", data);
 
-      } else {
-        // Refund all players
-        // Refund all players (no winners)
-for (const player of Object.keys(votes)) {
-  const vote = votes[player];
-  const refund = vote.amount;
-  await updatePlayerBalance(player, refund); // backend for every player
-
-  if (player === playerName) {
-    adjustTokens(refund); // UI for local user
+  if (!data) {
+    console.warn("Scenario data not found for scenarioId:", scenarioId);
+    return;
   }
-  await addDoc(collection(db, "players", player, "transactions"), {
-    type: "refund",
-    amount: refund,
-    scenarioId,
-    scenarioText: data.description,
-    timestamp: serverTimestamp()
-  });
-}
 
+  if (data.mode === "house") {
+    await resolveHouseScenario(data, scenarioId);
+    return;
+  }
 
-      }
-      return; // STOP here for flat mode
-    }
+  if (!data.winner || !data.votes) {
+    console.warn("Missing winner or votes for scenario:", scenarioId);
+    return;
+  }
 
-    // ===== PARIMUTUEL ("pari") MODE: True parimutuel payout logic =====
-    if (data.mode === "pari") {
-      // votes: {player: {choice, amount}}
-      const votes = data.votes || {};
-      const winnerKey = data.winner;
+  // ===== PARIMUTUEL ("pari") MODE: True parimutuel payout logic =====
+  if (data.mode === "pari") {
+    const votes = data.votes || {};
+    const winnerKey = data.winner;
 
-      // Winners: [{player, amount}]
-      const winningVoters = Object.entries(votes)
-        .filter(([, v]) => v.choice === winnerKey)
-        .map(([player, v]) => ({ player, amount: v.amount }));
+    console.log("Fetched scenario data:", data);
+    console.log("Votes object:", votes);
+    console.log("WinnerKey:", winnerKey);
 
-      // Losers: [{player, amount}]
-      const losingVoters = Object.entries(votes)
-        .filter(([, v]) => v.choice !== winnerKey)
-        .map(([player, v]) => ({ player, amount: v.amount }));
-
-if (winningVoters.length === 0) {
-  // Push: return everyone's bet
-  for (const [player, vote] of Object.entries(votes)) {
-    const refund = vote?.amount || 0;
-    await adjustTokens(refund);
-    await addDoc(collection(db, "players", player, "transactions"), {
-      type: "refund",
-      amount: refund,
-      scenarioId,
-      scenarioText: data.description,
-      timestamp: serverTimestamp(),
+    // Log all choices
+    const choicesArray = Object.entries(votes).map(([player, v]) => {
+      const choice = typeof v === "object" && v !== null ? v.choice : v;
+      return { player, choice };
     });
-  }
-  return;
-}
+    console.log("winningVoters (raw):", choicesArray);
 
+    // Calculate winning and losing voters
+    const winningVoters = Object.entries(votes)
+      .filter(([, v]) => {
+        const choice = typeof v === "object" && v !== null ? v.choice : v;
+        return choice === winnerKey;
+      })
+      .map(([player, v]) => ({
+        player,
+        amount: typeof v === "object" && v !== null ? v.amount : (data.betAmount ?? 1)
+      }));
 
-      const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
-      const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+    const losingVoters = Object.entries(votes)
+      .filter(([, v]) => {
+        const choice = typeof v === "object" && v !== null ? v.choice : v;
+        return choice !== winnerKey;
+      })
+      .map(([player, v]) => ({
+        player,
+        amount: typeof v === "object" && v !== null ? v.amount : (data.betAmount ?? 1)
+      }));
 
-      for (const { player, amount } of winningVoters) {
-        // Parimutuel payout = original bet + proportional share of losing pot
-        const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
+    console.log("votes:", votes);
+    console.log("winnerKey:", winnerKey);
+    console.log("winningVoters.length:", winningVoters.length);
 
-        await updatePlayerBalance(player, payout); // CORRECT: updates all winners
-  if (player === playerName) {
-    adjustTokens(payout); // keep local UI in sync for the current user
-  }
-  await addDoc(collection(db, "players", player, "transactions"), {
-          type: "payout",
-          amount: (payout),
+    // === REFUND BLOCK ===
+    if (winningVoters.length === 0) {
+      console.log("!!! REFUND BLOCK ENTERED !!!", { votes, winningVoters });
+
+      for (const [player, vote] of Object.entries(votes)) {
+        const refund = typeof vote === "object" && vote !== null
+          ? vote.amount
+          : (data.betAmount ?? 1);
+
+        if (!refund) console.warn('Refund amount zero or missing:', { player, vote });
+        await updatePlayerBalance(player, refund)
+          .then(() => console.log(`Refund write success for ${player}: +${refund}`))
+          .catch(e => console.error("Refund failed for", player, refund, e));
+
+        if (player === playerName) adjustTokens(refund);
+
+        await addDoc(collection(db, "players", player, "transactions"), {
+          type: "refund",
+          amount: refund,
           scenarioId,
           scenarioText: data.description,
           timestamp: serverTimestamp(),
         });
       }
-      // Losers get nothing (their bets are lost)
       return;
     }
-  };
+
+    // === WINNER PAYOUTS ===
+    const totalWinningBet = winningVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+    const totalLosingBet = losingVoters.reduce((sum, v) => sum + (v.amount || 0), 0);
+
+    for (const { player, amount } of winningVoters) {
+      // Parimutuel payout = original bet + proportional share of losing pot
+      const payout = amount + (totalWinningBet > 0 ? (amount / totalWinningBet) * totalLosingBet : 0);
+
+      await updatePlayerBalance(player, payout); // CORRECT: updates all winners
+      if (player === playerName) {
+        adjustTokens(payout); // keep local UI in sync for the current user
+      }
+      await addDoc(collection(db, "players", player, "transactions"), {
+        type: "payout",
+        amount: payout,
+        scenarioId,
+        scenarioText: data.description,
+        timestamp: serverTimestamp(),
+      });
+    }
+    // Losers get nothing (their bets are lost)
+    return;
+  }
+};
+
 
 
 

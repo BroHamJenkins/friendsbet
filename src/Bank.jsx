@@ -166,7 +166,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
           <input
             type="number"
             min={1}
-            max={500} // or whatever limit you want
+            max={500} 
             value={loanAmount}
             placeholder="Loan amount"
             onChange={e => setLoanAmount(parseInt(e.target.value) || 0)}
@@ -216,7 +216,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
         className="golden-button"
         onClick={() => setShowLoanForm((show) => !show)}
       >
-        {showLoanForm ? "Cancel Loan" : "Loan Application"}
+        {showLoanForm ? "Cancel" : "Loan Application"}
       </button>
 
 

@@ -20,10 +20,10 @@ function Bank({ playerName, tokenBalance, setTokenBalance, loanBalance, setLoanB
   const [showLedger, setShowLedger] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [loanAmount, setLoanAmount] = useState(0);
-  
+
   const [loanMsg, setLoanMsg] = useState("");
   const [showLoanForm, setShowLoanForm] = useState(false);
-const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Net
+  const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Net
 
 
 
@@ -39,11 +39,11 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
 
     // Fetch loan balance
     const playerRef = doc(db, "players", playerName);
-  getDoc(playerRef).then((snap) => {
-    setLoanBalance(snap.data()?.loan || 0);
-  });
-  // ...
-}, [playerName, setLoanBalance]);
+    getDoc(playerRef).then((snap) => {
+      setLoanBalance(snap.data()?.loan || 0);
+    });
+    // ...
+  }, [playerName, setLoanBalance]);
 
 
   const handleTransfer = async () => {
@@ -118,9 +118,9 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
   };
 
   const shortenScenario = (text = "") => {
-  const words = text.split(" ");
-  return words.length <= 5 ? text : words.slice(0, 4).join(" ") + " ...";
-};
+    const words = text.split(" ");
+    return words.length <= 5 ? text : words.slice(0, 4).join(" ") + " ...";
+  };
 
 
   const renderTransaction = (tx) => {
@@ -144,6 +144,12 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
       case "loan":
         label = "Loan from Bank";
         break;
+      case "win":
+        label = `Win - ${shortenScenario(tx.scenarioText)}`;
+        break;
+case "loss":  
+      label = `Loss - ${shortenScenario(tx.scenarioText)}`;
+      break;
 
       default:
         label = "Unknown Transaction";
@@ -166,7 +172,7 @@ const [balanceMode, setBalanceMode] = useState(0); // 0: Balance, 1: Loan, 2: Ne
           <input
             type="number"
             min={1}
-            max={500} 
+            max={500}
             value={loanAmount}
             placeholder="Loan amount"
             onChange={e => setLoanAmount(parseInt(e.target.value) || 0)}

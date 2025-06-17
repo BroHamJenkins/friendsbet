@@ -165,6 +165,10 @@ const handleBankLogoClick = () => {
   setBankSoundIdx((prev) => (prev + 1) % bankSounds.length);
 };
 
+const handleContinueClick = () => {
+  const audio = new Audio("/audio/RobotGetItOn.mp3");
+  audio.play().catch(() => {});
+};
 
 
 
@@ -1062,21 +1066,23 @@ async function updatePlayerBalance(player, amount) {
             />
           </div>
           <button
-            onClick={() => {
-              const matchedName = findApprovedName(playerName);
-              if (matchedName) {
-                setPlayerName(matchedName);
-                localStorage.setItem("playerName", matchedName);
-                setTriggerMainAnim(true);
-                setTimeout(() => setHasEnteredName(true), 500); // allow animation to complete
-              }
-              else {
-                alert("Are you so drunk that you've forgotten how to spell your own name? Or are you up to some funny business? Either way, get your shit together and use your real name or this won't work.");
-              }
-            }}
-          >
-            Continue
-          </button>
+  onClick={() => {
+    handleContinueClick();
+    const matchedName = findApprovedName(playerName);
+    if (matchedName) {
+      setPlayerName(matchedName);
+      localStorage.setItem("playerName", matchedName);
+      setTriggerMainAnim(true);
+      setTimeout(() => setHasEnteredName(true), 500); // allow animation to complete
+    }
+    else {
+      alert("Bruv ??...you drunk or trying some funny business? Either way, get your shit together and use your real name or this won't work.");
+    }
+  }}
+>
+  Continue
+</button>
+
 
           <p style={{
             fontSize: "0.65rem",

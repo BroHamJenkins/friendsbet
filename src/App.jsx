@@ -129,6 +129,45 @@ function App() {
     audio.onended = () => setIsPlaying(false);
   };
   const [isPlaying, setIsPlaying] = useState(false);
+
+const casinoSounds = [
+  "/audio/CasinoShort.mp3",
+  "/audio/CasinoShort2.mp3",
+  "/audio/Casino-2.mp3",
+  "/audio/Casino-3.mp3"
+];
+const [casinoSoundIdx, setCasinoSoundIdx] = useState(0);
+
+const handleCasinoLogoClick = () => {
+  if (isPlaying) return;
+  const audio = new Audio(casinoSounds[casinoSoundIdx]);
+  setIsPlaying(true);
+  audio.play().catch(() => {});
+  audio.onended = () => setIsPlaying(false);
+  setCasinoSoundIdx((prev) => (prev + 1) % casinoSounds.length);
+};
+
+const bankSounds = [
+  "/audio/Bank-2.mp3",
+  "/audio/DannyLaugh2.mp3",
+  "/audio/Bank-3.mp3"
+  // Add more here if you upload more files
+];
+const [bankSoundIdx, setBankSoundIdx] = useState(0);
+const [isBankSoundPlaying, setIsBankSoundPlaying] = useState(false);
+
+const handleBankLogoClick = () => {
+  if (isBankSoundPlaying) return;
+  const audio = new Audio(bankSounds[bankSoundIdx]);
+  setIsBankSoundPlaying(true);
+  audio.play().catch(() => {});
+  audio.onended = () => setIsBankSoundPlaying(false);
+  setBankSoundIdx((prev) => (prev + 1) % bankSounds.length);
+};
+
+
+
+
   const reloadScenarios = async () => {
     const snapshot = await getDocs(
       collection(db, "rooms", selectedRoom.id, "scenarios")
@@ -160,6 +199,9 @@ const [showOddsWidget, setShowOddsWidget] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [hasEnteredName, setHasEnteredName] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(100);
+
+
+
 
 useEffect(() => {
   if (!name) return;
@@ -911,14 +953,17 @@ async function updatePlayerBalance(player, amount) {
             }}
           >
             <img
-              src="/Casino-Logo.png"
-              alt="Uncle Casino"
-              style={{
-                width: "180px",
-                maxWidth: "90%",
-                animation: "flickerGlow 5s ease-in-out infinite"
-              }}
-            />
+  src="/Casino-Logo.png"
+  alt="Uncle Casino"
+  style={{
+    width: "180px",
+    maxWidth: "90%",
+    animation: "flickerGlow 5s ease-in-out infinite",
+    cursor: "pointer"
+  }}
+  onClick={handleCasinoLogoClick}
+/>
+
           </div>
 
           {/* Bubble fixed in upper-right corner */}
@@ -1212,8 +1257,15 @@ async function updatePlayerBalance(player, amount) {
       ) : gameSelected === "Bank" ? (
         <>
           <div className="bank-logo-container">
-            <img src="/Bank-Logo.png" alt="Bank Logo" className="bank-logo" />
-          </div>
+  <img
+    src="/Bank-Logo.png"
+    alt="Bank Logo"
+    className="bank-logo"
+    style={{ cursor: "pointer" }}
+    onClick={handleBankLogoClick}
+  />
+</div>
+
 
           <div>
 

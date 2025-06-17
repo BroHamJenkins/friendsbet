@@ -66,6 +66,27 @@ export default function Game2({
   const [showNewChallenge, setShowNewChallenge] = useState(false);
   const [openInstances, setOpenInstances] = useState({});
   const [sending, setSending] = useState(false);
+  
+
+
+  const derbySounds = [
+    "/audio/DannyLaugh2.mp3",
+    "/audio/Derby-1.mp3",
+    "/audio/Derby-2.mp3",
+    "/audio/Derby-4.mp3"
+  ];
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSoundIdx, setCurrentSoundIdx] = useState(0);
+
+
+  function handleDerbyLogoClick() {
+  if (isPlaying) return;
+  const audio = new Audio(derbySounds[currentSoundIdx]);
+  setIsPlaying(true);
+  audio.play().catch(() => {});
+  audio.onended = () => setIsPlaying(false);
+  setCurrentSoundIdx((prev) => (prev + 1) % derbySounds.length);
+}
 
 
 
@@ -255,10 +276,7 @@ export default function Game2({
   alt="Derby Logo"
   className="derby-logo"
   style={{ cursor: "pointer" }}
-  onClick={() => {
-    const audio = new Audio("/RalphDanger.mp3");
-    audio.play().catch(() => {}); // Prevent unhandled promise if user has not interacted yet
-  }}
+  onClick={handleDerbyLogoClick}
 />
 
         <img

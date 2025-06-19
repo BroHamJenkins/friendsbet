@@ -25,6 +25,23 @@ import Game2 from "./Game2";
 import PokerTracker from "./PokerTracker";
 import OddsWidget from "./OddsWidget";
 
+import { useRef } from "react";
+
+// Place this just after your imports, before App()
+function useClickGuard(delay = 800) {
+  const lastClickedRef = useRef(0);
+
+  return () => {
+    const now = Date.now();
+    if (now - lastClickedRef.current < delay) {
+      return false; // Block rapid repeat
+    }
+    lastClickedRef.current = now;
+    return true; // Allow click
+  };
+}
+
+
 async function distributeParimutuelWinnings(scenario, db) {
   const { votes, winner } = scenario;
   if (!votes || !winner) return;
@@ -120,6 +137,9 @@ const findApprovedName = (inputName) => {
 
 function App() {
 
+const checkClick = useClickGuard(800); // 800ms between allowed clicks
+
+  
   const handleLogoClick = () => {
     if (isPlaying) return;
 
@@ -1225,13 +1245,7 @@ async function updatePlayerBalance(player, amount) {
 
 
 
-              <button 
-              className= "deleteMe-button"
-              onClick={() => {
-  localStorage.removeItem("playerName");
-  setHasEnteredName(false);
-  setPlayerName("");
-}}>DeleteMeLater!!</button>
+              
 
 
 {playerName === "Raul" && (
